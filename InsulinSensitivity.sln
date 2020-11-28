@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsulinSensitivity.Android", "InsulinSensitivity\InsulinSensitivity.Android\InsulinSensitivity.Android.csproj", "{D5319264-C59C-4D3D-AB0B-2C29B3E38824}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsulinSensitivity", "InsulinSensitivity\InsulinSensitivity\InsulinSensitivity.csproj", "{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsulinSensitivity", "InsulinSensitivity\InsulinSensitivity\InsulinSensitivity.csproj", "{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{CD36E3DC-73FA-4ACD-A550-F954823E361D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,10 @@ Global
 		{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CD36E3DC-73FA-4ACD-A550-F954823E361D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD36E3DC-73FA-4ACD-A550-F954823E361D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD36E3DC-73FA-4ACD-A550-F954823E361D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD36E3DC-73FA-4ACD-A550-F954823E361D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
