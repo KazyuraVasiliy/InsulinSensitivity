@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.User.UserPage"
+             Title="Создание нового пользователя">
+
+    <ContentPage.Resources>
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+        </Style>
+    </ContentPage.Resources>
+    
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout            
+                Margin="5">
+
+                <Frame 
+                    BackgroundColor="#2196F3" 
+                    Padding="12" 
+                    CornerRadius="3">
+
+                    <Label 
+                        Text="Пользователь" 
+                        HorizontalTextAlignment="Center" 
+                        TextColor="White" 
+                        FontSize="24"/>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+                        
+                        <Label
+                            Text="Основная информация"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Имя:"/>
+                        <Entry
+                            Text="{Binding Path=User.Name}"/>
+
+                        <Label
+                            Text="Дата рождения:"/>
+                        <DatePicker
+                            Date="{Binding Path=User.BirthDate}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Рост:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Text="{Binding Path=User.Height}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Вес:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Text="{Binding Path=User.Weight}"/>
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+                        
+                        <Label
+                            Text="Типы инсулина"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Базовый:"/>
+                        <Picker
+                            ItemDisplayBinding="{Binding Path=Name}"
+                            SelectedItem="{Binding Path=User.BasalType}"
+                            ItemsSource="{Binding Path=InsulinTypes}"/>
+
+                        <Label
+                            Text="Болюсный:"/>
+                        <Picker
+                            ItemDisplayBinding="{Binding Path=Name}"
+                            SelectedItem="{Binding Path=User.BolusType}"
+                            ItemsSource="{Binding Path=InsulinTypes}"/>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+                        
+                        <Label
+                            Text="Уровни глюкозы"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Гипогликемия:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=User.Hypoglycemia}"/>
+
+                        <Label
+                            Text="Низкий сахар:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=User.LowSugar}"/>
+
+                        <Label
+                            Text="Целевая глюкоза:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=User.TargetGlucose}"/>
+
+                        <Label
+                            Text="Высокий сахар:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=User.HighSugar}"/>
+
+                        <Label
+                            Text="Гипергликимия:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=User.Hyperglycemia}"/>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+                        
+                        <Label
+                            Text="Дополнительная информация"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Точность дозирования болюса:"/>
+                        <Picker
+                            SelectedItem="{Binding Path=User.DosingAccuracy}"
+                            ItemsSource="{Binding Path=DosingAccuracies}"/>
+
+                        <StackLayout
+                            Spacing="0"
+                            Orientation="Horizontal">
+
+                            <Label
+                                VerticalOptions="Center"
+                                Text="Помпа:"/>
+                            <Switch
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=User.IsPump}"/>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <Button
+                    Text="Сохранить"
+                    Margin="0, 0, 0, 5"
+                    BackgroundColor="LightSeaGreen"
+                    Command="{Binding Path=OkCommand}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

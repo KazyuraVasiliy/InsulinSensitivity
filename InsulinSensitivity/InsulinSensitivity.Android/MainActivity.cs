@@ -6,6 +6,12 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Xamarin.Forms.Platform.Android;
+using Xamarin.Forms;
+using Android.Content;
+using InsulinSensitivity.Droid;
+
+[assembly: ExportRenderer(typeof(Entry), typeof(MyEntryRenderer))]
 
 namespace InsulinSensitivity.Droid
 {
@@ -28,6 +34,20 @@ namespace InsulinSensitivity.Droid
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+    
+    public class MyEntryRenderer : EntryRenderer
+    {
+        public MyEntryRenderer(Context ctx) : base(ctx) { }
+        protected override void OnElementChanged(ElementChangedEventArgs<Entry> e)
+        {
+            base.OnElementChanged(e);
+            if (e.OldElement == null)
+            {
+                var nativeEditText = (EditText)Control;
+                nativeEditText.SetSelectAllOnFocus(true);
+            }
         }
     }
 }
