@@ -120,6 +120,11 @@ namespace DataAccessLayer.Models
         public EatingType EatingType { get; set; }
 
         /// <summary>
+        /// Комментарий
+        /// </summary>
+        public string Comment { get; set; }
+
+        /// <summary>
         /// Тип нагрузки
         /// </summary>
         public Guid ExerciseId { get; set; }

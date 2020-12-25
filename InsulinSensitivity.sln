@@ -7,9 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsulinSensitivity.Android"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsulinSensitivity", "InsulinSensitivity\InsulinSensitivity\InsulinSensitivity.csproj", "{931DD0C1-9942-494F-9EDF-E5D90AB4BF67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{CD36E3DC-73FA-4ACD-A550-F954823E361D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{CD36E3DC-73FA-4ACD-A550-F954823E361D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{2960F423-60C8-4590-811A-80D46D2487EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{2960F423-60C8-4590-811A-80D46D2487EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FictiveProject", "FictiveProject\FictiveProject.csproj", "{46DD409D-995F-403D-A8A9-A17576406BFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{2960F423-60C8-4590-811A-80D46D2487EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2960F423-60C8-4590-811A-80D46D2487EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2960F423-60C8-4590-811A-80D46D2487EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46DD409D-995F-403D-A8A9-A17576406BFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46DD409D-995F-403D-A8A9-A17576406BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46DD409D-995F-403D-A8A9-A17576406BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46DD409D-995F-403D-A8A9-A17576406BFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

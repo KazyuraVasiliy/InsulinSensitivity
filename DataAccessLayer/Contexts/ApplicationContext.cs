@@ -17,6 +17,8 @@ namespace DataAccessLayer.Contexts
         public ApplicationContext(string databasePath) =>
             this.databasePath = databasePath;
 
+        public ApplicationContext() { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSqlite($"Filename={databasePath}");
     }

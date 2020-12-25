@@ -27,7 +27,8 @@ namespace InsulinSensitivity
             {
                 // Создаем БД, если она отсутствует
                 //db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
+                //db.Database.EnsureCreated();
+                db.Database.Migrate();
 
                 // Инициализируем таблицы стартовой информацией
                 if (db.EatingTypes.Count() == 0)
