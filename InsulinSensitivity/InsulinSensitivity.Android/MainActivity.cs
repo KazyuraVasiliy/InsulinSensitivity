@@ -10,6 +10,9 @@ using Xamarin.Forms.Platform.Android;
 using Xamarin.Forms;
 using Android.Content;
 using InsulinSensitivity.Droid;
+using Android.Text.Method;
+using System.Globalization;
+using Java.Util;
 
 [assembly: ExportRenderer(typeof(Entry), typeof(MyEntryRenderer))]
 
@@ -24,9 +27,11 @@ namespace InsulinSensitivity.Droid
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+            Xamarin.Forms.Forms.SetFlags("Expander_Experimental");
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);            
+
             LoadApplication(new App());
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
@@ -48,6 +53,9 @@ namespace InsulinSensitivity.Droid
                 var nativeEditText = (EditText)Control;
                 nativeEditText.SetSelectAllOnFocus(true);
             }
+
+            if (Control != null && Control.InputType == (Android.Text.InputTypes.ClassNumber | Android.Text.InputTypes.NumberFlagDecimal | Android.Text.InputTypes.NumberFlagSigned))
+                Control.InputType = Android.Text.InputTypes.ClassNumber | Android.Text.InputTypes.NumberFlagDecimal;
         }
     }
 }
