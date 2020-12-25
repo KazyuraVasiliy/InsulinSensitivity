@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.Eating.EatingPage"
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             Title="Приём пищи">
+
+    <ContentPage.Resources>
+        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout            
+                Margin="5">
+
+                <!--<Frame 
+                    BackgroundColor="#2196F3" 
+                    Padding="12" 
+                    CornerRadius="3">
+
+                    <Label 
+                        Text="Приём пищи" 
+                        HorizontalTextAlignment="Center" 
+                        TextColor="White" 
+                        FontSize="24"/>
+                </Frame>-->
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Пища"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="{Binding Path=EatingType.Name, StringFormat='Тип: {0}', FallbackValue='Не определён'}"/>
+
+                        <Label
+                            Text="Время инъекции:"/>
+                        <TimePicker                                    
+                            Time="{Binding Path=InjectionTime, Mode=TwoWay}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Исходный сахар:"/>
+                                <Entry
+                                    Margin="0"
+                                    Text="{Binding Path=GlucoseStart, Converter={StaticResource DecimalToStringConverter}}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Сахар на отработке:"/>
+                                <Entry
+                                    Margin="0"
+                                    
+                                    Text="{Binding Path=GlucoseEnd, Converter={StaticResource DecimalToStringConverter}}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Белки:"/>
+                                <Entry
+                                    Text="{Binding Path=Protein}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Жиры:"/>
+                                <Entry
+                                    Text="{Binding Path=Fat}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="2">
+
+                                <Label
+                                    Text="Углеводы:"/>
+                                <Entry
+                                    Text="{Binding Path=Carbohydrate}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Нагрузка"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Тип:"/>
+                        <Picker
+                            ItemDisplayBinding="{Binding Path=Name}"                            
+                            ItemsSource="{Binding Path=ExerciseTypes}"
+                            SelectedItem="{Binding Path=ExerciseType, Mode=TwoWay}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Продолжительность:"/>
+                                <Entry
+                                    Text="{Binding Path=Duration}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Часов после инъекции:"/>
+                                <Entry
+                                    Text="{Binding Path=HoursAfterInjection}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Дополнительно"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
+                            Text="Доза базального инсулина:"/>
+                        <Entry
+                            IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
+                            Keyboard="Numeric"
+                            Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
+
+                        <Label
+                            Text="Активного инсулина в крови до инъекции:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=ActiveInsulinStart, Converter={StaticResource DecimalToStringConverter}}"/>
+
+                        <Label
+                            Text="Активного инсулина в крови на отработке:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            Text="{Binding Path=ActiveInsulinEnd, Converter={StaticResource DecimalToStringConverter}}"/>
+
+                        <Label
+                            IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}"
+                            VerticalOptions="Center"
+                            Text="Начало менструального цикла:"/>
+                        <Switch
+                            IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}"
+                            VerticalOptions="Center"
+                            IsToggled="{Binding Path=IsMenstrualCycleStart}"/>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Расчёт"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="ФЧИ расчётный:"/>
+                                <Entry
+                                    Text="{Binding Path=InsulinSensitivityAuto, Converter={StaticResource DecimalToStringConverter}}"
+                                    IsReadOnly="True"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Доза расчётная:"/>
+                                <Entry
+                                    Text="{Binding Path=BolusDoseCalculate, Converter={StaticResource DecimalToStringConverter}}"
+                                    IsReadOnly="True"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="ФЧИ пользователя:"/>
+                                <Entry
+                                    Text="{Binding Path=InsulinSensitivityUser, Converter={StaticResource DecimalToStringConverter}}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Доза фактическая:"/>
+                                <Entry
+                                    Text="{Binding Path=BolusDoseFact, Converter={StaticResource DecimalToStringConverter}}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Label
+                            Text="ФЧИ фактический:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            IsReadOnly="True"
+                            Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}}"/>
+                    </StackLayout>
+                </Frame>
+
+                <Button
+                    Text="Сохранить"
+                    Margin="0, 0, 0, 5"
+                    BackgroundColor="LightSeaGreen"
+                    Command="{Binding Path=OkCommand}"/>
+
+                <Button
+                    Text="Удалить"
+                    Margin="0, 0, 0, 5"
+                    BackgroundColor="OrangeRed"
+                    IsVisible="{Binding Path=IsRemoveVisibility, Mode=OneWay}"
+                    Command="{Binding Path=RemoveCommand}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
