@@ -138,31 +138,35 @@
                                                 </Grid>
                                             </StackLayout>
                                         </Expander.Header>
-                                        
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition Width="auto"/>
-                                            </Grid.ColumnDefinitions>
 
-                                            <StackLayout
-                                                Spacing="0"
-                                                Grid.Column="0">
+                                        <StackLayout>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                                <Label Text="{Binding Path=Protein, StringFormat='{}Б: {0}'}"/>
-                                                <Label Text="{Binding Path=Fat, StringFormat='{}Ж: {0}'}"/>
-                                                <Label Text="{Binding Path=Carbohydrate, StringFormat='{}У: {0}'}"/>
-                                            </StackLayout>
+                                                <StackLayout
+                                                    Spacing="0"
+                                                    Grid.Column="0">
 
-                                            <StackLayout
-                                                Spacing="0"
-                                                Grid.Column="1">
+                                                    <Label Text="{Binding Path=Protein, StringFormat='{}Б: {0}'}"/>
+                                                    <Label Text="{Binding Path=Fat, StringFormat='{}Ж: {0}'}"/>
+                                                    <Label Text="{Binding Path=Carbohydrate, StringFormat='{}У: {0}'}"/>
+                                                </StackLayout>
 
-                                                <Label Text="{Binding Path=Exercise.ExerciseType.Name, StringFormat='{}Тип нагрузки: {0}'}"/>
-                                                <Label Text="{Binding Path=Exercise.Duration, StringFormat='{}Продолжительность: {0}'}"/>
-                                                <Label Text="{Binding Path=Exercise.HoursAfterInjection, StringFormat='{}Часов после инъекции: {0}'}"/>
-                                            </StackLayout>
-                                        </Grid>                                        
+                                                <StackLayout
+                                                    Spacing="0"
+                                                    Grid.Column="1">
+
+                                                    <Label Text="{Binding Path=Exercise.ExerciseType.Name, StringFormat='{}Тип нагрузки: {0}'}"/>
+                                                    <Label Text="{Binding Path=Exercise.Duration, StringFormat='{}Продолжительность: {0}'}"/>
+                                                    <Label Text="{Binding Path=Exercise.HoursAfterInjection, StringFormat='{}Часов после инъекции: {0}'}"/>
+                                                </StackLayout>
+                                            </Grid>
+
+                                            <Label Text="{Binding Path=Comment, StringFormat='{}Комментарий: {0}', FallbackValue='отсутствует'}"/>
+                                        </StackLayout>
                                     </Expander>
                                 </StackLayout>
                             </Frame>

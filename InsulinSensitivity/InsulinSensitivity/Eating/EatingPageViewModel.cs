@@ -471,6 +471,19 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// Комментарий
+        /// </summary>
+        public string Comment
+        {
+            get => Eating.Comment;
+            set
+            {
+                Eating.Comment = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -798,6 +811,7 @@ namespace InsulinSensitivity.Eating
                 eating.AccuracyUser = Eating.AccuracyUser;
 
                 eating.IsMenstrualCycleStart = Eating.IsMenstrualCycleStart;
+                eating.Comment = Eating.Comment;
 
                 eating.EatingTypeId = Eating.EatingType.Id;
                 eating.UserId = GlobalParameters.User.Id;

@@ -189,7 +189,7 @@
                             Text="Дополнительно"
                             FontAttributes="Bold"
                             FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
+                            HorizontalOptions="CenterAndExpand"/>                        
 
                         <Label
                             IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
@@ -219,6 +219,13 @@
                             IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}"
                             VerticalOptions="Center"
                             IsToggled="{Binding Path=IsMenstrualCycleStart}"/>
+
+                        <Label
+                            Text="Комментарий:"/>
+                        <Editor
+                            Keyboard="Chat"
+                            AutoSize="TextChanges"
+                            Text="{Binding Path=Comment}"/>
                     </StackLayout>
                 </Frame>
 
