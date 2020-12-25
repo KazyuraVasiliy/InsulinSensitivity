@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataAccessLayer.Models
 {
-    public class EatingType
+    public class EatingType : IEquatable<EatingType>
     {
         /// <summary>
         /// Идентификатор
@@ -34,5 +34,15 @@ namespace DataAccessLayer.Models
         /// Приёмы пищи (Навигационное свойство)
         /// </summary>
         public List<Eating> Eatings { get; set; }
+
+        /// <summary>
+        /// Сравнивает экземпляры
+        /// </summary>
+        /// <param name="other">Сущность, с которой идёт сравнение</param>
+        /// <returns></returns>
+        public bool Equals(EatingType other) =>
+            other == null
+            ? false
+            : Id == other.Id;
     }
 }

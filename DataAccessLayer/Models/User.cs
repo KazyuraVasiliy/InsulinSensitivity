@@ -15,6 +15,11 @@ namespace DataAccessLayer.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// Пол (true - мужской)
+        /// </summary>
+        public bool Gender { get; set; }
+
+        /// <summary>
         /// Дата рождения
         /// </summary>
         public DateTime BirthDate { get; set; }

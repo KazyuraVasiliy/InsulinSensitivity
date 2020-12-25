@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataAccessLayer.Models
 {
-    public class InsulinType
+    public class InsulinType : IEquatable<InsulinType>
     {
         /// <summary>
         /// Идентификатор
@@ -23,7 +23,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Время работы инусулина
         /// </summary>
-        public int Duration { get; set; }
+        public decimal Duration { get; set; }
 
         /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
@@ -34,5 +34,15 @@ namespace DataAccessLayer.Models
         /// Пользователи с юолюсным инсулином (Навигационное свойство)
         /// </summary>
         public List<Eating> BolusUsers { get; set; }
+
+        /// <summary>
+        /// Сравнивает экземпляры
+        /// </summary>
+        /// <param name="other">Сущность, с которой идёт сравнение</param>
+        /// <returns></returns>
+        public bool Equals(InsulinType other) =>
+            other == null
+            ? false
+            : Id == other.Id;
     }
 }

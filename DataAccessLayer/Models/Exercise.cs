@@ -21,7 +21,7 @@ namespace DataAccessLayer.Models
         public ExerciseType ExerciseType { get; set; }
 
         /// <summary>
-        /// Продолжительность в десятках минут
+        /// Продолжительность в минутах
         /// </summary>
         public int Duration { get; set; }
 

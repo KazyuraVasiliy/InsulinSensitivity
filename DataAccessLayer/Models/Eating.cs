@@ -27,7 +27,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Сахар на отработке
         /// </summary>
-        public decimal GlucoseEnd { get; set; }
+        public decimal? GlucoseEnd { get; set; }
 
         /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
@@ -60,19 +60,29 @@ namespace DataAccessLayer.Models
         public decimal BasalDose { get; set; }
 
         /// <summary>
-        /// Доза болюсного инсулина
+        /// Доза болюсного инсулина рассчитанная
         /// </summary>
-        public decimal BolusDose { get; set; }
+        public decimal? BolusDoseCalculate { get; set; }
 
         /// <summary>
-        /// ФЧИ вычисленный автоматически
+        /// Доза болюсного инсулина фактическая
         /// </summary>
-        public decimal? InsulinSensitivityAuto { get; set; }
+        public decimal BolusDoseFact { get; set; }
+
+        /// <summary>
+        /// ФЧИ вычисленный автоматически (метод №1)
+        /// </summary>
+        public decimal? InsulinSensitivityAutoOne { get; set; }
+
+        /// <summary>
+        /// ФЧИ вычисленный автоматически (метод №2)
+        /// </summary>
+        public decimal? InsulinSensitivityAutoTwo { get; set; }
 
         /// <summary>
         /// ФЧИ вычисленный пользователем
         /// </summary>
-        public decimal? InsulinSensitivityManual { get; set; }
+        public decimal? InsulinSensitivityUser { get; set; }
 
         /// <summary>
         /// ФЧИ фактический
@@ -82,7 +92,22 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Время отработки
         /// </summary>
-        public TimeSpan WriteOff { get; set; }
+        public decimal WriteOff { get; set; }
+
+        /// <summary>
+        /// Начало менструального цикла
+        /// </summary>
+        public bool IsMenstrualCycleStart { get; set; }
+
+        /// <summary>
+        /// Точность автоматического ФЧИ
+        /// </summary>
+        public int? AccuracyAuto { get; set; }
+
+        /// <summary>
+        /// Точность ФЧИ пользователя
+        /// </summary>
+        public int? AccuracyUser { get; set; }
 
         /// <summary>
         /// Тип приёма пищи
