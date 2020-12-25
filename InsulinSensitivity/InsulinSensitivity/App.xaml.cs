@@ -6,6 +6,8 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using DataAccessLayer.Models;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace InsulinSensitivity
 {
@@ -20,11 +22,11 @@ namespace InsulinSensitivity
         {
             InitializeComponent();
 
-            string dbPath = DependencyService.Get<IPath>().GetDatabasePath(DBFILENAME);
-            using (var db = new ApplicationContext(dbPath))
+            GlobalParameters.DbPath = DependencyService.Get<IPath>().GetDatabasePath(DBFILENAME);
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
                 // Создаем БД, если она отсутствует
-                db.Database.EnsureDeleted();
+                //db.Database.EnsureDeleted();
                 db.Database.EnsureCreated();
 
                 // Инициализируем таблицы стартовой информацией
@@ -53,6 +55,14 @@ namespace InsulinSensitivity
                             Id = Guid.NewGuid(),
                             Name = "Обед",
                             TimeStart = new TimeSpan(11, 15, 0),
+                            TimeEnd = new TimeSpan(13, 59, 59),
+                            IsBasal = false
+                        },
+                        new EatingType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Поздний обед",
+                            TimeStart = new TimeSpan(14, 00, 0),
                             TimeEnd = new TimeSpan(16, 14, 59),
                             IsBasal = false
                         },
@@ -105,6 +115,13 @@ namespace InsulinSensitivity
                         new InsulinType()
                         {
                             Id = Guid.NewGuid(),
+                            Name = "Тресиба",
+                            IsBasal = true,
+                            Duration = 48
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
                             Name = "Росинсулин",
                             IsBasal = false,
                             Duration = 8
@@ -120,7 +137,15 @@ namespace InsulinSensitivity
                         new ExerciseType()
                         {
                             Id = Guid.NewGuid(),
-                            Name = "Отдых"
+                            Name = "Без движения",
+                            IsEmpty = true
+                        },
+                        new ExerciseType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Обычная активность",
+                            IsDefault = true,
+                            IsEmpty = true
                         },
                         new ExerciseType()
                         {
@@ -144,10 +169,11 @@ namespace InsulinSensitivity
             }
 
             // Инициализация главной страницы
-            MainPage = new MainPage()
-            {
-                BindingContext = new MainPageViewModel()
-            };
+            MainPage = new NavigationPage(new MainPage());
+            MainPage.BindingContext = new MainPageViewModel();
+
+            // Инициализация навигации
+            GlobalParameters.Navigation = MainPage.Navigation;
         }
 
         protected override void OnStart()

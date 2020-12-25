@@ -1,8 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="InsulinSensitivity.MainPage">
+             x:Class="InsulinSensitivity.MainPage"
+             Title="Приёмы пищи"
+             x:Name="page">
 
+    <ContentPage.Resources>
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Margin" Value="5, 5, 5, 0"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+        </Style>
+    </ContentPage.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -10,12 +23,164 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
             <ColumnDefinition/>
             <ColumnDefinition Width="80"/>
         </Grid.ColumnDefinitions>
-        
+
+        <ListView
+            Grid.Row="0" Grid.RowSpan="2"
+            Grid.Column="0" Grid.ColumnSpan="3"
+            HasUnevenRows="True"
+            SelectionMode="None"
+            SeparatorVisibility="None"
+            IsGroupingEnabled="True"
+            ItemsSource="{Binding Path=Eatings}"
+            SelectedItem="{Binding Path=SelectedEating}">
+
+            <ListView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <ViewCell>                        
+                        <Frame
+                            Margin="5, 7, 5, 0"
+                            Padding="0"
+                            BackgroundColor="CadetBlue">
+                            
+                            <StackLayout
+                                Spacing="0">
+                                
+                                <Label
+                                    Padding="4"
+                                    FontAttributes="Bold"
+                                    HorizontalTextAlignment="Center"
+                                    Text="{Binding Name, StringFormat='{}{0:dd MMMM yyyy}'}" />
+                            </StackLayout>
+                        </Frame>
+                        
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.GroupHeaderTemplate>
+            
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <Frame
+                                Style="{StaticResource Frame}">
+
+                                <StackLayout>
+                                    <Expander>
+                                        <Expander.Header>
+                                            <StackLayout>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="8*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label
+                                                        Grid.Column="0" Grid.ColumnSpan="2"
+                                                        VerticalTextAlignment="Center"
+                                                        HorizontalTextAlignment="Center"
+                                                        FontSize="14" FontAttributes="Bold">
+
+                                                        <Label.Text>
+                                                            <MultiBinding StringFormat="{}{0}">
+                                                                <Binding Path="EatingType.Name" FallbackValue="Не определён"/>
+                                                            </MultiBinding>
+                                                        </Label.Text>
+                                                    </Label>
+
+                                                    <Label
+                                                        Grid.Column="1"
+                                                        VerticalTextAlignment="Center"
+                                                        HorizontalTextAlignment="Center"
+                                                        Margin="0, 2, 0, 0"
+                                                        FontSize="16"
+                                                        Text="&#xe01d;"
+                                                        FontFamily="Typicons">
+
+                                                        <Label.Triggers>
+                                                            <DataTrigger 
+                                                                TargetType="Label"
+                                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type Expander}}, Path=IsExpanded}"
+                                                                Value="True">
+
+                                                                <Setter Property="Text" Value="&#xe01e;"/>
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label 
+                                                        Grid.Column="0"
+                                                        VerticalTextAlignment="Center"
+                                                        Text="{Binding Path=InsulinSensitivityFact, StringFormat='{}ФЧИ: {0:N2}'}"/>
+                                                    <Label
+                                                        Grid.Column="1"
+                                                        Margin="0, 4, 0, 0"
+                                                        VerticalTextAlignment="Center"
+                                                        FontFamily="Typicons"
+                                                        Text="{Binding Path=AccuracyAuto, StringFormat='{}&#xe037; {0}%'}"/>
+                                                    <Label
+                                                        Grid.Column="2"
+                                                        Margin="0, 4, 0, 0"
+                                                        VerticalTextAlignment="Center"
+                                                        FontFamily="Typicons"
+                                                        Text="{Binding Path=AccuracyUser, StringFormat='{}&#xe12c; {0}%'}"/>
+                                                </Grid>
+                                            </StackLayout>
+                                        </Expander.Header>
+                                        
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackLayout
+                                                Spacing="0"
+                                                Grid.Column="0">
+
+                                                <Label Text="{Binding Path=Protein, StringFormat='{}Б: {0}'}"/>
+                                                <Label Text="{Binding Path=Fat, StringFormat='{}Ж: {0}'}"/>
+                                                <Label Text="{Binding Path=Carbohydrate, StringFormat='{}У: {0}'}"/>
+                                            </StackLayout>
+
+                                            <StackLayout
+                                                Spacing="0"
+                                                Grid.Column="1">
+
+                                                <Label Text="{Binding Path=Exercise.ExerciseType.Name, StringFormat='{}Тип нагрузки: {0}'}"/>
+                                                <Label Text="{Binding Path=Exercise.Duration, StringFormat='{}Продолжительность: {0}'}"/>
+                                                <Label Text="{Binding Path=Exercise.HoursAfterInjection, StringFormat='{}Часов после инъекции: {0}'}"/>
+                                            </StackLayout>
+                                        </Grid>                                        
+                                    </Expander>
+                                </StackLayout>
+                            </Frame>
+                        </ViewCell.View>
+                        <ViewCell.ContextActions>
+                            <MenuItem
+                                Text="Удалить"
+                                Command="{Binding Path=BindingContext.RemoveCommand, Source={x:Reference page}}"
+                                CommandParameter="{Binding .}"
+                                IsDestructive="True" />
+                        </ViewCell.ContextActions>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
         <Button
-            Grid.Row="1" Grid.Column="1"
+            Grid.Row="1" Grid.Column="2"
             Margin="0, 0, 20, 20"
             BackgroundColor="ForestGreen"
             CornerRadius="30"
@@ -24,6 +189,17 @@
             FontFamily="Typicons"
             TextColor="White"
             Command="{Binding Path=AddCommand}"/>
+
+        <Button
+            Grid.Row="1" Grid.Column="0"
+            Margin="20, 0, 0, 20"
+            BackgroundColor="CadetBlue"
+            CornerRadius="30"
+            Text="&#xe103;"
+            FontSize="30"
+            FontFamily="Typicons"
+            TextColor="White"
+            Command="{Binding Path=OptionCommand}"/>
     </Grid>
     
     <!--<StackLayout>

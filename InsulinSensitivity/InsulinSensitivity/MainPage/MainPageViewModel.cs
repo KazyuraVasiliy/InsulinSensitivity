@@ -8,6 +8,8 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using Models = DataAccessLayer.Models;
 using System.Windows.Input;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 
 namespace InsulinSensitivity
 {
@@ -16,50 +18,73 @@ namespace InsulinSensitivity
         #region Constructors and Fields
 
         /// <summary>
-        /// Путь до БД
-        /// </summary>
-        private readonly string dbPath;
-
-        /// <summary>
         /// Конструктор
         /// </summary>
         public MainPageViewModel()
         {
-            dbPath = DependencyService.Get<IPath>().GetDatabasePath(App.DBFILENAME);
+            // Инициализация пользователя
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                GlobalParameters.User = db.Users
+                    .Include(x => x.BolusType)
+                    .Include(x => x.BasalType)
+                    .FirstOrDefault();
+
+            if (GlobalParameters.User != null)
+                OnPropertyChanged(nameof(Eatings));
 
             // Подписки на события
-            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "CreatedUser",
-                (sender) => {  });
-        }
+            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
+                (sender) => OnPropertyChanged(nameof(Eatings)));
 
-        #endregion
-
-        #region Properties
-
-        private INavigation navigation;
-        /// <summary>
-        /// Навигация
-        /// </summary>
-        public INavigation Navigation
-        {
-            get
-            {
-                if (navigation == null)
-                    navigation = App.Current.MainPage.Navigation;
-                return navigation;
-            }
+            MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
+                (sender) => OnPropertyChanged(nameof(Eatings)));
         }
 
         #endregion
 
         #region Collections
 
-        public List<Models.EatingType> EatingTypes
+        /// <summary>
+        /// Приёмы пищи
+        /// </summary>
+        public ObservableCollection<Grouping<DateTime, Models.Eating>> Eatings
         {
             get
             {
-                using (var db = new ApplicationContext(dbPath))
-                    return db.EatingTypes.ToList();
+                if (GlobalParameters.User != null)
+                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                        return new ObservableCollection<Grouping<DateTime, Models.Eating>>(db.Eatings
+                            .Where(x =>
+                                x.UserId == GlobalParameters.User.Id)
+                            .Include(x => x.Exercise)
+                                .ThenInclude(x => x.ExerciseType)
+                            .Include(x => x.EatingType)
+                            .ToList()
+                            .GroupBy(x =>
+                                x.DateCreated.Date)
+                            .OrderByDescending(x =>
+                                x.Key)
+                            .Select(x =>
+                                new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime))));
+                return new ObservableCollection<Grouping<DateTime, Models.Eating>>();
+            }
+        }
+
+        #endregion
+
+        #region Properties
+
+        private Models.Eating selectedEating;
+        /// <summary>
+        /// Выбранный приём пищи
+        /// </summary>
+        public Models.Eating SelectedEating
+        {
+            get => selectedEating;
+            set
+            {
+                selectedEating = value;
+                OnPropertyChanged();
             }
         }
 
@@ -72,25 +97,117 @@ namespace InsulinSensitivity
 
         #region Commands
 
-        #region --User
+        #region --Add
 
         private async void AddExecute()
         {
-            // Проверка существования пользователя
-            using (var db = new ApplicationContext(dbPath))
+            try
             {
-                if (!db.Users.Any())
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    var userPage = new User.UserPage() {
-                        BindingContext = new User.UserPageViewModel() };
+                    // Создание пользователя
+                    if (GlobalParameters.User == null)
+                    {
+                        var userPage = new User.UserPage()
+                        {
+                            BindingContext = new User.UserPageViewModel()
+                        };
 
-                    await Navigation.PushModalAsync(userPage, true);
+                        await GlobalParameters.Navigation.PushAsync(userPage, true);
+                    }
+                    // Создание приёма пищи
+                    else
+                    {
+                        var eatingPage = new Eating.EatingPage()
+                        {
+                            BindingContext = new Eating.EatingPageViewModel(
+                                ((Eatings?.Count ?? 0) > 0 && (Eatings[0]?.Count ?? 0) > 0 && Eatings[0][0].GlucoseEnd != null) || (Eatings?.Count ?? 0) == 0
+                                ? null
+                                : Eatings[0][0])
+                        };
+
+                        await GlobalParameters.Navigation.PushAsync(eatingPage, true);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
             }
         }
 
         public ICommand AddCommand =>
             new Command(AddExecute);
+
+        #endregion
+
+        #region --Remove
+
+        private async void RemoveExecute(object obj)
+        {
+            try
+            {
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Удалить?",
+                    "Вы уверены, что хотите удалить запись?",
+                    "Да",
+                    "Нет");
+
+                if (!question)
+                    return;
+
+                var eatingObj = (Models.Eating)obj;
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    var exercise = db.Exercises.Find(eatingObj.Exercise.Id);
+                    if (exercise != null)
+                        db.Exercises.Remove(exercise);
+
+                    var eating = db.Eatings.Find(eatingObj.Id);
+                    if (eating != null)
+                        db.Eatings.Remove(eating);
+
+                    db.SaveChanges();
+                    OnPropertyChanged(nameof(Eatings));
+                }
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+        }
+
+        public ICommand RemoveCommand =>
+            new Command(RemoveExecute);
+
+        #endregion
+
+        #region --Option
+
+        private async void OptionExecute()
+        {
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+            {
+                if (GlobalParameters.User != null)
+                {
+                    var userPage = new User.UserPage()
+                    {
+                        BindingContext = new User.UserPageViewModel(GlobalParameters.User.Id)
+                    };
+
+                    await GlobalParameters.Navigation.PushAsync(userPage, true);
+                }
+            }
+        }
+
+        public ICommand OptionCommand =>
+            new Command(OptionExecute);
 
         #endregion
 
