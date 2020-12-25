@@ -2,9 +2,12 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.User.UserPage"
-             Title="Создание нового пользователя">
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             Title="Пользователь">
 
     <ContentPage.Resources>
+        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+
         <Style
             TargetType="Frame" x:Key="Frame">
 
@@ -19,7 +22,7 @@
             <StackLayout            
                 Margin="5">
 
-                <Frame 
+                <!--<Frame 
                     BackgroundColor="#2196F3" 
                     Padding="12" 
                     CornerRadius="3">
@@ -29,7 +32,7 @@
                         HorizontalTextAlignment="Center" 
                         TextColor="White" 
                         FontSize="24"/>
-                </Frame>
+                </Frame>-->
 
                 <Frame
                     Style="{StaticResource Frame}">
@@ -46,11 +49,13 @@
                         <Label
                             Text="Имя:"/>
                         <Entry
+                            TabIndex="1"
                             Text="{Binding Path=User.Name}"/>
 
                         <Label
                             Text="Дата рождения:"/>
                         <DatePicker
+                            TabIndex="2"
                             Date="{Binding Path=User.BirthDate}"/>
 
                         <Grid>
@@ -66,6 +71,7 @@
                                 <Label
                                     Text="Рост:"/>
                                 <Entry
+                                    TabIndex="3"
                                     Keyboard="Numeric"
                                     Text="{Binding Path=User.Height}"/>
                             </StackLayout>
@@ -79,6 +85,50 @@
                                 <Entry
                                     Keyboard="Numeric"
                                     Text="{Binding Path=User.Weight}"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid
+                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="УК:"/>
+                                <Entry
+                                    TabIndex="3"
+                                    Keyboard="Numeric"
+                                    Text="{Binding Path=User.CarbohydrateCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="БК:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Text="{Binding Path=User.ProteinCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="2">
+
+                                <Label
+                                    Text="ЖК:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    Text="{Binding Path=User.FatCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
                             </StackLayout>
                         </Grid>
                     </StackLayout>
@@ -99,16 +149,16 @@
                         <Label
                             Text="Базовый:"/>
                         <Picker
-                            ItemDisplayBinding="{Binding Path=Name}"
-                            SelectedItem="{Binding Path=User.BasalType}"
-                            ItemsSource="{Binding Path=InsulinTypes}"/>
+                            ItemDisplayBinding="{Binding Path=Name}"                            
+                            ItemsSource="{Binding Path=InsulinTypes}"
+                            SelectedItem="{Binding Path=User.BasalType, Mode=TwoWay}"/>
 
                         <Label
                             Text="Болюсный:"/>
                         <Picker
-                            ItemDisplayBinding="{Binding Path=Name}"
-                            SelectedItem="{Binding Path=User.BolusType}"
-                            ItemsSource="{Binding Path=InsulinTypes}"/>
+                            ItemDisplayBinding="{Binding Path=Name}"                            
+                            ItemsSource="{Binding Path=InsulinTypes}"
+                            SelectedItem="{Binding Path=User.BolusType, Mode=TwoWay}"/>
                     </StackLayout>
                 </Frame>
 
@@ -128,31 +178,31 @@
                             Text="Гипогликемия:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.Hypoglycemia}"/>
+                            Text="{Binding Path=User.Hypoglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Низкий сахар:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.LowSugar}"/>
+                            Text="{Binding Path=User.LowSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Целевая глюкоза:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.TargetGlucose}"/>
+                            Text="{Binding Path=User.TargetGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Высокий сахар:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.HighSugar}"/>
+                            Text="{Binding Path=User.HighSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Гипергликимия:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.Hyperglycemia}"/>
+                            Text="{Binding Path=User.Hyperglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
                     </StackLayout>
                 </Frame>
 
@@ -170,9 +220,9 @@
 
                         <Label
                             Text="Точность дозирования болюса:"/>
-                        <Picker
-                            SelectedItem="{Binding Path=User.DosingAccuracy}"
-                            ItemsSource="{Binding Path=DosingAccuracies}"/>
+                        <Picker                            
+                            ItemsSource="{Binding Path=DosingAccuracies}"
+                            SelectedItem="{Binding Path=User.DosingAccuracy, Mode=TwoWay}"/>
 
                         <StackLayout
                             Spacing="0"

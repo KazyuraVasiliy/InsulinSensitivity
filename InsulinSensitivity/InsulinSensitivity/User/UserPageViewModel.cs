@@ -6,9 +6,12 @@ using Xamarin.Forms;
 
 using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
+using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace InsulinSensitivity.User
 {
@@ -16,13 +19,26 @@ namespace InsulinSensitivity.User
     {
         #region Constructors
 
-        /// <summary>
-        /// Путь до БД
-        /// </summary>
-        private string dbPath;
+        public UserPageViewModel(Guid? userGuid = null)
+        {
+            if (userGuid != null)
+            {
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    User = db.Users
+                        .Include(x => x.BolusType)
+                        .Include(x => x.BasalType)
+                        .FirstOrDefault(x => 
+                            x.Id == userGuid.Value);
+            }
+            else User = new Models.User() { BirthDate = DateTime.Now.AddYears(-20) };
 
-        public UserPageViewModel(Guid? userGuid = null) =>
-            Init(userGuid);
+            // Инициализация коллекций
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                InsulinTypes = db.InsulinTypes
+                    .OrderBy(x =>
+                        x.Name)
+                    .ToList();
+        }
 
         #endregion
 
@@ -34,10 +50,10 @@ namespace InsulinSensitivity.User
         public Models.User User { get; set; }
 
         /// <summary>
-        /// Навигация
+        /// Видны ли поля доступные при редактировании
         /// </summary>
-        public INavigation Navigation { get; set; } =
-            App.Current.MainPage.Navigation;
+        public bool IsEditableFieldsVisible =>
+            User.Id != Guid.Empty;
 
         #endregion
 
@@ -73,37 +89,6 @@ namespace InsulinSensitivity.User
 
         #endregion
 
-        #region Methods
-
-        private async void Init(Guid? userGuid)
-        {
-            // Получение пути до БД
-            dbPath = DependencyService.Get<IPath>().GetDatabasePath(App.DBFILENAME);
-
-            // Инициализация пользователя
-            if (userGuid != null)
-            {
-                using (var db = new ApplicationContext(dbPath))
-                    User = db.Users.Find(userGuid.Value);
-            }
-            else User = new Models.User();
-
-            // Инициализация коллекций
-            AsyncBase.Open("Инициализация");
-            await Task.Run(() =>
-            {
-                // ... Типы инсулина
-                using (var db = new ApplicationContext(dbPath))
-                    InsulinTypes = db.InsulinTypes
-                        .OrderBy(x =>
-                            x.Name)
-                        .ToList();
-            });
-            AsyncBase.Close();
-        }
-
-        #endregion
-
         #region Commands
 
         #region --Ok
@@ -112,14 +97,14 @@ namespace InsulinSensitivity.User
         {
             if (!OkCanExecute())
             {
-                await Navigation.ModalStack.Last().DisplayAlert(
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                     "Ошибка",
                     "Заполните все поля",
                     "Ok");
                 return;
             }
 
-            using (var db = new ApplicationContext(dbPath))
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
                 var user = User.Id == Guid.Empty
                     ? new Models.User() { Id = Guid.NewGuid() }
@@ -130,11 +115,11 @@ namespace InsulinSensitivity.User
                 user.Height = User.Height;
                 user.Weight = User.Weight;
 
-                user.Hypoglycemia = user.Hypoglycemia;
-                user.LowSugar = user.LowSugar;
-                user.TargetGlucose = user.TargetGlucose;
-                user.HighSugar = user.HighSugar;
-                user.Hyperglycemia = user.Hyperglycemia;
+                user.Hypoglycemia = User.Hypoglycemia;
+                user.LowSugar = User.LowSugar;
+                user.TargetGlucose = User.TargetGlucose;
+                user.HighSugar = User.HighSugar;
+                user.Hyperglycemia = User.Hyperglycemia;
 
                 user.BolusTypeId = User.BolusType.Id;
                 user.BasalTypeId = User.BasalType.Id;
@@ -143,11 +128,29 @@ namespace InsulinSensitivity.User
                 user.IsPump = User.IsPump;
 
                 if (User.Id == Guid.Empty)
-                    db.Users.Add(user);
-                db.SaveChanges();
+                {
+                    user.CarbohydrateCoefficient = Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight);
+                    user.ProteinCoefficient = 0.3M;
+                    user.FatCoefficient = 0.25M;
+                }
+                else
+                {
+                    user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
+                    user.ProteinCoefficient = User.ProteinCoefficient;
+                    user.FatCoefficient = User.FatCoefficient;
+                }
 
-                MessagingCenter.Send(this, "CreatedUser");
-                await Navigation.PopModalAsync();
+                if (User.Id == Guid.Empty)
+                    db.Users.Add(user);
+                
+                db.SaveChanges();
+                GlobalParameters.User = db.Users
+                    .Include(x => x.BasalType)
+                    .Include(x => x.BolusType)
+                    .FirstOrDefault();
+
+                MessagingCenter.Send(this, "User");
+                await GlobalParameters.Navigation.PopAsync();
             }
         }
 
