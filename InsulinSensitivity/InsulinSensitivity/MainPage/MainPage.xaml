@@ -192,7 +192,7 @@
                                                     VerticalTextAlignment="Start"
                                                     FontFamily="Typicons"
                                                     Text="&#xe0c2;"/>
-                                                <Label Text="{Binding Path=Comment, StringFormat='{}{0}', FallbackValue='отсутствует'}"/>
+                                                <Label Text="{Binding Path=Comment, StringFormat='{}{0}', TargetNullValue='отсутствует'}"/>
                                             </StackLayout>
                                         </StackLayout>
                                     </Expander>
