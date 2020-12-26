@@ -2,10 +2,13 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.MainPage"
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              Title="Приёмы пищи"
              x:Name="page">
 
     <ContentPage.Resources>
+        <converters:BorderColorLastProductConverter x:Key="BorderColorLastProductConverter"/>
+        
         <Style
             TargetType="Frame" x:Key="Frame">
 
@@ -13,6 +16,21 @@
             <Setter Property="Margin" Value="5, 5, 5, 0"/>
             <Setter Property="Padding" Value="10, 5, 10, 5"/>
             <Setter Property="BorderColor" Value="SkyBlue"/>
+
+            <Setter Property="BorderColor">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource BorderColorLastProductConverter}">
+                        <Binding Path="Id"/>
+                        <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+
+            <!--<Style.Triggers>
+                <DataTrigger TargetType="Frame" Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.LastEating.Id}" Value="{Binding Path=Id}">
+                    <Setter Property="BorderColor" Value="Orange"/>
+                </DataTrigger>
+            </Style.Triggers>-->
         </Style>
     </ContentPage.Resources>
     
@@ -165,7 +183,17 @@
                                                 </StackLayout>
                                             </Grid>
 
-                                            <Label Text="{Binding Path=Comment, StringFormat='{}Комментарий: {0}', FallbackValue='отсутствует'}"/>
+                                            <StackLayout
+                                                Orientation="Horizontal">                                                
+                                            
+                                                <Label
+                                                    Grid.Column="1"
+                                                    Margin="0, 4, 0, 0"
+                                                    VerticalTextAlignment="Start"
+                                                    FontFamily="Typicons"
+                                                    Text="&#xe0c2;"/>
+                                                <Label Text="{Binding Path=Comment, StringFormat='{}{0}', FallbackValue='отсутствует'}"/>
+                                            </StackLayout>
                                         </StackLayout>
                                     </Expander>
                                 </StackLayout>

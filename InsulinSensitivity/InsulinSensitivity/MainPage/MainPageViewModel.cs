@@ -74,18 +74,15 @@ namespace InsulinSensitivity
 
         #region Properties
 
-        private Models.Eating selectedEating;
+        private Models.Eating lastEating;
         /// <summary>
-        /// Выбранный приём пищи
+        /// Последний (активный) приём пищи
         /// </summary>
-        public Models.Eating SelectedEating
+        public Models.Eating LastEating
         {
-            get => selectedEating;
-            set
-            {
-                selectedEating = value;
-                OnPropertyChanged();
-            }
+            get => ((Eatings?.Count ?? 0) > 0 && (Eatings[0]?.Count ?? 0) > 0 && Eatings[0][0].GlucoseEnd != null) || (Eatings?.Count ?? 0) == 0
+                ? null
+                : Eatings[0][0];
         }
 
         #endregion
