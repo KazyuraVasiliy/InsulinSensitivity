@@ -30,6 +30,11 @@ namespace DataAccessLayer.Models
         public decimal? GlucoseEnd { get; set; }
 
         /// <summary>
+        /// Ожидаемый сахар
+        /// </summary>
+        public decimal? ExpectedGlucose { get; set; }
+
+        /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
         /// </summary>
         public decimal ActiveInsulinStart { get; set; }

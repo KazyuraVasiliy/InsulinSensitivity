@@ -135,5 +135,23 @@ namespace BusinessLogicLayer.Service
             decimal insulinSensitivityFact) =>
             (glucoseStart - glucoseEnd + carbohydrateCoefficient * (proteinCoefficient * protein + fatCoefficient * fat + carbohydrate)) / insulinSensitivityFact;
 
+        /// <summary>
+        /// Возвращает ожидаемый сахар
+        /// </summary>
+        /// <param name="glucoseStart">Исходный сахар</param>
+        /// <param name="bolusDose">Доза болюсного инсулина</param>
+        /// <param name="carbohydrateCoefficient">УК</param>
+        /// <param name="proteinCoefficient">БК</param>
+        /// <param name="fatCoefficient">ЖК</param>
+        /// <param name="protein">Белки</param>
+        /// <param name="fat">Жиры</param>
+        /// <param name="carbohydrate">Углеводы</param>
+        /// <param name="insulinSensitivityFact">ФЧИ</param>
+        /// <returns></returns>
+        public static decimal GetExpectedGlucose(decimal glucoseStart, decimal bolusDose,
+            decimal carbohydrateCoefficient, decimal proteinCoefficient, decimal fatCoefficient,
+            decimal protein, decimal fat, decimal carbohydrate,
+            decimal insulinSensitivityFact) =>
+            glucoseStart - insulinSensitivityFact * bolusDose + carbohydrateCoefficient * (proteinCoefficient * protein + fatCoefficient * fat + carbohydrate);
     }
 }

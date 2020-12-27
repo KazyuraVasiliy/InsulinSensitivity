@@ -301,12 +301,36 @@
                             </StackLayout>
                         </Grid>
 
-                        <Label
-                            Text="ФЧИ фактический:"/>
-                        <Entry
-                            Keyboard="Numeric"
-                            IsReadOnly="True"
-                            Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+                                
+                                <Label
+                                    Text="ФЧИ фактический:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    IsReadOnly="True"
+                                    Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Ожидаемый сахар:"/>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    IsReadOnly="True"
+                                    Text="{Binding Path=ExpectedGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+                        </Grid>
                     </StackLayout>
                 </Frame>
 

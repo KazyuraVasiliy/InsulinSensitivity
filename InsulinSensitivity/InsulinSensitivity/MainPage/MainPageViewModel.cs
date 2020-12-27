@@ -38,6 +38,7 @@ namespace InsulinSensitivity
                 {
                     OnPropertyChanged(nameof(Eatings));
                     OnPropertyChanged(nameof(LastEating));
+                    OnPropertyChanged(nameof(TargetGlucose));
                 });
 
             MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
@@ -91,6 +92,12 @@ namespace InsulinSensitivity
                 ? null
                 : Eatings[0][0];
         }
+
+        /// <summary>
+        /// Целевая глюкоза
+        /// </summary>
+        public decimal TargetGlucose =>
+            GlobalParameters.User.TargetGlucose;
 
         #endregion
 

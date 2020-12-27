@@ -416,6 +416,7 @@ namespace InsulinSensitivity.Eating
                 Eating.BolusDoseFact = value;
                 OnPropertyChanged();
 
+                CalculateExpectedGlucose();
                 CalculateInsulinSensitivityFact();
             }
         }
@@ -496,6 +497,21 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.Comment = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Ожидаемый уровень сахар
+        /// </summary>
+        public decimal? ExpectedGlucose
+        {
+            get => Eating.ExpectedGlucose == null
+                ? (decimal?)null
+                : Math.Round(Eating.ExpectedGlucose.Value, 2, MidpointRounding.AwayFromZero);
+            set
+            {
+                Eating.ExpectedGlucose = value;
                 OnPropertyChanged();
             }
         }
@@ -756,6 +772,21 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Рассчёт ожидаемого сахара
+        /// </summary>
+        private void CalculateExpectedGlucose()
+        {
+            ExpectedGlucose = (InsulinSensitivityAuto != null || InsulinSensitivityUser != null)
+                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseFact,
+                    GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
+                    Protein, Fat, Carbohydrate,
+                    InsulinSensitivityUser != null
+                    ? InsulinSensitivityUser.Value
+                    : InsulinSensitivityAuto.Value)
+                : (decimal?)null;
+        }
+
+        /// <summary>
         /// Рассчёт фактического ФЧИ
         /// </summary>
         private void CalculateInsulinSensitivityFact()
@@ -885,6 +916,8 @@ namespace InsulinSensitivity.Eating
 
                 eating.EatingTypeId = Eating.EatingType.Id;
                 eating.UserId = GlobalParameters.User.Id;
+
+                eating.ExpectedGlucose = Eating.ExpectedGlucose;
 
                 eating.WriteOff = GlobalParameters.User.BasalType.Duration;
                 eating.WorkingTime = Eating.WorkingTime;
