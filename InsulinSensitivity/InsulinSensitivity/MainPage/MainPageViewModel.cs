@@ -34,10 +34,18 @@ namespace InsulinSensitivity
 
             // Подписки на события
             MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
-                (sender) => OnPropertyChanged(nameof(Eatings)));
+                (sender) =>
+                {
+                    OnPropertyChanged(nameof(Eatings));
+                    OnPropertyChanged(nameof(LastEating));
+                });
 
             MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
-                (sender) => OnPropertyChanged(nameof(Eatings)));
+                (sender) =>
+                {
+                    OnPropertyChanged(nameof(Eatings));
+                    OnPropertyChanged(nameof(LastEating));
+                });
         }
 
         #endregion
@@ -74,7 +82,6 @@ namespace InsulinSensitivity
 
         #region Properties
 
-        private Models.Eating lastEating;
         /// <summary>
         /// Последний (активный) приём пищи
         /// </summary>
@@ -117,10 +124,7 @@ namespace InsulinSensitivity
                     {
                         var eatingPage = new Eating.EatingPage()
                         {
-                            BindingContext = new Eating.EatingPageViewModel(
-                                ((Eatings?.Count ?? 0) > 0 && (Eatings[0]?.Count ?? 0) > 0 && Eatings[0][0].GlucoseEnd != null) || (Eatings?.Count ?? 0) == 0
-                                ? null
-                                : Eatings[0][0])
+                            BindingContext = new Eating.EatingPageViewModel(LastEating)
                         };
 
                         await GlobalParameters.Navigation.PushAsync(eatingPage, true);

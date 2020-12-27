@@ -23,7 +23,7 @@ namespace InsulinSensitivity.Eating
             // Инициализация приёма пищи
             Eating = eating == null
                 ? new Models.Eating()
-                : eating;            
+                : eating;
 
             // Инициализация коллекций
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
@@ -68,8 +68,10 @@ namespace InsulinSensitivity.Eating
         /// Видно ли поле для ввода базального инсулина
         /// </summary>
         public bool IsBasalDoseVisibility =>
-            !Basals.Any(x =>
-                x.DateCreated.Date == DateTime.Now.Date);
+            GlobalParameters.User.BasalType.Duration == 12
+            ? true
+            : !Basals.Any(x =>
+                    x.DateCreated.Date == DateTime.Now.Date);
 
         /// <summary>
         /// Видно ли поле для ввода начала менструального цикла
@@ -153,6 +155,21 @@ namespace InsulinSensitivity.Eating
                     .FirstOrDefault(x =>
                         x.TimeStart <= value &&
                         x.TimeEnd >= value);
+
+                WorkingTime = value.Add(new TimeSpan((int)GlobalParameters.User.BolusType.Duration, 0, 0));
+            }
+        }
+
+        /// <summary>
+        /// Время отработки
+        /// </summary>
+        public TimeSpan WorkingTime
+        {
+            get => Eating.WorkingTime;
+            set
+            {
+                Eating.WorkingTime = value;
+                OnPropertyChanged();
             }
         }
 
@@ -340,8 +357,7 @@ namespace InsulinSensitivity.Eating
                     ? (decimal?)null
                     : Math.Round(result.Value, 3, MidpointRounding.AwayFromZero);
             }
-        }
-            
+        }            
 
         /// <summary>
         /// ФЧИ фактический
@@ -576,7 +592,7 @@ namespace InsulinSensitivity.Eating
                         x.BasalDose != 0M)
                     .OrderByDescending(x =>
                         x.DateCreated)
-                    .Take(2)
+                    .Take(4)
                     .ToList();
 
                 // Дата начала последней менструации
@@ -598,7 +614,7 @@ namespace InsulinSensitivity.Eating
         {
             // Рассчёт ФЧИ по первой формуле
             InsulinSensitivityAutoOne = null;
-            if ((PreviousEatings?.Count ?? 0) > 0 && PreviousEatings[0].InsulinSensitivityFact != null && PreviousAverageEatingTypeSensitivity != null && EatingType != null)
+            if ((PreviousEatings?.Count ?? 0) > 0 && PreviousEatings[0].InsulinSensitivityFact != null && (PreviousAverageEatingTypeSensitivity ?? 0) != 0 && EatingType != null)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
@@ -631,7 +647,13 @@ namespace InsulinSensitivity.Eating
         {
             // Рассчёт ФЧИ по второй формуле
             InsulinSensitivityAutoTwo = null;
-            if ((PreviousEatings?.Count ?? 0) == 3 && PreviousEatings.All(x => x.InsulinSensitivityFact != null) && (PreviousAverageExerciseTypeSensitivitys?.Count ?? 0) == 3 && ExerciseType != null)
+            var check = (PreviousEatings?.Count ?? 0) == 3 &&
+                PreviousEatings.All(x => x.InsulinSensitivityFact != null) &&
+                (PreviousAverageExerciseTypeSensitivitys?.Count ?? 0) == 3 &&
+                PreviousAverageExerciseTypeSensitivitys.All(x => (x ?? 0) != 0) &&
+                ExerciseType != null;
+
+            if (check)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
@@ -654,15 +676,63 @@ namespace InsulinSensitivity.Eating
                         average += PreviousEatings[i].InsulinSensitivityFact.Value / PreviousAverageExerciseTypeSensitivitys[i].Value;
                     average /= 3;
 
-                    // Частное базы
+                    // Учёт базы
                     decimal basal = 1;
-                    if (BasalDose != 0 && Basals.First() != null)
-                        basal = BasalDose / Basals.First().BasalDose;
-                    else if ((Basals?.Count ?? 0) == 2)
-                        basal = Basals[0].BasalDose / Basals[1].BasalDose;
+                    if (!GlobalParameters.User.IsPump)
+                    {
+                        if (GlobalParameters.User.BasalType.Duration != 12)
+                        {
+                            if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
+                                basal = BasalDose / Basals[0].BasalDose;
+                            else if ((Basals?.Count ?? 0) >= 2)
+                                basal = Basals[0].BasalDose / Basals[1].BasalDose;
+
+                            // ... 24 часовые инсулины
+                            if (GlobalParameters.User.BasalType.Duration == 24)
+                                basal = (basal + 1) / 2;
+
+                            // ... 48 часовые инсулины
+                            if (GlobalParameters.User.BasalType.Duration == 48)
+                                basal = (basal + 2) / 3;
+                        }
+                        else
+                        {
+                            List<decimal?> doses = new List<decimal?>();
+                            var date = DateTime.Now;
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                date = date.AddDays(-i);
+                                doses.Add(Basals
+                                    ?.Where(x =>
+                                        x.DateCreated.Day == date.Day &&
+                                        x.DateCreated.Month == date.Month &&
+                                        x.DateCreated.Year == date.Year)
+                                    .OrderBy(x =>
+                                        x.InjectionTime)
+                                    .Take(1)
+                                    .FirstOrDefault()?.BasalDose);
+                            }
+
+                            // ... Если сегодня не было инъекций
+                            // ... Вчерашняя утренняя доза / Позавчерашняя утренняя доза
+                            if (BasalDose == 0 && doses[0] == null && doses[1] != null && doses[2] != null)
+                                basal = doses[1].Value / doses[2].Value;
+
+                            // ... Если сегодня первая инъекция
+                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                            else if (BasalDose != 0 && doses[0] == null && doses[1] != null)
+                                basal = BasalDose / doses[1].Value;
+
+                            // ... Если сегодня уже была доза, то
+                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                            else if (doses[0] != null && doses[1] != null)
+                                basal = doses[0].Value / doses[1].Value;
+                        }
+                    }
 
                     if (averageExerciseTypeSensitivity != null)
-                        InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * ((basal + 1) / 2);
+                        InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
                 }
             }
 
@@ -694,7 +764,7 @@ namespace InsulinSensitivity.Eating
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlucoseEnd.Value,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    BolusDoseFact)
+                    BolusDoseFact + ActiveInsulinStart)
                 : (decimal?)null;
 
             CalculateAccuracyAuto();
@@ -816,7 +886,8 @@ namespace InsulinSensitivity.Eating
                 eating.EatingTypeId = Eating.EatingType.Id;
                 eating.UserId = GlobalParameters.User.Id;
 
-                eating.WriteOff = GlobalParameters.User.BolusType.Duration;
+                eating.WriteOff = GlobalParameters.User.BasalType.Duration;
+                eating.WorkingTime = Eating.WorkingTime;
                 eating.ExerciseId = exercise.Id;
 
                 if (Eating.Id == Guid.Empty)

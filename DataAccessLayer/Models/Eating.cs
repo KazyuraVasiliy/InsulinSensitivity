@@ -95,6 +95,11 @@ namespace DataAccessLayer.Models
         public decimal WriteOff { get; set; }
 
         /// <summary>
+        /// Время отработки
+        /// </summary>
+        public TimeSpan WorkingTime { get; set; }
+
+        /// <summary>
         /// Начало менструального цикла
         /// </summary>
         public bool IsMenstrualCycleStart { get; set; }
