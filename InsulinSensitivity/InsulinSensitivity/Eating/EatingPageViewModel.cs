@@ -185,6 +185,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateBolusDose();
+                CalculateExpectedGlucose();
             }
         }
 
@@ -215,6 +216,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateBolusDose();
+                CalculateExpectedGlucose();
             }
         }
 
@@ -230,6 +232,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateBolusDose();
+                CalculateExpectedGlucose();
             }
         }
 
@@ -245,6 +248,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateBolusDose();
+                CalculateExpectedGlucose();
             }
         }
 
@@ -320,6 +324,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 OnPropertyChanged(nameof(InsulinSensitivityAuto));
+                CalculateExpectedGlucose();
             }
         }
 
@@ -335,6 +340,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 OnPropertyChanged(nameof(InsulinSensitivityAuto));
+                CalculateExpectedGlucose();
             }
         }
 
@@ -387,6 +393,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateAccuracyUser();
+                CalculateExpectedGlucose();
             }
         }
 
