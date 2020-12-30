@@ -686,6 +686,7 @@ namespace InsulinSensitivity.Eating
                             x.Id != Eating.Id &&
                             x.Exercise.ExerciseTypeId == ExerciseType.Id &&
                             x.Exercise.HoursAfterInjection == HoursAfterInjection)
+                        .Include(x => x.Exercise)
                         .ToList();
 
                     decimal? averageExerciseTypeSensitivity = null;
