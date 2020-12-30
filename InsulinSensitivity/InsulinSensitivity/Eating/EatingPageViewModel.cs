@@ -677,78 +677,104 @@ namespace InsulinSensitivity.Eating
                     var averageExerciseTypeSensitivityCollection = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
-                            x.Exercise.ExerciseTypeId == ExerciseType.Id)
+                            x.Exercise.ExerciseTypeId == ExerciseType.Id &&
+                            x.Exercise.HoursAfterInjection == HoursAfterInjection)
                         .ToList();
 
-                    var averageExerciseTypeSensitivity = (averageExerciseTypeSensitivityCollection?.Count ?? 0) > 0
-                        ? averageExerciseTypeSensitivityCollection
-                            .Average(x =>
-                                x.InsulinSensitivityFact)
-                        : null;
-
-                    // Средние по предыдущим приёмам пищи
-                    decimal average = 0;
-                    for (int i = 0; i < 3; i++)
-                        average += PreviousEatings[i].InsulinSensitivityFact.Value / PreviousAverageExerciseTypeSensitivitys[i].Value;
-                    average /= 3;
-
-                    // Учёт базы
-                    decimal basal = 1;
-                    if (!GlobalParameters.User.IsPump)
+                    decimal? averageExerciseTypeSensitivity = null;
+                    if ((averageExerciseTypeSensitivityCollection?.Count ?? 0) > 0)
                     {
-                        if (GlobalParameters.User.BasalType.Duration != 12)
+                        // ... Приёмы пищи с нагрузкой по продолжительности +- 5
+                        var exercisesOne = averageExerciseTypeSensitivityCollection
+                            .Where(x =>
+                                x.Exercise.Duration <= (Duration + 5) &&
+                                x.Exercise.Duration >= (Duration - 5));
+
+                        if ((exercisesOne?.Count() ?? 0) > 0)
+                            averageExerciseTypeSensitivity = exercisesOne
+                                .Average(x =>
+                                    x.InsulinSensitivityFact);
+
+                        if (averageExerciseTypeSensitivity == null)
                         {
-                            if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
-                                basal = BasalDose / Basals[0].BasalDose;
-                            else if ((Basals?.Count ?? 0) >= 2)
-                                basal = Basals[0].BasalDose / Basals[1].BasalDose;
+                            // ... Приёмы пищи с нагрузкой по продолжительности +- 10
+                            var exercisesTwo = averageExerciseTypeSensitivityCollection
+                                .Where(x =>
+                                    x.Exercise.Duration <= (Duration + 10) &&
+                                    x.Exercise.Duration >= (Duration - 10));
 
-                            // ... 24 часовые инсулины
-                            if (GlobalParameters.User.BasalType.Duration == 24)
-                                basal = (basal + 1) / 2;
-
-                            // ... 48 часовые инсулины
-                            if (GlobalParameters.User.BasalType.Duration == 48)
-                                basal = (basal + 2) / 3;
-                        }
-                        else
-                        {
-                            List<decimal?> doses = new List<decimal?>();
-                            var date = DateTime.Now;
-
-                            for (int i = 0; i < 3; i++)
-                            {
-                                date = date.AddDays(-i);
-                                doses.Add(Basals
-                                    ?.Where(x =>
-                                        x.DateCreated.Day == date.Day &&
-                                        x.DateCreated.Month == date.Month &&
-                                        x.DateCreated.Year == date.Year)
-                                    .OrderBy(x =>
-                                        x.InjectionTime)
-                                    .Take(1)
-                                    .FirstOrDefault()?.BasalDose);
-                            }
-
-                            // ... Если сегодня не было инъекций
-                            // ... Вчерашняя утренняя доза / Позавчерашняя утренняя доза
-                            if (BasalDose == 0 && doses[0] == null && doses[1] != null && doses[2] != null)
-                                basal = doses[1].Value / doses[2].Value;
-
-                            // ... Если сегодня первая инъекция
-                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
-                            else if (BasalDose != 0 && doses[0] == null && doses[1] != null)
-                                basal = BasalDose / doses[1].Value;
-
-                            // ... Если сегодня уже была доза, то
-                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
-                            else if (doses[0] != null && doses[1] != null)
-                                basal = doses[0].Value / doses[1].Value;
+                            if ((exercisesTwo?.Count() ?? 0) > 0)
+                                averageExerciseTypeSensitivity = exercisesTwo
+                                    .Average(x =>
+                                        x.InsulinSensitivityFact);
                         }
                     }
 
                     if (averageExerciseTypeSensitivity != null)
+                    {
+                        // Средние по предыдущим приёмам пищи
+                        decimal average = 0;
+                        for (int i = 0; i < 3; i++)
+                            average += PreviousEatings[i].InsulinSensitivityFact.Value / PreviousAverageExerciseTypeSensitivitys[i].Value;
+                        average /= 3;
+
+                        // Учёт базы
+                        decimal basal = 1;
+                        if (!GlobalParameters.User.IsPump)
+                        {
+                            if (GlobalParameters.User.BasalType.Duration != 12)
+                            {
+                                if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
+                                    basal = BasalDose / Basals[0].BasalDose;
+                                else if ((Basals?.Count ?? 0) >= 2)
+                                    basal = Basals[0].BasalDose / Basals[1].BasalDose;
+
+                                // ... 24 часовые инсулины
+                                if (GlobalParameters.User.BasalType.Duration == 24)
+                                    basal = (basal + 1) / 2;
+
+                                // ... 48 часовые инсулины
+                                if (GlobalParameters.User.BasalType.Duration == 48)
+                                    basal = (basal + 2) / 3;
+                            }
+                            else
+                            {
+                                List<decimal?> doses = new List<decimal?>();
+                                var date = DateTime.Now;
+
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    date = date.AddDays(-i);
+                                    doses.Add(Basals
+                                        ?.Where(x =>
+                                            x.DateCreated.Day == date.Day &&
+                                            x.DateCreated.Month == date.Month &&
+                                            x.DateCreated.Year == date.Year)
+                                        .OrderBy(x =>
+                                            x.InjectionTime)
+                                        .Take(1)
+                                        .FirstOrDefault()?.BasalDose);
+                                }
+
+                                // ... Если сегодня не было инъекций
+                                // ... Вчерашняя утренняя доза / Позавчерашняя утренняя доза
+                                if (BasalDose == 0 && doses[0] == null && doses[1] != null && doses[2] != null)
+                                    basal = doses[1].Value / doses[2].Value;
+
+                                // ... Если сегодня первая инъекция
+                                // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                                else if (BasalDose != 0 && doses[0] == null && doses[1] != null)
+                                    basal = BasalDose / doses[1].Value;
+
+                                // ... Если сегодня уже была доза, то
+                                // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                                else if (doses[0] != null && doses[1] != null)
+                                    basal = doses[0].Value / doses[1].Value;
+                            }
+                        }
+
                         InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
+                    }
                 }
             }
 
