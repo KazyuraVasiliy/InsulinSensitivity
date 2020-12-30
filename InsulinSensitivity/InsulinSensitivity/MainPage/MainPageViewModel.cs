@@ -29,14 +29,13 @@ namespace InsulinSensitivity
                     .Include(x => x.BasalType)
                     .FirstOrDefault();
 
-            if (GlobalParameters.User != null)
-                OnPropertyChanged(nameof(Eatings));
+            InitEatings();
 
             // Подписки на события
             MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
                 (sender) =>
                 {
-                    OnPropertyChanged(nameof(Eatings));
+                    InitEatings();
                     OnPropertyChanged(nameof(LastEating));
                     OnPropertyChanged(nameof(TargetGlucose));
                 });
@@ -44,7 +43,7 @@ namespace InsulinSensitivity
             MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
                 (sender) =>
                 {
-                    OnPropertyChanged(nameof(Eatings));
+                    InitEatings();
                     OnPropertyChanged(nameof(LastEating));
                 });
         }
@@ -56,28 +55,7 @@ namespace InsulinSensitivity
         /// <summary>
         /// Приёмы пищи
         /// </summary>
-        public ObservableCollection<Grouping<DateTime, Models.Eating>> Eatings
-        {
-            get
-            {
-                if (GlobalParameters.User != null)
-                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                        return new ObservableCollection<Grouping<DateTime, Models.Eating>>(db.Eatings
-                            .Where(x =>
-                                x.UserId == GlobalParameters.User.Id)
-                            .Include(x => x.Exercise)
-                                .ThenInclude(x => x.ExerciseType)
-                            .Include(x => x.EatingType)
-                            .ToList()
-                            .GroupBy(x =>
-                                x.DateCreated.Date)
-                            .OrderByDescending(x =>
-                                x.Key)
-                            .Select(x =>
-                                new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime))));
-                return new ObservableCollection<Grouping<DateTime, Models.Eating>>();
-            }
-        }
+        public ObservableCollection<Grouping<DateTime, Models.Eating>> Eatings { get; set; }
 
         #endregion
 
@@ -103,6 +81,28 @@ namespace InsulinSensitivity
 
         #region Methods
 
+        /// <summary>
+        /// Инициализация приёмов пищи
+        /// </summary>
+        private void InitEatings()
+        {
+            if (GlobalParameters.User != null)
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    Eatings = new ObservableCollection<Grouping<DateTime, Models.Eating>>(db.Eatings
+                        .Where(x =>
+                            x.UserId == GlobalParameters.User.Id)
+                        .Include(x => x.Exercise)
+                            .ThenInclude(x => x.ExerciseType)
+                        .Include(x => x.EatingType)
+                        .ToList()
+                        .GroupBy(x =>
+                            x.DateCreated.Date)
+                        .OrderByDescending(x =>
+                            x.Key)
+                        .Select(x =>
+                            new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime))));
+            OnPropertyChanged(nameof(Eatings));
+        }
 
         #endregion
 
