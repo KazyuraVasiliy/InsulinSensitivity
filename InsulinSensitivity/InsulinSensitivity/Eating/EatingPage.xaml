@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.Eating.EatingPage"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
              Title="Приём пищи">
 
     <ContentPage.Resources>
@@ -68,6 +69,8 @@
                                     Text="Исходный сахар:"/>
                                 <Entry
                                     Margin="0"
+                                    view:Tag.Tag="GlucoseStart"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=GlucoseStart, Converter={StaticResource DecimalToStringConverter}}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -80,7 +83,8 @@
                                     Text="Сахар на отработке:"/>
                                 <Entry
                                     Margin="0"
-                                    
+                                    view:Tag.Tag="GlucoseEnd"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=GlucoseEnd, Converter={StaticResource DecimalToStringConverter}}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -100,6 +104,8 @@
                                 <Label
                                     Text="Белки:"/>
                                 <Entry
+                                    view:Tag.Tag="Protein"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=Protein}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -111,6 +117,8 @@
                                 <Label
                                     Text="Жиры:"/>
                                 <Entry
+                                    view:Tag.Tag="Fat"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=Fat}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -122,6 +130,8 @@
                                 <Label
                                     Text="Углеводы:"/>
                                 <Entry
+                                    view:Tag.Tag="Carbohydrate"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=Carbohydrate}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -161,6 +171,8 @@
                                 <Label
                                     Text="Продолжительность:"/>
                                 <Entry
+                                    view:Tag.Tag="Duration"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=Duration}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -172,6 +184,8 @@
                                 <Label
                                     Text="Часов после инъекции:"/>
                                 <Entry
+                                    view:Tag.Tag="HoursAfterInjection"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=HoursAfterInjection}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -197,18 +211,24 @@
                         <Entry
                             IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
                             Keyboard="Numeric"
+                            view:Tag.Tag="BasalDose"
+                            Unfocused="Entry_Unfocused"
                             Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Активного инсулина в крови до инъекции:"/>
                         <Entry
                             Keyboard="Numeric"
+                            view:Tag.Tag="ActiveInsulinStart"
+                            Unfocused="Entry_Unfocused"
                             Text="{Binding Path=ActiveInsulinStart, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Активного инсулина в крови на отработке:"/>
                         <Entry
                             Keyboard="Numeric"
+                            view:Tag.Tag="ActiveInsulinEnd"
+                            Unfocused="Entry_Unfocused"
                             Text="{Binding Path=ActiveInsulinEnd, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
@@ -285,6 +305,8 @@
                                 <Label
                                     Text="ФЧИ пользователя:"/>
                                 <Entry
+                                    view:Tag.Tag="InsulinSensitivityUser"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=InsulinSensitivityUser, Converter={StaticResource DecimalToStringConverter}}"
                                     Keyboard="Numeric"/>
                             </StackLayout>
@@ -296,6 +318,8 @@
                                 <Label
                                     Text="Доза фактическая:"/>
                                 <Entry
+                                    view:Tag.Tag="BolusDoseFact"
+                                    Unfocused="Entry_Unfocused"
                                     Text="{Binding Path=BolusDoseFact, Converter={StaticResource DecimalToStringConverter}}"
                                     Keyboard="Numeric"/>
                             </StackLayout>

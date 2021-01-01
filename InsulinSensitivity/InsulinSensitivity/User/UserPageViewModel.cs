@@ -55,6 +55,136 @@ namespace InsulinSensitivity.User
         public bool IsEditableFieldsVisible =>
             User.Id != Guid.Empty;
 
+        /// <summary>
+        /// Рост
+        /// </summary>
+        public int Height
+        {
+            get => User.Height;
+            set
+            {
+                User.Height = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Вес
+        /// </summary>
+        public int Weight
+        {
+            get => User.Weight;
+            set
+            {
+                User.Weight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// УК
+        /// </summary>
+        public decimal CarbohydrateCoefficient
+        {
+            get => User.CarbohydrateCoefficient;
+            set
+            {
+                User.CarbohydrateCoefficient = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// БК
+        /// </summary>
+        public decimal ProteinCoefficient
+        {
+            get => User.ProteinCoefficient;
+            set
+            {
+                User.ProteinCoefficient = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// ЖК
+        /// </summary>
+        public decimal FatCoefficient
+        {
+            get => User.FatCoefficient;
+            set
+            {
+                User.FatCoefficient = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Гипоглекимия
+        /// </summary>
+        public decimal Hypoglycemia
+        {
+            get => User.Hypoglycemia;
+            set
+            {
+                User.Hypoglycemia = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Низкий сахар
+        /// </summary>
+        public decimal LowSugar
+        {
+            get => User.LowSugar;
+            set
+            {
+                User.LowSugar = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Целевая глюкоза
+        /// </summary>
+        public decimal TargetGlucose
+        {
+            get => User.TargetGlucose;
+            set
+            {
+                User.TargetGlucose = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Высокий сахар
+        /// </summary>
+        public decimal HighSugar
+        {
+            get => User.HighSugar;
+            set
+            {
+                User.HighSugar = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Гипергликимия
+        /// </summary>
+        public decimal Hyperglycemia
+        {
+            get => User.Hyperglycemia;
+            set
+            {
+                User.Hyperglycemia = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Collections

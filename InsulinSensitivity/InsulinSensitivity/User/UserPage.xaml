@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.User.UserPage"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
              Title="Пользователь">
 
     <ContentPage.Resources>
@@ -73,7 +74,9 @@
                                 <Entry
                                     TabIndex="3"
                                     Keyboard="Numeric"
-                                    Text="{Binding Path=User.Height}"/>
+                                    view:Tag.Tag="Height"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Height}"/>
                             </StackLayout>
 
                             <StackLayout
@@ -84,7 +87,9 @@
                                     Text="Вес:"/>
                                 <Entry
                                     Keyboard="Numeric"
-                                    Text="{Binding Path=User.Weight}"/>
+                                    view:Tag.Tag="Weight"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Weight}"/>
                             </StackLayout>
                         </Grid>
 
@@ -106,7 +111,9 @@
                                 <Entry
                                     TabIndex="3"
                                     Keyboard="Numeric"
-                                    Text="{Binding Path=User.CarbohydrateCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+                                    view:Tag.Tag="CarbohydrateCoefficient"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=CarbohydrateCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
                             </StackLayout>
 
                             <StackLayout
@@ -117,7 +124,9 @@
                                     Text="БК:"/>
                                 <Entry
                                     Keyboard="Numeric"
-                                    Text="{Binding Path=User.ProteinCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+                                    view:Tag.Tag="ProteinCoefficient"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=ProteinCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
                             </StackLayout>
 
                             <StackLayout
@@ -128,7 +137,9 @@
                                     Text="ЖК:"/>
                                 <Entry
                                     Keyboard="Numeric"
-                                    Text="{Binding Path=User.FatCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+                                    view:Tag.Tag="FatCoefficient"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=FatCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
                             </StackLayout>
                         </Grid>
                     </StackLayout>
@@ -178,31 +189,41 @@
                             Text="Гипогликемия:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.Hypoglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
+                            view:Tag.Tag="Hypoglycemia"
+                            Unfocused="Entry_Unfocused"                            
+                            Text="{Binding Path=Hypoglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Низкий сахар:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.LowSugar, Converter={StaticResource DecimalToStringConverter}}"/>
+                            view:Tag.Tag="LowSugar"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=LowSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Целевая глюкоза:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.TargetGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
+                            view:Tag.Tag="TargetGlucose"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=TargetGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Высокий сахар:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.HighSugar, Converter={StaticResource DecimalToStringConverter}}"/>
+                            view:Tag.Tag="HighSugar"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=HighSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
                             Text="Гипергликимия:"/>
                         <Entry
                             Keyboard="Numeric"
-                            Text="{Binding Path=User.Hyperglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
+                            view:Tag.Tag="Hyperglycemia"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=Hyperglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
                     </StackLayout>
                 </Frame>
 

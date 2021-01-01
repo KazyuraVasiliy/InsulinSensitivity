@@ -9,7 +9,7 @@ namespace BusinessLogicLayer.ViewModel
     {
         [field: NonSerialized()]
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName]string prop = "") =>
+        public void OnPropertyChanged([CallerMemberName]string prop = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
         /// <summary>
