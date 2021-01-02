@@ -2,12 +2,14 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.User.UserPage"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
              Title="Пользователь">
 
     <ContentPage.Resources>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        <converters:RadioButtonToBoolConverter x:Key="RadioButtonToBoolConverter"/>
 
         <Style
             TargetType="Frame" x:Key="Frame">
@@ -16,6 +18,9 @@
             <Setter Property="Padding" Value="10, 5, 10, 5"/>
             <Setter Property="BorderColor" Value="SkyBlue"/>
         </Style>
+
+        <s:Boolean x:Key="True">True</s:Boolean>
+        <s:Boolean x:Key="False">False</s:Boolean>
     </ContentPage.Resources>
     
     <ContentPage.Content>
@@ -57,7 +62,7 @@
                             Text="Дата рождения:"/>
                         <DatePicker
                             TabIndex="2"
-                            Date="{Binding Path=User.BirthDate}"/>
+                            Date="{Binding Path=User.BirthDate}"/>                        
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -142,6 +147,32 @@
                                     Text="{Binding Path=FatCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
                             </StackLayout>
                         </Grid>
+
+                        <Label
+                            Text="Пол:"/>
+                        <StackLayout
+                            Spacing="0"
+                            Orientation="Horizontal">
+
+                            <RadioButton
+                                GroupName="Gender"
+                                IsChecked="{Binding Path=User.Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource True}}"/>
+                            <Label
+                                VerticalTextAlignment="Center"
+                                Text="Мужской"/>
+                        </StackLayout>
+
+                        <StackLayout
+                            Spacing="0"
+                            Orientation="Horizontal">
+
+                            <RadioButton
+                                GroupName="Gender"
+                                IsChecked="{Binding Path=User.Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource False}}"/>
+                            <Label
+                                VerticalTextAlignment="Center"
+                                Text="Женский"/>
+                        </StackLayout>
                     </StackLayout>
                 </Frame>
 

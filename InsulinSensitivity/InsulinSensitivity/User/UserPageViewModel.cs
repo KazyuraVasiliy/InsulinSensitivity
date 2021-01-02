@@ -274,6 +274,8 @@ namespace InsulinSensitivity.User
 
                 user.Name = User.Name;
                 user.BirthDate = User.BirthDate;
+                user.Gender = User.Gender;
+
                 user.Height = User.Height;
                 user.Weight = User.Weight;
 
