@@ -23,6 +23,13 @@ namespace BusinessLogicLayer.Service.Interfaces
         Task SaveTextAsync(string fileName, string text);
 
         /// <summary>
+        /// Создаёт новую директорию
+        /// </summary>
+        /// <param name="directoryName">Имя директории</param>
+        /// <returns></returns>
+        Task CreateDirectoryAsync(string directoryName);
+
+        /// <summary>
         /// Загружает текст из файла
         /// </summary>
         /// <param name="fileName">Имя файла</param>
@@ -47,6 +54,6 @@ namespace BusinessLogicLayer.Service.Interfaces
         /// </summary>
         /// <param name="fileName">Имя файла</param>
         /// <returns></returns>
-        string GetFilePath(string fileName);
+        string GetPath(string fileName);
     }
 }

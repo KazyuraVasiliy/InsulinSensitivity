@@ -13,20 +13,20 @@ namespace InsulinSensitivity.Droid
     {
         public Task DeleteAsync(string fileName)
         {
-            File.Delete(GetFilePath(fileName));
+            File.Delete(GetPath(fileName));
             return Task.FromResult(true);
         }
 
         public Task<bool> ExistsAsync(string fileName)
         {
-            string filePath = GetFilePath(fileName);
+            string filePath = GetPath(fileName);
             bool exists = File.Exists(filePath);
             return Task.FromResult(exists);
         }
 
         public Task<IEnumerable<string>> GetFilesAsync()
         {
-            IEnumerable<string> fileNames = Directory.EnumerateFiles(GetDocsPath())
+            IEnumerable<string> fileNames = Directory.EnumerateFiles(GetExternalStoragePath())
                 .Select(x =>
                     Path.GetFileName(x));
             return Task<IEnumerable<string>>.FromResult(fileNames);
@@ -34,31 +34,37 @@ namespace InsulinSensitivity.Droid
 
         public async Task<string> LoadTextAsync(string fileName)
         {
-            string filePath = GetFilePath(fileName);
+            string filePath = GetPath(fileName);
             using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding(1251)))
                 return await reader.ReadToEndAsync();
         }
 
         public async Task SaveTextAsync(string fileName, string text)
         {
-            string filePath = GetFilePath(fileName);
+            string filePath = GetPath(fileName);
             using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.GetEncoding(1251)))
                 await writer.WriteAsync(text);
         }
-        
+
+        public Task CreateDirectoryAsync(string directoryName)
+        {
+            Directory.CreateDirectory(GetPath(directoryName));
+            return Task.FromResult(true);
+        }
+
         /// <summary>
         /// Получает путь до файла
         /// </summary>
         /// <param name="fileName">Имя файла</param>
         /// <returns></returns>
-        public string GetFilePath(string fileName) =>
-            Path.Combine(GetDocsPath(), fileName);
+        public string GetPath(string fileName) =>
+            Path.Combine(GetExternalStoragePath(), fileName);
 
         /// <summary>
-        /// Получает путь до папки "Мои Документы"
+        /// Получает путь до внешнего хранилища
         /// </summary>
         /// <returns></returns>
-        private string GetDocsPath() =>
-            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath;
+        private string GetExternalStoragePath() =>
+            Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
     }
 }

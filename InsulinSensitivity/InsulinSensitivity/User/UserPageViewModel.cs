@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using BusinessLogicLayer.Service.Interfaces;
 using Xamarin.Essentials;
+using System.IO;
 
 namespace InsulinSensitivity.User
 {
@@ -226,6 +227,9 @@ namespace InsulinSensitivity.User
         /// <summary>
         /// Запрос разрешения на запись файла
         /// </summary>
+        /// <remarks>
+        /// https://docs.microsoft.com/ru-ru/xamarin/essentials/permissions?tabs=android
+        /// </remarks>
         /// <returns></returns>
         public async Task<PermissionStatus> CheckAndRequestStorageWritePermission()
         {
@@ -380,14 +384,19 @@ namespace InsulinSensitivity.User
                             $"{el.Protein};{el.Fat};{el.Carbohydrate};" +
                             $"{el.Exercise.ExerciseType.Name};{el.Exercise.Duration};{el.Exercise.HoursAfterInjection};" +
                             $"{el.BasalDose};{el.ActiveInsulinStart};{el.ActiveInsulinEnd};" +
-                            $"{el.InsulinSensitivityAutoOne};{el.InsulinSensitivityAutoTwo};{el.InsulinSensitivityUser};{el.InsulinSensitivityFact}" +
+                            $"{el.InsulinSensitivityAutoOne};{el.InsulinSensitivityAutoTwo};{el.InsulinSensitivityUser};{el.InsulinSensitivityFact};" +
                             $"{el.BolusDoseCalculate};{el.BolusDoseFact};" +
                             $"{el.ExpectedGlucose};" +
                             $"{el.AccuracyAuto};{el.AccuracyUser}");
                 }
 
-                string fileName = "IS_Export.csv";
-                if (await DependencyService.Get<IFileWorker>().ExistsAsync(fileName))
+                string directoryName = "InsulinSensitivity";
+                string fileName = Path.Combine(directoryName, "IS_Export.csv");
+
+                var fileWorker = DependencyService.Get<IFileWorker>();
+                await fileWorker.CreateDirectoryAsync(directoryName);
+
+                if (await fileWorker.ExistsAsync(fileName))
                 {
                     bool isRewrited = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                         "Подтверждение",
@@ -402,7 +411,7 @@ namespace InsulinSensitivity.User
                 await DependencyService.Get<IFileWorker>().SaveTextAsync(fileName, string.Join("\n", data));
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                     "Информация",
-                    $"Файл успешно создан: {DependencyService.Get<IFileWorker>().GetFilePath(fileName)}",
+                    $"Файл успешно создан: {DependencyService.Get<IFileWorker>().GetPath(fileName)}",
                     "Ok");
             }
             catch (Exception ex)
