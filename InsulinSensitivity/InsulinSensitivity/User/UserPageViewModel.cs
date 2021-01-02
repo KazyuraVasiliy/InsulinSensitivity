@@ -293,7 +293,7 @@ namespace InsulinSensitivity.User
 
                 if (User.Id == Guid.Empty)
                 {
-                    user.CarbohydrateCoefficient = Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight);
+                    user.CarbohydrateCoefficient = Math.Round(Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight), 2, MidpointRounding.AwayFromZero);
                     user.ProteinCoefficient = 0.3M;
                     user.FatCoefficient = 0.25M;
                 }
