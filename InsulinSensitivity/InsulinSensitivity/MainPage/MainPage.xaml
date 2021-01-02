@@ -79,8 +79,7 @@
                                     HorizontalTextAlignment="Center"
                                     Text="{Binding Name, StringFormat='{}{0:dd MMMM yyyy}'}" />
                             </StackLayout>
-                        </Frame>
-                        
+                        </Frame>                        
                     </ViewCell>
                 </DataTemplate>
             </ListView.GroupHeaderTemplate>

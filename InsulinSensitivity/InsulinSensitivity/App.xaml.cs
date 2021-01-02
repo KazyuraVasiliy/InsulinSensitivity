@@ -109,6 +109,27 @@ namespace InsulinSensitivity
                         new InsulinType()
                         {
                             Id = Guid.NewGuid(),
+                            Name = "Новорапид",
+                            IsBasal = false,
+                            Duration = 5
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Апидра",
+                            IsBasal = false,
+                            Duration = 5
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Фиасп",
+                            IsBasal = false,
+                            Duration = 4
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
                             Name = "Туджео",
                             IsBasal = true,
                             Duration = 24
@@ -126,6 +147,20 @@ namespace InsulinSensitivity
                             Name = "Росинсулин",
                             IsBasal = false,
                             Duration = 8
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Левемир",
+                            IsBasal = true,
+                            Duration = 12
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Протафан",
+                            IsBasal = true,
+                            Duration = 12
                         }
                     });
                 }
@@ -162,6 +197,11 @@ namespace InsulinSensitivity
                         {
                             Id = Guid.NewGuid(),
                             Name = "Работа по дому"
+                        },
+                        new ExerciseType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Тренировка"
                         }
                     });
                 }
