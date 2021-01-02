@@ -998,10 +998,10 @@ namespace InsulinSensitivity.Eating
         private async void RemoveExecute()
         {
             bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
-                    "Удалить?",
-                    "Вы уверены, что хотите удалить запись?",
-                    "Да",
-                    "Нет");
+                "Удалить?",
+                "Вы уверены, что хотите удалить запись?",
+                "Да",
+                "Нет");
 
             if (!question)
                 return;

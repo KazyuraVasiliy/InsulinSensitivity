@@ -264,6 +264,13 @@
                     Margin="0, 0, 0, 5"
                     BackgroundColor="LightSeaGreen"
                     Command="{Binding Path=OkCommand}"/>
+
+                <Button
+                    Text="Экспортировать"
+                    Margin="0, 0, 0, 5"
+                    BackgroundColor="Orange"
+                    Command="{Binding Path=ExportCommand}"
+                    IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

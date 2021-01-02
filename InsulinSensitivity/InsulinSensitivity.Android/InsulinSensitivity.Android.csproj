@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AndroidDbPath.cs" />
+    <Compile Include="FileWorker.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +102,10 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BusinessLogicLayer\BusinessLogicLayer.csproj">
+      <Project>{2960f423-60c8-4590-811a-80d46d2487eb}</Project>
+      <Name>BusinessLogicLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\DataAccessLayer\DataAccessLayer.csproj">
       <Project>{cd36e3dc-73fa-4acd-a550-f954823e361d}</Project>
       <Name>DataAccessLayer</Name>
