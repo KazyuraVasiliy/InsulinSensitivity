@@ -199,7 +199,7 @@
                             Text="Болюсный:"/>
                         <Picker
                             ItemDisplayBinding="{Binding Path=Name}"                            
-                            ItemsSource="{Binding Path=InsulinTypes}"
+                            ItemsSource="{Binding Path=BolusInsulinTypes}"
                             SelectedItem="{Binding Path=User.BolusType, Mode=TwoWay}"/>
                     </StackLayout>
                 </Frame>

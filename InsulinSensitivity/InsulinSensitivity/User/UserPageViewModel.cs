@@ -41,6 +41,11 @@ namespace InsulinSensitivity.User
                     .OrderBy(x =>
                         x.Name)
                     .ToList();
+
+            BolusInsulinTypes = InsulinTypes
+                .Where(x =>
+                    !x.IsBasal)
+                .ToList();
         }
 
         #endregion
@@ -203,6 +208,20 @@ namespace InsulinSensitivity.User
             {
                 insulinTypes = value;
                 OnPropertyChanged(nameof(InsulinTypes));
+            }
+        }
+
+        private List<Models.InsulinType> bolusInsulinTypes;
+        /// <summary>
+        /// Типы болюсного инсулина
+        /// </summary>
+        public List<Models.InsulinType> BolusInsulinTypes
+        {
+            get => bolusInsulinTypes;
+            set
+            {
+                bolusInsulinTypes = value;
+                OnPropertyChanged(nameof(BolusInsulinTypes));
             }
         }
 
