@@ -280,7 +280,8 @@ namespace InsulinSensitivity.User
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                     "Ошибка",
-                    "Заполните все поля",
+                    "Все поля должны быть заполнены.\n" +
+                        "Уровни гликемии должны отличаться и идти в порядке возрастания.",
                     "Ok");
                 return;
             }
