@@ -210,11 +210,10 @@ namespace InsulinSensitivity
             }
 
             // Инициализация главной страницы
-            MainPage = new NavigationPage(new MainPage());
-            MainPage.BindingContext = new MainPageViewModel();
+            MainPage = new MainPage();
 
             // Инициализация навигации
-            GlobalParameters.Navigation = MainPage.Navigation;
+            GlobalParameters.Navigation = ((MasterDetailPage)MainPage).Detail.Navigation;
         }
 
         protected override void OnStart()

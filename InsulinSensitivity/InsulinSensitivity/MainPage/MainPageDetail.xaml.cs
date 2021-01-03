@@ -10,9 +10,9 @@ using Xamarin.Forms.Xaml;
 namespace InsulinSensitivity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class MainPage : MasterDetailPage
+    public partial class MainPageDetail : ContentPage
     {
-        public MainPage()
+        public MainPageDetail()
         {
             InitializeComponent();
         }

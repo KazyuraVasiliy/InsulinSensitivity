@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms;
 using System.Linq;
-
-using DataAccessLayer.Contexts;
-using BusinessLogicLayer.ViewModel;
-using Models = DataAccessLayer.Models;
 using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 
+using DataAccessLayer.Contexts;
+using BusinessLogicLayer.ViewModel;
+using Models = DataAccessLayer.Models;
+
 namespace InsulinSensitivity
 {
-    public class MainPageViewModel : ObservableBase
+    public class MainPageDetailViewModel : ObservableBase
     {
         #region Constructors and Fields
 
         /// <summary>
         /// Конструктор
         /// </summary>
-        public MainPageViewModel()
+        public MainPageDetailViewModel()
         {
             // Инициализация пользователя
             using (var db = new ApplicationContext(GlobalParameters.DbPath))

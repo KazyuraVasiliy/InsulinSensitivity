@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,9 +13,9 @@ using Xamarin.Forms.Xaml;
 namespace InsulinSensitivity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class MainPage : MasterDetailPage
+    public partial class MainPageMaster : ContentPage
     {
-        public MainPage()
+        public MainPageMaster()
         {
             InitializeComponent();
         }

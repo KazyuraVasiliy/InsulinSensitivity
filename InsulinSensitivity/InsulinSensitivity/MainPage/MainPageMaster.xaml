@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.MainPageMaster"
+             Title="Master">
+    <StackLayout>
+        <Frame 
+            BackgroundColor="#2196F3" 
+            CornerRadius="0"
+            Padding="12">
+
+            <Label 
+                Text="InsulinSensitivity" 
+                HorizontalTextAlignment="Start" 
+                TextColor="White" 
+                FontSize="24"/>
+        </Frame>
+    </StackLayout>
+</ContentPage>
