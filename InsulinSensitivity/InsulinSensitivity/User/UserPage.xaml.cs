@@ -16,6 +16,18 @@ namespace InsulinSensitivity.User
         public UserPage() =>
             InitializeComponent();
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            MessagingCenter.Send<object, bool>(this, "SwitchMaster", false);
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            MessagingCenter.Send<object, bool>(this, "SwitchMaster", true);
+        }
+
         private void Entry_Unfocused(object sender, FocusEventArgs e)
         {
             if (sender is Entry entry)

@@ -15,9 +15,13 @@ namespace InsulinSensitivity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainPageMaster : ContentPage
     {
-        public MainPageMaster()
-        {
+        public MainPageMaster() =>
             InitializeComponent();
+
+        private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (e.Item is MainPageMasterItemModel item)
+                item.Command.Execute(null);
         }
     }
 }

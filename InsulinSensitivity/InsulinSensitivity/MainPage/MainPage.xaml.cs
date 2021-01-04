@@ -15,6 +15,9 @@ namespace InsulinSensitivity
         public MainPage()
         {
             InitializeComponent();
+            MessagingCenter.Subscribe<object, bool>(this, "SwitchMaster", 
+                (sender, enabled) =>
+                    IsGestureEnabled = enabled);
         }
     }
 }

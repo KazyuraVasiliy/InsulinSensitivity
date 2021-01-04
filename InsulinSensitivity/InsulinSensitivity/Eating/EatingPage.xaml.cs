@@ -14,9 +14,19 @@ namespace InsulinSensitivity.Eating
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EatingPage : ContentPage
     {
-        public EatingPage()
-        {
+        public EatingPage() =>
             InitializeComponent();
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            MessagingCenter.Send<object, bool>(this, "SwitchMaster", false);
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            MessagingCenter.Send<object, bool>(this, "SwitchMaster", true);
         }
 
         private void Entry_Unfocused(object sender, FocusEventArgs e)

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:InsulinSensitivity"
              x:Class="InsulinSensitivity.MainPageMaster"
              Title="Master">
     <StackLayout>
@@ -15,5 +16,53 @@
                 TextColor="White" 
                 FontSize="24"/>
         </Frame>
+
+        <ListView
+            HasUnevenRows="True"
+            SelectionMode="None"
+            SeparatorVisibility="None"
+            ItemsSource="{Binding Path=Items}"
+            ItemTapped="ListView_ItemTapped">
+            
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Grid 
+                            Padding="5, 5">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="{Binding Path=Icon}"
+                                FontSize="30"
+                                FontFamily="Typicons"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Center"/>
+                            
+                            <Label 
+                                Grid.Column="1"
+                                FontSize="16"
+                                Text="{Binding Path=Name}"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Start"/>
+
+                            <BoxView
+                                Grid.Row="1" Grid.ColumnSpan="2"
+                                HeightRequest="1"
+                                IsVisible="{Binding Path=IsSeparator}"
+                                BackgroundColor="Black"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </StackLayout>
 </ContentPage>
