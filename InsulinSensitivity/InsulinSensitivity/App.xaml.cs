@@ -92,6 +92,7 @@ namespace InsulinSensitivity
                             IsBasal = false
                         }
                     });
+                    db.SaveChanges();
                 }
 
                 // Инициализируем таблицы стартовой информацией
@@ -106,6 +107,35 @@ namespace InsulinSensitivity
                             IsBasal = false,
                             Duration = 5
                         },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Туджео",
+                            IsBasal = true,
+                            Duration = 24
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Тресиба",
+                            IsBasal = true,
+                            Duration = 48
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Росинсулин",
+                            IsBasal = false,
+                            Duration = 8
+                        }
+                    });
+                    db.SaveChanges();
+                }
+
+                if (db.InsulinTypes.Count() == 4)
+                {
+                    db.InsulinTypes.AddRange(new List<InsulinType>()
+                    {
                         new InsulinType()
                         {
                             Id = Guid.NewGuid(),
@@ -130,27 +160,6 @@ namespace InsulinSensitivity
                         new InsulinType()
                         {
                             Id = Guid.NewGuid(),
-                            Name = "Туджео",
-                            IsBasal = true,
-                            Duration = 24
-                        },
-                        new InsulinType()
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Тресиба",
-                            IsBasal = true,
-                            Duration = 48
-                        },
-                        new InsulinType()
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Росинсулин",
-                            IsBasal = false,
-                            Duration = 8
-                        },
-                        new InsulinType()
-                        {
-                            Id = Guid.NewGuid(),
                             Name = "Левемир",
                             IsBasal = true,
                             Duration = 12
@@ -163,6 +172,71 @@ namespace InsulinSensitivity
                             Duration = 12
                         }
                     });
+                    db.SaveChanges();
+                }
+
+                if (db.InsulinTypes.Count() == 9)
+                {
+                    db.InsulinTypes.AddRange(new List<InsulinType>()
+                    {
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Инсуман Базал",
+                            IsBasal = true,
+                            Duration = 12
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Изофан",
+                            IsBasal = true,
+                            Duration = 12
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Гларгин",
+                            IsBasal = true,
+                            Duration = 24
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "РинГлар",
+                            IsBasal = true,
+                            Duration = 24
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Актрапид",
+                            IsBasal = false,
+                            Duration = 8
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Актрапид",
+                            IsBasal = false,
+                            Duration = 8
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Инсуман Рапид",
+                            IsBasal = false,
+                            Duration = 8
+                        },
+                        new InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "РинЛиз",
+                            IsBasal = false,
+                            Duration = 5
+                        }
+                    });
+                    db.SaveChanges();
                 }
 
                 // Инициализируем таблицы стартовой информацией
@@ -204,9 +278,8 @@ namespace InsulinSensitivity
                             Name = "Тренировка"
                         }
                     });
-                }
-
-                db.SaveChanges();
+                    db.SaveChanges();
+                }                
             }
 
             // Инициализация главной страницы
