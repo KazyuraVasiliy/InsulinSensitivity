@@ -222,8 +222,8 @@
                                         <StackLayout>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
                                                     <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
 
                                                 <StackLayout
