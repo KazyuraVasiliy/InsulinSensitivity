@@ -795,7 +795,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateBolusDose()
         {
-            BolusDoseCalculate = InsulinSensitivityAuto != null || InsulinSensitivityUser != null
+            BolusDoseCalculate = (InsulinSensitivityAuto ?? 0) != 0 || (InsulinSensitivityUser ?? 0) != 0
                 ? Calculation.GetBolusDose(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
@@ -841,7 +841,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateAccuracyAuto()
         {
-            AccuracyAuto = InsulinSensitivityFact != null && InsulinSensitivityAuto != null
+            AccuracyAuto = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityAuto != null
                 ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
                 : (int?)null;
         }
@@ -851,7 +851,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateAccuracyUser()
         {
-            AccuracyUser = InsulinSensitivityFact != null && InsulinSensitivityUser != null
+            AccuracyUser = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null
                 ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
                 : (int?)null;
         }
