@@ -217,13 +217,6 @@ namespace InsulinSensitivity
                         new InsulinType()
                         {
                             Id = Guid.NewGuid(),
-                            Name = "Актрапид",
-                            IsBasal = false,
-                            Duration = 8
-                        },
-                        new InsulinType()
-                        {
-                            Id = Guid.NewGuid(),
                             Name = "Инсуман Рапид",
                             IsBasal = false,
                             Duration = 8
