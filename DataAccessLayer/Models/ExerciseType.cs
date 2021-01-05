@@ -26,6 +26,11 @@ namespace DataAccessLayer.Models
         public bool IsEmpty { get; set; }
 
         /// <summary>
+        /// Дата удаления
+        /// </summary>
+        public DateTimeOffset? DateDeleted { get; set; }
+
+        /// <summary>
         /// Нагрузки (Навигационное свойство)
         /// </summary>
         public List<Exercise> Exercises { get; set; }

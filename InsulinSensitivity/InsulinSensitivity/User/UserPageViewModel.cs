@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 using Xamarin.Forms;
-
-using DataAccessLayer.Contexts;
-using BusinessLogicLayer.ViewModel;
-using BusinessLogicLayer.Service;
-using Models = DataAccessLayer.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +10,11 @@ using System.Globalization;
 using BusinessLogicLayer.Service.Interfaces;
 using Xamarin.Essentials;
 using System.IO;
+
+using DataAccessLayer.Contexts;
+using BusinessLogicLayer.ViewModel;
+using BusinessLogicLayer.Service;
+using Models = DataAccessLayer.Models;
 
 namespace InsulinSensitivity.User
 {

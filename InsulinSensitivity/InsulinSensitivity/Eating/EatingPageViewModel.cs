@@ -34,6 +34,8 @@ namespace InsulinSensitivity.Eating
 
                 // ... Типы упражнений
                 ExerciseTypes = db.ExerciseTypes
+                    .Where(x =>
+                        x.DateDeleted == null)
                     .OrderBy(x =>
                         x.Name)
                     .ToList();

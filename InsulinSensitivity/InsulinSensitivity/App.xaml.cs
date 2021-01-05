@@ -1,13 +1,14 @@
-﻿using DataAccessLayer.Contexts;
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using DataAccessLayer.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+
+using DataAccessLayer.Contexts;
+using Models = DataAccessLayer.Models;
 
 namespace InsulinSensitivity
 {
@@ -33,9 +34,9 @@ namespace InsulinSensitivity
                 // Инициализируем таблицы стартовой информацией
                 if (db.EatingTypes.Count() == 0)
                 {
-                    db.EatingTypes.AddRange(new List<EatingType>()
+                    db.EatingTypes.AddRange(new List<Models.EatingType>()
                     {
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Завтрак",
@@ -43,7 +44,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(8, 59, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Поздний завтрак",
@@ -51,7 +52,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(11, 14, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Обед",
@@ -59,7 +60,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(13, 59, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Поздний обед",
@@ -67,7 +68,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(16, 14, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Ужин",
@@ -75,7 +76,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(19, 14, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Поздний ужин",
@@ -83,7 +84,7 @@ namespace InsulinSensitivity
                             TimeEnd = new TimeSpan(23, 59, 59),
                             IsBasal = false
                         },
-                        new EatingType()
+                        new Models.EatingType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Ночной приём пищи",
@@ -98,30 +99,30 @@ namespace InsulinSensitivity
                 // Инициализируем таблицы стартовой информацией
                 if (db.InsulinTypes.Count() == 0)
                 {
-                    db.InsulinTypes.AddRange(new List<InsulinType>()
+                    db.InsulinTypes.AddRange(new List<Models.InsulinType>()
                     {
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Хумалог",
                             IsBasal = false,
                             Duration = 5
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Туджео",
                             IsBasal = true,
                             Duration = 24
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Тресиба",
                             IsBasal = true,
                             Duration = 48
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Росинсулин",
@@ -134,37 +135,37 @@ namespace InsulinSensitivity
 
                 if (db.InsulinTypes.Count() == 4)
                 {
-                    db.InsulinTypes.AddRange(new List<InsulinType>()
+                    db.InsulinTypes.AddRange(new List<Models.InsulinType>()
                     {
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Новорапид",
                             IsBasal = false,
                             Duration = 5
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Апидра",
                             IsBasal = false,
                             Duration = 5
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Фиасп",
                             IsBasal = false,
                             Duration = 4
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Левемир",
                             IsBasal = true,
                             Duration = 12
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Протафан",
@@ -177,51 +178,51 @@ namespace InsulinSensitivity
 
                 if (db.InsulinTypes.Count() == 9)
                 {
-                    db.InsulinTypes.AddRange(new List<InsulinType>()
+                    db.InsulinTypes.AddRange(new List<Models.InsulinType>()
                     {
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Инсуман Базал",
                             IsBasal = true,
                             Duration = 12
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Изофан",
                             IsBasal = true,
                             Duration = 12
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Гларгин",
                             IsBasal = true,
                             Duration = 24
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "РинГлар",
                             IsBasal = true,
                             Duration = 24
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Актрапид",
                             IsBasal = false,
                             Duration = 8
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Инсуман Рапид",
                             IsBasal = false,
                             Duration = 8
                         },
-                        new InsulinType()
+                        new Models.InsulinType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "РинЛиз",
@@ -235,37 +236,37 @@ namespace InsulinSensitivity
                 // Инициализируем таблицы стартовой информацией
                 if (db.ExerciseTypes.Count() == 0)
                 {
-                    db.ExerciseTypes.AddRange(new List<ExerciseType>()
+                    db.ExerciseTypes.AddRange(new List<Models.ExerciseType>()
                     {
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Без движения",
                             IsEmpty = true
                         },
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Обычная активность",
                             IsDefault = true,
                             IsEmpty = true
                         },
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Ходьба"
                         },
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Бег"
                         },
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Работа по дому"
                         },
-                        new ExerciseType()
+                        new Models.ExerciseType()
                         {
                             Id = Guid.NewGuid(),
                             Name = "Тренировка"
