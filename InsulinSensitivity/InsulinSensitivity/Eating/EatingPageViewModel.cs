@@ -327,6 +327,7 @@ namespace InsulinSensitivity.Eating
 
                 OnPropertyChanged(nameof(InsulinSensitivityAuto));
                 CalculateExpectedGlucose();
+                CalculateAccuracyAuto();
             }
         }
 
@@ -343,6 +344,7 @@ namespace InsulinSensitivity.Eating
 
                 OnPropertyChanged(nameof(InsulinSensitivityAuto));
                 CalculateExpectedGlucose();
+                CalculateAccuracyAuto();
             }
         }
 
