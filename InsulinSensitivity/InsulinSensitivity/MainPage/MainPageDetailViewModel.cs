@@ -179,7 +179,7 @@ namespace InsulinSensitivity
                         db.Eatings.Remove(eating);
 
                     db.SaveChanges();
-                    OnPropertyChanged(nameof(Eatings));
+                    InitEatings();
                 }
             }
             catch (Exception ex)
