@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.EatingType.EatingTypePage"
+             Title="Периоды">
+
+    <ContentPage.Resources>
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Margin" Value="5, 5, 5, 0"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView
+                HasUnevenRows="True"
+                SelectionMode="None"
+                SeparatorVisibility="None"
+                ItemsSource="{Binding Path=Types}">
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Frame Style="{StaticResource Frame}">
+                                    <StackLayout>
+                                        <Label
+                                            Text="{Binding Path=Name}"/>
+                                        <Label>
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}-{1}">
+                                                    <Binding Path="TimeStart"/>
+                                                    <Binding Path="TimeEnd"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </StackLayout>
+                                </Frame>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
