@@ -803,7 +803,7 @@ namespace InsulinSensitivity.Eating
                 ? Calculation.GetBolusDose(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    InsulinSensitivityUser != null
+                    (InsulinSensitivityUser ?? 0) != 0
                     ? InsulinSensitivityUser.Value
                     : InsulinSensitivityAuto.Value) - ActiveInsulinStart
                 : (decimal?)null;
