@@ -4,8 +4,15 @@
              xmlns:local="clr-namespace:InsulinSensitivity"
              x:Class="InsulinSensitivity.MainPageMaster"
              Title="Master">
-    <StackLayout>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        
         <Frame 
+            Grid.Row="0"
             BackgroundColor="#2196F3" 
             CornerRadius="0"
             Padding="12">
@@ -18,6 +25,7 @@
         </Frame>
 
         <ListView
+            Grid.Row="1"
             HasUnevenRows="True"
             SelectionMode="None"
             SeparatorVisibility="None"
@@ -64,5 +72,11 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </StackLayout>
+
+        <Label 
+            Grid.Row="2"
+            Padding="5"
+            Text="{Binding Path=Version}" 
+            HorizontalTextAlignment="Start"/>
+    </Grid>
 </ContentPage>

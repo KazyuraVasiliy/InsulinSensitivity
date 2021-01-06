@@ -6,6 +6,7 @@ using Xamarin.Forms.Xaml;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using Xamarin.Essentials;
 
 using DataAccessLayer.Contexts;
 using Models = DataAccessLayer.Models;
@@ -22,6 +23,7 @@ namespace InsulinSensitivity
         public App()
         {
             InitializeComponent();
+            VersionTracking.Track();
 
             GlobalParameters.DbPath = DependencyService.Get<IPath>().GetDatabasePath(DBFILENAME);
             using (var db = new ApplicationContext(GlobalParameters.DbPath))

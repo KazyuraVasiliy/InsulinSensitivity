@@ -51,6 +51,9 @@ namespace InsulinSensitivity
         //    }
         //}
 
+        public string Version =>
+            VersionTracking.CurrentVersion;
+
         #endregion
 
         #region Collections
