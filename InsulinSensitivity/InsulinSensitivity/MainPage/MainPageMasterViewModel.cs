@@ -149,16 +149,17 @@ namespace InsulinSensitivity
                     var eatings = db.Eatings
                         .Include(x => x.Exercise)
                         .Include(x => x.Exercise.ExerciseType)
+                        .Include(x => x.EatingType)
                         .ToList()
                         .OrderByDescending(x =>
                             x.DateCreated)
                         .ThenByDescending(x =>
                             x.InjectionTime);
 
-                    data.AddLast($"Дата;Время;Исходный;Отработка;Б;Ж;У;Нагрузка;Длительность;Часов после инъекции;База;Активный до;Активный после;" +
+                    data.AddLast($"Дата;Время;Период;Исходный;Отработка;Б;Ж;У;Нагрузка;Длительность;Часов после инъекции;База;Активный до;Активный после;" +
                         $"ФЧИ по средним;ФЧИ по нагрузкам;ФЧИ пользователя;ФЧИ факт;Доза расчётная;Доза фактическая;Ожидаемый сахар;Точность программы;Точность пользователя");
                     foreach (var el in eatings)
-                        data.AddLast($"{el.DateCreated:dd.MM.yyyy};{el.InjectionTime};" +
+                        data.AddLast($"{el.DateCreated:dd.MM.yyyy};{el.InjectionTime};{el.EatingType.Name};" +
                             $"{el.GlucoseStart};{el.GlucoseEnd};" +
                             $"{el.Protein};{el.Fat};{el.Carbohydrate};" +
                             $"{el.Exercise.ExerciseType.Name};{el.Exercise.Duration};{el.Exercise.HoursAfterInjection};" +
