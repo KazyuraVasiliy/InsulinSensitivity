@@ -153,5 +153,82 @@ namespace BusinessLogicLayer.Service
             decimal protein, decimal fat, decimal carbohydrate,
             decimal insulinSensitivityFact) =>
             glucoseStart - insulinSensitivityFact * bolusDose + carbohydrateCoefficient * (proteinCoefficient * protein + fatCoefficient * fat + carbohydrate);
+
+        /// <summary>
+        /// Возвращает значение функции ошибок
+        /// </summary>
+        /// <param name="x">Аргумент</param>
+        /// <remarks>
+        /// https://www.johndcook.com/blog/csharp_erf/
+        /// </remarks>
+        /// <returns></returns>
+        public static double Erf(double x)
+        {
+            // constants
+            double a1 = 0.254829592;
+            double a2 = -0.284496736;
+            double a3 = 1.421413741;
+            double a4 = -1.453152027;
+            double a5 = 1.061405429;
+            double p = 0.3275911;
+
+            // Save the sign of x
+            int sign = 1;
+            if (x < 0)
+                sign = -1;
+            x = Math.Abs(x);
+
+            // A&S formula 7.1.26
+            double t = 1.0 / (1.0 + p * x);
+            double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.Exp(-x * x);
+
+            return sign * y;
+        }
+
+        /// <summary>
+        /// Возвращает значение интеграла функции 4.26 * 10^(-5) * x^(3 / 2) * e^(-1.5 * x / 75)
+        /// </summary>
+        /// <remarks>
+        /// https://github.com/LoopKit/Loop/issues/388
+        /// Novolog (6H)
+        /// https://www.integral-calculator.com
+        /// </remarks>
+        /// <param name="x">Аргумент</param>
+        /// <returns></returns>
+        public static double InsulinActivityCurvesIntegrate(double x) =>
+            (213 * ((-25 * Math.Pow(x, 3D / 2) - 1875 * Math.Sqrt(x)) * Math.Exp(-x / 50) + (9375 * Math.Sqrt(Math.PI) * Erf(Math.Sqrt(x) / (5 * Math.Sqrt(2)))) / Math.Sqrt(2))) / 2500000;
+
+        /// <summary>
+        /// Возвращает количество минут прошедшее после инъекции
+        /// </summary>
+        /// <param name="start">Время инъекции</param>
+        /// <param name="now">Текущее время</param>
+        /// <returns></returns>
+        public static double GetMinutesAfterInjection(DateTime start, DateTime now) =>
+            (now - start).TotalMinutes;
+
+        /// <summary>
+        /// Объединяет DateTime и TimeSpan
+        /// </summary>
+        /// <param name="d">DateTime</param>
+        /// <param name="t">TimeSpan</param>
+        /// <returns>DateTime, где TimeOfDay = t</returns>
+        public static DateTime DateTimeUnionTimeSpan(DateTime d, TimeSpan t) =>
+            new DateTime(d.Year, d.Month, d.Day, t.Hours, t.Minutes, t.Seconds);
+
+        /// <summary>
+        /// Возвращает процент активного инсулина
+        /// </summary>
+        /// <param name="start">Дата и время инъекции</param>
+        /// <param name="now">Текущая дата и время</param>
+        /// <param name="duration">Длительность инсулина в часах</param>
+        /// <returns></returns>
+        public static double GetActiveInsulinPercent(DateTime start, DateTime now, int duration)
+        {
+            var minutes = GetMinutesAfterInjection(start, now);
+            return minutes >= duration * 60 || now <= start
+                ? 0
+                : 1 - InsulinActivityCurvesIntegrate(minutes * 6 / duration);
+        }
     }
 }

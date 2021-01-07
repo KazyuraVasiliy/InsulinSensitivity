@@ -159,6 +159,10 @@ namespace InsulinSensitivity.Eating
                         x.TimeEnd >= value);
 
                 WorkingTime = value.Add(new TimeSpan((int)GlobalParameters.User.BolusType.Duration, 0, 0));
+
+                if (Eating.Id != Guid.Empty)
+                    ActiveInsulinEnd = Math.Round(BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
+                        Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
             }
         }
 
@@ -188,6 +192,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -219,6 +224,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -235,6 +241,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -251,6 +258,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -429,6 +437,10 @@ namespace InsulinSensitivity.Eating
 
                 CalculateExpectedGlucose();
                 CalculateInsulinSensitivityFact();
+
+                if (Eating.Id != Guid.Empty)
+                    ActiveInsulinEnd = Math.Round(value * (decimal)Calculation.GetActiveInsulinPercent(
+                        Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
             }
         }
 
@@ -444,6 +456,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateBolusDose();
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -457,6 +470,8 @@ namespace InsulinSensitivity.Eating
             {
                 Eating.ActiveInsulinEnd = value;
                 OnPropertyChanged();
+
+                CalculateInsulinSensitivityFact();
             }
         }
 
@@ -631,6 +646,16 @@ namespace InsulinSensitivity.Eating
                         x.DateCreated)
                     .Take(1)
                     .FirstOrDefault()?.DateCreated;
+
+                // Активный инсулин
+                if ((PreviousEatings?.Count ?? 0) > 0)
+                {
+                    if (Eating.Id == Guid.Empty)
+                        Eating.ActiveInsulinStart = Math.Round(PreviousEatings[0].BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
+                            Calculation.DateTimeUnionTimeSpan(PreviousEatings[0].DateCreated, PreviousEatings[0].InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
+                    else Eating.ActiveInsulinEnd = Math.Round(Eating.BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
+                            Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
+                }
             }
         }
 
@@ -833,7 +858,7 @@ namespace InsulinSensitivity.Eating
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlucoseEnd.Value,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    BolusDoseFact + ActiveInsulinStart)
+                    BolusDoseFact + ActiveInsulinStart - ActiveInsulinEnd)
                 : (decimal?)null;
 
             CalculateAccuracyAuto();

@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 
 using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
+using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 
 namespace InsulinSensitivity
@@ -45,6 +46,7 @@ namespace InsulinSensitivity
                 {
                     InitEatings();
                     OnPropertyChanged(nameof(LastEating));
+                    OnPropertyChanged(nameof(ActiveInsulin));
                 });
         }
 
@@ -76,6 +78,28 @@ namespace InsulinSensitivity
         /// </summary>
         public decimal TargetGlucose =>
             GlobalParameters.User.TargetGlucose;
+
+        private bool isRefreshing;
+        /// <summary>
+        /// Указывает на то, что обновление завершено
+        /// </summary>
+        public bool IsRefreshing
+        {
+            get => isRefreshing;
+            set
+            {
+                isRefreshing = value;
+                OnPropertyChanged(nameof(IsRefreshing));
+            }
+        }
+
+        /// <summary>
+        /// Количество активного инсулина в крови
+        /// </summary>
+        public double? ActiveInsulin =>
+            LastEating != null
+            ? Math.Round((double)LastEating.BolusDoseFact * Calculation.GetActiveInsulinPercent(Calculation.DateTimeUnionTimeSpan(LastEating.DateCreated, LastEating.InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero)
+            : (double?)null;
 
         #endregion
 
@@ -216,6 +240,19 @@ namespace InsulinSensitivity
 
         public ICommand OptionCommand =>
             new Command(OptionExecute);
+
+        #endregion
+
+        #region --Refresh
+
+        private void RefreshExecute()
+        {
+            OnPropertyChanged(nameof(ActiveInsulin));
+            IsRefreshing = false;
+        }
+
+        public ICommand RefreshCommand =>
+            new Command(RefreshExecute);
 
         #endregion
 

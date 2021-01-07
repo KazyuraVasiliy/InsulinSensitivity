@@ -9,6 +9,7 @@
     <ContentPage.Resources>
         <converters:BorderColorLastProductConverter x:Key="BorderColorLastProductConverter"/>
         <converters:IsLastProductConverter x:Key="IsLastProductConverter"/>
+        <converters:InversionBoolConverter x:Key="InversionBoolConverter"/>
         <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
         <converters:ExpectedGlucoseBoolConverter x:Key="ExpectedGlucoseBoolConverter"/>
 
@@ -58,6 +59,9 @@
             SelectionMode="None"
             SeparatorVisibility="None"
             IsGroupingEnabled="True"
+            IsPullToRefreshEnabled="True"
+            RefreshCommand="{Binding Path=RefreshCommand}"
+            IsRefreshing="{Binding Path=IsRefreshing}"
             ItemsSource="{Binding Path=Eatings}"
             SelectedItem="{Binding Path=SelectedEating}">
 
@@ -99,12 +103,12 @@
                                                         <ColumnDefinition Width="4*"/>
                                                         <ColumnDefinition Width="4*"/>
                                                         <ColumnDefinition Width="3*"/>
-                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>                                                        
                                                     </Grid.ColumnDefinitions>
 
                                                     <Label
                                                         Grid.Column="0"
-                                                        VerticalTextAlignment="Center"
+                                                        VerticalTextAlignment="End"
                                                         HorizontalTextAlignment="Start"
                                                         TextColor="Orange"
                                                         FontSize="14" FontAttributes="Italic">
@@ -126,7 +130,7 @@
 
                                                     <Label
                                                         Grid.Column="1"
-                                                        VerticalTextAlignment="Center"
+                                                        VerticalTextAlignment="End"
                                                         HorizontalTextAlignment="Center"
                                                         FontSize="14" FontAttributes="Bold">
 
@@ -139,7 +143,7 @@
 
                                                     <Label
                                                         Grid.Column="2"
-                                                        VerticalTextAlignment="Center"
+                                                        VerticalTextAlignment="End"
                                                         HorizontalTextAlignment="Start"
                                                         FontSize="14" FontAttributes="Bold"
                                                         TextColor="Red"
@@ -202,7 +206,25 @@
                                                     <Label 
                                                         Grid.Column="0"
                                                         VerticalTextAlignment="Center"
-                                                        Text="{Binding Path=InsulinSensitivityFact, StringFormat='{}ФЧИ: {0:N2}'}"/>
+                                                        Text="{Binding Path=InsulinSensitivityFact, StringFormat='{}ФЧИ: {0:N2}'}">
+
+                                                        <Label.Style>
+                                                            <Style TargetType="Label">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger TargetType="Label" Value="True">
+                                                                        <DataTrigger.Binding>
+                                                                            <MultiBinding Converter="{StaticResource IsLastProductConverter}">
+                                                                                <Binding Path="Id"/>
+                                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
+                                                                            </MultiBinding>
+                                                                        </DataTrigger.Binding>
+                                                                        <Setter Property="Text" Value="{Binding Path=BindingContext.ActiveInsulin, StringFormat='{}акт: {0} ед.', Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Label.Style>
+                                                    </Label>
+
                                                     <Label
                                                         Grid.Column="1"
                                                         Margin="0, 4, 0, 0"
