@@ -48,6 +48,9 @@ namespace InsulinSensitivity
                     OnPropertyChanged(nameof(LastEating));
                     OnPropertyChanged(nameof(ActiveInsulin));
                 });
+
+            MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
+                (sender) => OnPropertyChanged(nameof(ActiveInsulin)));
         }
 
         #endregion

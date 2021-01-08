@@ -26,7 +26,8 @@ namespace InsulinSensitivity
             {
                 new MainPageMasterItemModel("\xe12c", "Пользователь", EditUserCommand),
                 new MainPageMasterItemModel("\xe0e3", "Нагрузки", EditExerciseTypeCommand),
-                new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand, true),
+                new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
+                new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
                 new MainPageMasterItemModel("\xe125", "Экспорт", ExportCommand),
             };
 
@@ -112,6 +113,21 @@ namespace InsulinSensitivity
 
         public ICommand EditEatingTypeCommand =>
             new Command(EditEatingTypeExecute);
+
+        #endregion
+
+        #region --Edit Insulin Type
+
+        private async void EditInsulinTypeExecute()
+        {
+            var insulinTypePage = new InsulinType.InsulinTypePage();
+            insulinTypePage.BindingContext = new InsulinType.InsulinTypePageViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(insulinTypePage, true);
+        }
+
+        public ICommand EditInsulinTypeCommand =>
+            new Command(EditInsulinTypeExecute);
 
         #endregion
 

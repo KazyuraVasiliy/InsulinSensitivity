@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"             
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             x:Class="InsulinSensitivity.InsulinType.InsulinTypePage"
+             Title="Инсулины"
+             x:Name="Page">
+
+    <ContentPage.Resources>
+        <converters:BorderColorLastProductConverter x:Key="BorderColorLastProductConverter"/>
+        
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Margin" Value="5, 5, 5, 0"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+
+            <Setter Property="BorderColor">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource BorderColorLastProductConverter}">
+                        <Binding Path="Id"/>
+                        <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.UserBolusTypeId"/>
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid>            
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="80"/>
+            </Grid.ColumnDefinitions>
+
+            <ListView
+                Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="0" Grid.ColumnSpan="3"
+                HasUnevenRows="True"
+                SelectionMode="None"
+                SeparatorVisibility="None"
+                IsGroupingEnabled="True"
+                IsPullToRefreshEnabled="True"
+                RefreshCommand="{Binding Path=RefreshCommand}"
+                IsRefreshing="{Binding Path=IsRefreshing}"
+                ItemsSource="{Binding Path=Types}">
+
+                <ListView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Frame
+                                Margin="5, 7, 5, 0"
+                                Padding="0"
+                                BackgroundColor="CadetBlue">
+
+                                <StackLayout
+                                    Spacing="0">
+
+                                    <Label
+                                        Padding="4"
+                                        FontAttributes="Bold"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding Name}" />
+                                </StackLayout>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.GroupHeaderTemplate>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Frame Style="{StaticResource Frame}">
+                                    <StackLayout>
+                                        <Label
+                                            Text="{Binding Path=Name}"/>
+                                        <StackLayout
+                                            Orientation="Horizontal"
+                                            Spacing="0">
+
+                                            <Label
+                                                Text="{Binding Path=Duration, StringFormat='{}Продолжительность: {0:N0};'}"/>
+                                            <!--<Label
+                                                Padding="4, 0, 0, 0"
+                                                Text="Болюсный">
+
+                                                <Label.Style>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Path=IsBasal}" Value="True">
+                                                                <Setter Property="Text" Value="Базальный"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Label.Style>
+                                            </Label>-->
+                                        </StackLayout>
+                                    </StackLayout>
+                                </Frame>
+                            </ViewCell.View>
+                            <ViewCell.ContextActions>
+                                <MenuItem
+                                    Text="Изменить"
+                                    Command="{Binding Path=BindingContext.EditCommand, Source={x:Reference Page}}"
+                                    CommandParameter="{Binding .}"
+                                    IsDestructive="True" />
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
