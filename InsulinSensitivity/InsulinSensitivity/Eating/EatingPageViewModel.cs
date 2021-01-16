@@ -122,6 +122,11 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
+        /// Эквивалентный день предыдущего цикла
+        /// </summary>
+        private DateTime? EquivalentDay { get; set; }
+
+        /// <summary>
         /// Дата последней менструации
         /// </summary>
         private DateTime? LastMenstruationDate { get; set; }
@@ -145,6 +150,7 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
 
                 CalculateInsulinSensitivityOne();
+                CalculateInsulinSensitivityThree();
             }
         }
 
@@ -363,23 +369,44 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// ФЧИ рассчитанный по третьей формуле
+        /// </summary>
+        private decimal? InsulinSensitivityAutoThree
+        {
+            get => Eating.InsulinSensitivityAutoThree;
+            set
+            {
+                Eating.InsulinSensitivityAutoThree = value;
+                OnPropertyChanged();
+
+                OnPropertyChanged(nameof(InsulinSensitivityAuto));
+                CalculateExpectedGlucose();
+                CalculateAccuracyAuto();
+            }
+        }
+
+        /// <summary>
         /// ФЧИ рассчитанный (средний)
         /// </summary>
         public decimal? InsulinSensitivityAuto
         {
             get
             {
-                var result = InsulinSensitivityAutoOne != null && InsulinSensitivityAutoTwo != null
-                    ? (InsulinSensitivityAutoOne + InsulinSensitivityAutoTwo) / 2
-                    : InsulinSensitivityAutoOne != null && InsulinSensitivityAutoTwo == null
-                        ? InsulinSensitivityAutoOne
-                        : InsulinSensitivityAutoOne == null && InsulinSensitivityAutoTwo != null
-                            ? InsulinSensitivityAutoTwo
-                            : null;
+                var values = new List<decimal?>()
+                {
+                    InsulinSensitivityAutoOne,
+                    InsulinSensitivityAutoTwo,
+                    InsulinSensitivityAutoThree
+                };
 
-                return result == null
+                values = values
+                    .Where(x =>
+                        x != null)
+                    .ToList();
+
+                return (values?.Count ?? 0) == 0
                     ? (decimal?)null
-                    : Math.Round(result.Value, 3, MidpointRounding.AwayFromZero);
+                    : Math.Round(values.Average().Value, 3, MidpointRounding.AwayFromZero);
             }
         }            
 
@@ -507,15 +534,16 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private bool isMenstrualCycleStart;
         /// <summary>
         /// Начало менструального цикла
         /// </summary>
         public bool IsMenstrualCycleStart
         {
-            get => Eating.IsMenstrualCycleStart;
+            get => isMenstrualCycleStart;
             set
             {
-                Eating.IsMenstrualCycleStart = value;
+                isMenstrualCycleStart = value;
                 OnPropertyChanged();
             }
         }
@@ -657,15 +685,27 @@ namespace InsulinSensitivity.Eating
                     .Take(4)
                     .ToList();
 
-                // Дата начала последней менструации
-                LastMenstruationDate = db.Eatings
-                    .Where(x =>
-                        x.Id != Eating.Id &&
-                        x.IsMenstrualCycleStart)
-                    .OrderByDescending(x =>
-                        x.DateCreated)
-                    .Take(1)
-                    .FirstOrDefault()?.DateCreated;
+                // Эквивалентный день предыдущего цикла
+                if (GlobalParameters.User.Gender == false)
+                {
+                    var menstrualCollection = db.MenstrualCycles
+                        .OrderByDescending(x =>
+                            x.DateStart)
+                        .Take(2)
+                        .ToList();
+
+                    if ((menstrualCollection?.Count ?? 0) > 0)
+                        LastMenstruationDate = menstrualCollection[0].DateStart;
+
+                    if ((menstrualCollection?.Count ?? 0) > 1)
+                    {
+                        var day = (DateTime.Now - menstrualCollection[0].DateStart).TotalDays;
+                        var equivalentDay = menstrualCollection[1].DateStart.AddDays(day);
+
+                        if (equivalentDay < menstrualCollection[0].DateStart)
+                            EquivalentDay = equivalentDay;
+                    }
+                }
 
                 // Активный инсулин
                 if ((PreviousEatings?.Count ?? 0) > 0)
@@ -854,6 +894,45 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Рассчитывает автоматический ФЧИ по третьей формуле и дозу болюсного инсулина
+        /// </summary>
+        private void CalculateInsulinSensitivityThree()
+        {
+            // Рассчёт ФЧИ по третьей формуле
+            InsulinSensitivityAutoThree = null;
+            var check = 
+                !GlobalParameters.User.Gender &&
+                EquivalentDay != null &&
+                EatingType != null;
+
+            if (check)
+            {
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    var previousDay = EquivalentDay.Value.AddDays(-1);
+                    var nextDay = EquivalentDay.Value.AddDays(1);
+
+                    var averageEatingTypeSensitivityCollection = db.Eatings
+                        .Where(x =>
+                            x.Id != Eating.Id &&
+                            x.InsulinSensitivityFact != null &&
+                            x.EatingTypeId == EatingType.Id &&
+                            x.DateCreated >= previousDay &&
+                            x.DateCreated <= nextDay)
+                        .ToList();
+
+                    if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
+                        InsulinSensitivityAutoThree = averageEatingTypeSensitivityCollection
+                            .Average(x =>
+                                x.InsulinSensitivityFact);
+                }
+            }
+
+            // Рассчёт дозы болюсного инсулина
+            CalculateBolusDose();
+        }
+
+        /// <summary>
         /// Рассчёт дозы болюсного инсулина
         /// </summary>
         private void CalculateBolusDose()
@@ -1008,7 +1087,7 @@ namespace InsulinSensitivity.Eating
                 eating.AccuracyAuto = Eating.AccuracyAuto;
                 eating.AccuracyUser = Eating.AccuracyUser;
 
-                eating.IsMenstrualCycleStart = Eating.IsMenstrualCycleStart;
+                // eating.IsMenstrualCycleStart = Eating.IsMenstrualCycleStart;
                 eating.Comment = Eating.Comment;
 
                 eating.EatingTypeId = Eating.EatingType.Id;
@@ -1016,12 +1095,20 @@ namespace InsulinSensitivity.Eating
 
                 eating.ExpectedGlucose = Eating.ExpectedGlucose;
 
-                eating.WriteOff = GlobalParameters.User.BasalType.Duration;
+                // eating.WriteOff = GlobalParameters.User.BasalType.Duration;
                 eating.WorkingTime = Eating.WorkingTime;
                 eating.ExerciseId = exercise.Id;
 
                 if (Eating.Id == Guid.Empty)
                     db.Eatings.Add(eating);
+
+                if (IsMenstrualCycleStart)
+                    db.MenstrualCycles.Add(new Models.MenstrualCycle()
+                    {
+                        Id = Guid.NewGuid(),
+                        DateStart = DateTime.Now,
+                        UserId = GlobalParameters.User.Id
+                    });
 
                 db.SaveChanges();
 

@@ -85,6 +85,11 @@ namespace DataAccessLayer.Models
         public decimal? InsulinSensitivityAutoTwo { get; set; }
 
         /// <summary>
+        /// ФЧИ вычисленный автоматически (метод №3)
+        /// </summary>
+        public decimal? InsulinSensitivityAutoThree { get; set; }
+
+        /// <summary>
         /// ФЧИ вычисленный пользователем
         /// </summary>
         public decimal? InsulinSensitivityUser { get; set; }
