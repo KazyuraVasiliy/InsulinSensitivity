@@ -30,6 +30,9 @@ namespace InsulinSensitivity.Eating
             {
                 // ... Типы приёмов пищи
                 EatingTypes = db.EatingTypes
+                    .ToList()
+                    .OrderBy(x => 
+                        x.TimeStart)
                     .ToList();
 
                 // ... Типы упражнений
@@ -131,6 +134,16 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private DateTime? LastMenstruationDate { get; set; }
 
+        /// <summary>
+        /// Верхняя граница
+        /// </summary>
+        private decimal? Extremum { get; set; }
+
+        /// <summary>
+        /// Нижняя граница
+        /// </summary>
+        private decimal? Infinum { get; set; }
+
         #endregion
 
         /// <summary>
@@ -149,6 +162,7 @@ namespace InsulinSensitivity.Eating
                 Eating.EatingType = value;
                 OnPropertyChanged();
 
+                CalculateInfinumExtremum();
                 CalculateInsulinSensitivityOne();
                 CalculateInsulinSensitivityThree();
             }
@@ -404,6 +418,14 @@ namespace InsulinSensitivity.Eating
                         x != null)
                     .ToList();
 
+                if (Infinum != null && Extremum != null)
+                {
+                    values = values
+                        .Select(x =>
+                            x < Infinum ? Infinum : (x > Extremum ? Extremum : x))
+                        .ToList();
+                }
+
                 return (values?.Count ?? 0) == 0
                     ? (decimal?)null
                     : Math.Round(values.Average().Value, 3, MidpointRounding.AwayFromZero);
@@ -613,7 +635,7 @@ namespace InsulinSensitivity.Eating
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
                         previousAverageEatingTypeSensitivityQuery = previousAverageEatingTypeSensitivityQuery
                             .Where(x =>
-                                x.DateCreated >= Period);
+                                x.DateCreated.Date >= Period.Date);
 
                     var previousAverageEatingTypeSensitivityCollection = previousAverageEatingTypeSensitivityQuery
                         .ToList();
@@ -641,7 +663,7 @@ namespace InsulinSensitivity.Eating
                         if (GlobalParameters.User.PeriodOfCalculation > 0)
                             exercisesQuery = exercisesQuery
                                 .Where(x =>
-                                    x.DateCreated >= Period);
+                                    x.DateCreated.Date >= Period.Date);
                         
                         var exercises = exercisesQuery
                             .Include(x => x.Exercise)
@@ -738,7 +760,7 @@ namespace InsulinSensitivity.Eating
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
                         averageEatingTypeSensitivityCollectionQuery = averageEatingTypeSensitivityCollectionQuery
                             .Where(x =>
-                                x.DateCreated >= Period);
+                                x.DateCreated.Date >= Period.Date);
 
                     // Средний ФЧИ текущего типа приёма пищи
                     var averageEatingTypeSensitivityCollection = averageEatingTypeSensitivityCollectionQuery
@@ -785,7 +807,7 @@ namespace InsulinSensitivity.Eating
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
                         averageExerciseTypeSensitivityCollectionQuery = averageExerciseTypeSensitivityCollectionQuery
                             .Where(x =>
-                                x.DateCreated >= Period);
+                                x.DateCreated.Date >= Period.Date);
 
                     // Средний ФЧИ текущего типа нагрузки
                     var averageExerciseTypeSensitivityCollection = averageExerciseTypeSensitivityCollectionQuery
@@ -996,6 +1018,74 @@ namespace InsulinSensitivity.Eating
             AccuracyUser = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null
                 ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
                 : (int?)null;
+        }
+
+        /// <summary>
+        /// Рассчёт минимального и максимального отношения ФЧИ текущего типа приёма пищи к предыдущему
+        /// </summary>
+        private void CalculateInfinumExtremum()
+        {
+            Infinum = null;
+            Extremum = null;
+
+            //var mod = EatingTypes.Count;
+            //Models.EatingType previousType = EatingTypes[((EatingTypes.IndexOf(EatingType) - 1) % mod + mod) % mod];
+
+            //var previousEating = PreviousEatings?
+            //    .FirstOrDefault(x =>
+            //        x.EatingTypeId == previousType.Id &&
+            //        x.InsulinSensitivityFact != null &&
+            //        x.DateCreated.Date == DateTime.Now.Date);
+
+            bool check =
+                EatingType != null &&
+                (PreviousEatings?.Count ?? 0) > 0 &&
+                PreviousEatings[0].InsulinSensitivityFact != null;
+
+            if (check)
+            {
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    var yesterday = DateTime.Now.AddDays(-1);
+                    var ratioCollectionQuery = db.Eatings
+                        .Where(x =>
+                            x.DateCreated.Date <= yesterday.Date &&
+                            x.InsulinSensitivityFact != null);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        ratioCollectionQuery = ratioCollectionQuery
+                            .Where(x =>
+                                x.DateCreated >= Period);
+
+                    var ratioCollection = ratioCollectionQuery
+                        .ToList()
+                        .OrderByDescending(x =>
+                            x.DateCreated.Date)
+                        .ThenByDescending(x =>
+                            x.InjectionTime)
+                        .ToList();
+
+                    var ratios = new List<decimal>();
+                    for (int i = 0; i < (ratioCollection?.Count ?? 0); i++)
+                    {
+                        check =
+                            ratioCollection[i].EatingTypeId == EatingType.Id &&
+                            i != 0 &&
+                            ratioCollection[i - 1].InsulinSensitivityFact != 0;
+
+                        if (check)
+                            ratios.Add(ratioCollection[i].InsulinSensitivityFact.Value / ratioCollection[i - 1].InsulinSensitivityFact.Value);
+                    }
+
+                    if ((ratioCollection?.Count ?? 0) > 0)
+                    {
+                        Infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
+                        Extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
+                    }
+                }
+            }
+
+            OnPropertyChanged(nameof(InsulinSensitivityAuto));
         }
 
         #endregion
