@@ -418,12 +418,16 @@ namespace InsulinSensitivity.Eating
                         x != null)
                     .ToList();
 
-                if (Infinum != null && Extremum != null)
+                if (Infinum != null || Extremum != null)
                 {
-                    values = values
-                        .Select(x =>
-                            x < Infinum ? Infinum : (x > Extremum ? Extremum : x))
-                        .ToList();
+                    for (int i = 0; i < (values?.Count ?? 0); i++)
+                    {
+                        if (Infinum != null)
+                            values[i] = values[i] < Infinum ? Infinum : values[i];
+
+                        if (Extremum != null)
+                            values[i] = values[i] > Extremum ? Extremum : values[i];
+                    }
                 }
 
                 return (values?.Count ?? 0) == 0
@@ -1079,8 +1083,14 @@ namespace InsulinSensitivity.Eating
 
                     if ((ratioCollection?.Count ?? 0) > 0)
                     {
-                        Infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
-                        Extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
+                        var infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
+                        var extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
+
+                        if (infinum < 0.95M)
+                            Infinum = infinum;
+
+                        if (extremum > 1.05M)
+                            Extremum = extremum;
                     }
                 }
             }

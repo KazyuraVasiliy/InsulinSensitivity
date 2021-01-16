@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAcce
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLogicLayer", "BusinessLogicLayer\BusinessLogicLayer.csproj", "{2960F423-60C8-4590-811A-80D46D2487EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FictiveProject", "FictiveProject\FictiveProject.csproj", "{46DD409D-995F-403D-A8A9-A17576406BFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FictiveProject", "FictiveProject\FictiveProject.csproj", "{46DD409D-995F-403D-A8A9-A17576406BFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
