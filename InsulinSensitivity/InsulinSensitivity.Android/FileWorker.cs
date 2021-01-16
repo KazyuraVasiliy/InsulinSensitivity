@@ -35,14 +35,14 @@ namespace InsulinSensitivity.Droid
         public async Task<string> LoadTextAsync(string fileName)
         {
             string filePath = GetPath(fileName);
-            using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.GetEncoding(1251)))
+            using (StreamReader reader = new StreamReader(filePath, System.Text.Encoding.UTF8))
                 return await reader.ReadToEndAsync();
         }
 
         public async Task SaveTextAsync(string fileName, string text)
         {
             string filePath = GetPath(fileName);
-            using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.GetEncoding(1251)))
+            using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
                 await writer.WriteAsync(text);
         }
 
