@@ -97,6 +97,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Время отработки
         /// </summary>
+        [Obsolete("This property is obsolete. Use WorkingTime instead.", false)]
         public decimal WriteOff { get; set; }
 
         /// <summary>

@@ -28,12 +28,12 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
         /// </summary>
-        public List<Eating> BasalUsers { get; set; }
+        public List<User> BasalUsers { get; set; }
 
         /// <summary>
         /// Пользователи с юолюсным инсулином (Навигационное свойство)
         /// </summary>
-        public List<Eating> BolusUsers { get; set; }
+        public List<User> BolusUsers { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры
