@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccessLayer.Models
 {
@@ -108,5 +109,10 @@ namespace DataAccessLayer.Models
         /// Тип болюсного инсулина (Навигационное свойство)
         /// </summary>
         public InsulinType BolusType { get; set; }
+
+        /// <summary>
+        /// Менструальные циклы (Навигационное свойство)
+        /// </summary>
+        public List<MenstrualCycle> MenstrualCycles { get; set; }
     }
 }

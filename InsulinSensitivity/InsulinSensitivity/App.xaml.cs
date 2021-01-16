@@ -275,7 +275,7 @@ namespace InsulinSensitivity
                         }
                     });
                     db.SaveChanges();
-                }                
+                }
             }
 
             // Инициализация главной страницы

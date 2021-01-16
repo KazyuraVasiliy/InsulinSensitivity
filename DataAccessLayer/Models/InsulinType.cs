@@ -31,7 +31,7 @@ namespace DataAccessLayer.Models
         public List<User> BasalUsers { get; set; }
 
         /// <summary>
-        /// Пользователи с юолюсным инсулином (Навигационное свойство)
+        /// Пользователи с болюсным инсулином (Навигационное свойство)
         /// </summary>
         public List<User> BolusUsers { get; set; }
 

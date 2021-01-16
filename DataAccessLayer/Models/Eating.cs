@@ -108,6 +108,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Начало менструального цикла
         /// </summary>
+        [Obsolete("This property is obsolete. Use MenstrualCycle class instead.", false)]
         public bool IsMenstrualCycleStart { get; set; }
 
         /// <summary>

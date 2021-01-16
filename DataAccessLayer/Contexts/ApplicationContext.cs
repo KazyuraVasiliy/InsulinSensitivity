@@ -13,6 +13,7 @@ namespace DataAccessLayer.Contexts
         public DbSet<ExerciseType> ExerciseTypes { get; set; }
         public DbSet<InsulinType> InsulinTypes { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<MenstrualCycle> MenstrualCycles { get; set; }
 
         public ApplicationContext(string databasePath) =>
             this.databasePath = databasePath;
@@ -21,5 +22,16 @@ namespace DataAccessLayer.Contexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseSqlite($"Filename={databasePath}");
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<InsulinType>()
+                .HasMany(b => b.BasalUsers)
+                .WithOne(p => p.BasalType);
+
+            modelBuilder.Entity<InsulinType>()
+                .HasMany(b => b.BolusUsers)
+                .WithOne(p => p.BolusType);
+        }
     }
 }
