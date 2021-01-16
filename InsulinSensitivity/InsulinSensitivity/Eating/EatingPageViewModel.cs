@@ -93,6 +93,12 @@ namespace InsulinSensitivity.Eating
         #region --Previous
 
         /// <summary>
+        /// Количество дней, за которые учитываются средние значения
+        /// </summary>
+        private DateTime Period { get; set; } =
+            DateTime.Now.AddDays(-GlobalParameters.User.PeriodOfCalculation);
+
+        /// <summary>
         /// Предыдущие приёмы пищи
         /// </summary>
         private List<Models.Eating> PreviousEatings { get; set; } =
@@ -571,10 +577,17 @@ namespace InsulinSensitivity.Eating
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)
                 {
-                    var previousAverageEatingTypeSensitivityCollection = db.Eatings
+                    var previousAverageEatingTypeSensitivityQuery = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
-                            x.EatingTypeId == previousEating.EatingTypeId)
+                            x.EatingTypeId == previousEating.EatingTypeId);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        previousAverageEatingTypeSensitivityQuery = previousAverageEatingTypeSensitivityQuery
+                            .Where(x =>
+                                x.DateCreated >= Period);
+
+                    var previousAverageEatingTypeSensitivityCollection = previousAverageEatingTypeSensitivityQuery
                         .ToList();
 
                     PreviousAverageEatingTypeSensitivity = (previousAverageEatingTypeSensitivityCollection?.Count ?? 0) > 0
@@ -591,11 +604,18 @@ namespace InsulinSensitivity.Eating
                     if (previous.Exercise != null)
                     {
                         // ... Приёмы пищи с нагрузкой равной по типу и количеству часов после инъекции
-                        var exercises = db.Eatings
+                        var exercisesQuery = db.Eatings
                             .Where(x =>
                                 x.Id != Eating.Id &&
                                 x.Exercise.ExerciseTypeId == previous.Exercise.ExerciseTypeId &&
-                                x.Exercise.HoursAfterInjection == previous.Exercise.HoursAfterInjection)
+                                x.Exercise.HoursAfterInjection == previous.Exercise.HoursAfterInjection);
+
+                        if (GlobalParameters.User.PeriodOfCalculation > 0)
+                            exercisesQuery = exercisesQuery
+                                .Where(x =>
+                                    x.DateCreated >= Period);
+                        
+                        var exercises = exercisesQuery
                             .Include(x => x.Exercise)
                             .ToList();
 
@@ -670,11 +690,18 @@ namespace InsulinSensitivity.Eating
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    // Средний ФЧИ текущего типа приёма пищи
-                    var averageEatingTypeSensitivityCollection = db.Eatings
+                    var averageEatingTypeSensitivityCollectionQuery = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
-                            x.EatingTypeId == EatingType.Id)
+                            x.EatingTypeId == EatingType.Id);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        averageEatingTypeSensitivityCollectionQuery = averageEatingTypeSensitivityCollectionQuery
+                            .Where(x =>
+                                x.DateCreated >= Period);
+
+                    // Средний ФЧИ текущего типа приёма пищи
+                    var averageEatingTypeSensitivityCollection = averageEatingTypeSensitivityCollectionQuery
                         .ToList();
 
                     var averageEatingTypeSensitivity = (averageEatingTypeSensitivityCollection?.Count ?? 0) > 0
@@ -709,12 +736,19 @@ namespace InsulinSensitivity.Eating
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    // Средний ФЧИ текущего типа нагрузки
-                    var averageExerciseTypeSensitivityCollection = db.Eatings
+                    var averageExerciseTypeSensitivityCollectionQuery = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
                             x.Exercise.ExerciseTypeId == ExerciseType.Id &&
-                            x.Exercise.HoursAfterInjection == HoursAfterInjection)
+                            x.Exercise.HoursAfterInjection == HoursAfterInjection);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        averageExerciseTypeSensitivityCollectionQuery = averageExerciseTypeSensitivityCollectionQuery
+                            .Where(x =>
+                                x.DateCreated >= Period);
+
+                    // Средний ФЧИ текущего типа нагрузки
+                    var averageExerciseTypeSensitivityCollection = averageExerciseTypeSensitivityCollectionQuery
                         .Include(x => x.Exercise)
                         .ToList();
 

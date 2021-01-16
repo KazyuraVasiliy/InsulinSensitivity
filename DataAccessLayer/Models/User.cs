@@ -90,6 +90,11 @@ namespace DataAccessLayer.Models
         public Guid BasalTypeId { get; set; }
 
         /// <summary>
+        /// Количество дней, за которые учитываются средние значения
+        /// </summary>
+        public int PeriodOfCalculation { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
         /// </summary>
         public InsulinType BasalType { get; set; }

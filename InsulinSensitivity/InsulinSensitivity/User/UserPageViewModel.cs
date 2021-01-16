@@ -193,6 +193,20 @@ namespace InsulinSensitivity.User
             }
         }
 
+        /// <summary>
+        /// Кол-во дней для расчёта
+        /// </summary>
+        public int PeriodOfCalculation
+        {
+            get => User.PeriodOfCalculation;
+            set
+            {
+                if (value >= 0)
+                    User.PeriodOfCalculation = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Collections
@@ -280,19 +294,23 @@ namespace InsulinSensitivity.User
                 user.BasalTypeId = User.BasalType.Id;
 
                 user.DosingAccuracy = User.DosingAccuracy;
-                user.IsPump = User.IsPump;
+                user.IsPump = User.IsPump;                
 
                 if (User.Id == Guid.Empty)
                 {
                     user.CarbohydrateCoefficient = Math.Round(Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight), 2, MidpointRounding.AwayFromZero);
                     user.ProteinCoefficient = 0.3M;
                     user.FatCoefficient = 0.25M;
+
+                    user.PeriodOfCalculation = 14;
                 }
                 else
                 {
                     user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
                     user.ProteinCoefficient = User.ProteinCoefficient;
                     user.FatCoefficient = User.FatCoefficient;
+
+                    user.PeriodOfCalculation = User.PeriodOfCalculation;
                 }
 
                 if (User.Id == Guid.Empty)
@@ -325,7 +343,9 @@ namespace InsulinSensitivity.User
             User.HighSugar > User.TargetGlucose &&
             User.Hyperglycemia > User.HighSugar &&
             // Точность дозирования
-            User.DosingAccuracy > 0;
+            User.DosingAccuracy > 0 &&
+            // Кол-во дней для расчёта
+            User.PeriodOfCalculation >= 0;
 
         public ICommand OkCommand =>
             new Command(OkExecute);

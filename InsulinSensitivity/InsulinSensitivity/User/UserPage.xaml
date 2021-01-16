@@ -81,7 +81,8 @@
                                     Keyboard="Numeric"
                                     view:Tag.Tag="Height"
                                     Unfocused="Entry_Unfocused"
-                                    Text="{Binding Path=Height}"/>
+                                    Text="{Binding Path=Height}"
+                                    ReturnType="Next"/>
                             </StackLayout>
 
                             <StackLayout
@@ -91,6 +92,7 @@
                                 <Label
                                     Text="Вес:"/>
                                 <Entry
+                                    TabIndex="4"
                                     Keyboard="Numeric"
                                     view:Tag.Tag="Weight"
                                     Unfocused="Entry_Unfocused"
@@ -114,7 +116,6 @@
                                 <Label
                                     Text="УК:"/>
                                 <Entry
-                                    TabIndex="3"
                                     Keyboard="Numeric"
                                     view:Tag.Tag="CarbohydrateCoefficient"
                                     Unfocused="Entry_Unfocused"
@@ -221,7 +222,9 @@
                         <Entry
                             Keyboard="Numeric"
                             view:Tag.Tag="Hypoglycemia"
-                            Unfocused="Entry_Unfocused"                            
+                            Unfocused="Entry_Unfocused"    
+                            TabIndex="5"
+                            ReturnType="Next"
                             Text="{Binding Path=Hypoglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
@@ -230,6 +233,8 @@
                             Keyboard="Numeric"
                             view:Tag.Tag="LowSugar"
                             Unfocused="Entry_Unfocused"
+                            TabIndex="6"
+                            ReturnType="Next"
                             Text="{Binding Path=LowSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
@@ -238,6 +243,8 @@
                             Keyboard="Numeric"
                             view:Tag.Tag="TargetGlucose"
                             Unfocused="Entry_Unfocused"
+                            TabIndex="7"
+                            ReturnType="Next"
                             Text="{Binding Path=TargetGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
@@ -246,6 +253,8 @@
                             Keyboard="Numeric"
                             view:Tag.Tag="HighSugar"
                             Unfocused="Entry_Unfocused"
+                            TabIndex="8"
+                            ReturnType="Next"
                             Text="{Binding Path=HighSugar, Converter={StaticResource DecimalToStringConverter}}"/>
 
                         <Label
@@ -254,6 +263,7 @@
                             Keyboard="Numeric"
                             view:Tag.Tag="Hyperglycemia"
                             Unfocused="Entry_Unfocused"
+                            TabIndex="9"
                             Text="{Binding Path=Hyperglycemia, Converter={StaticResource DecimalToStringConverter}}"/>
                     </StackLayout>
                 </Frame>
@@ -287,6 +297,16 @@
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=User.IsPump}"/>
                         </StackLayout>
+
+                        <Label
+                            Text="Кол-во дней для расчёта:"
+                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="PeriodOfCalculation"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=PeriodOfCalculation}"
+                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
                     </StackLayout>
                 </Frame>
 
