@@ -21,15 +21,18 @@ namespace InsulinSensitivity
     {
         #region Constructor
 
-        public MainPageMasterViewModel() =>
+        public MainPageMasterViewModel()
+        {
             Items = new List<MainPageMasterItemModel>()
             {
                 new MainPageMasterItemModel("\xe12c", "Пользователь", EditUserCommand),
                 new MainPageMasterItemModel("\xe0e3", "Нагрузки", EditExerciseTypeCommand),
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
+                new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
                 new MainPageMasterItemModel("\xe125", "Экспорт", ExportCommand),
             };
+        }
 
         #endregion
 
@@ -128,6 +131,33 @@ namespace InsulinSensitivity
 
         public ICommand EditInsulinTypeCommand =>
             new Command(EditInsulinTypeExecute);
+
+        #endregion
+
+        #region --Edit Menstrual Cycle 
+
+        private async void EditMenstrualCycleExecute()
+        {
+            if (!EditMenstrualCycleCanExecute())
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    "Вам недоступен данный раздел",
+                    "Ok");
+                return;
+            }
+
+            var menstrualCyclePage = new MenstrualCycle.MenstrualCyclePage();
+            menstrualCyclePage.BindingContext = new MenstrualCycle.MenstrualCyclePageViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(menstrualCyclePage, true);
+        }
+
+        private bool EditMenstrualCycleCanExecute() =>
+            GlobalParameters.User?.Gender == false;
+
+        public ICommand EditMenstrualCycleCommand =>
+            new Command(EditMenstrualCycleExecute, EditMenstrualCycleCanExecute);
 
         #endregion
 
