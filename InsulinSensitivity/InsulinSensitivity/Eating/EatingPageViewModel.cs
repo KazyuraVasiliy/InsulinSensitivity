@@ -1081,7 +1081,7 @@ namespace InsulinSensitivity.Eating
                             ratios.Add(ratioCollection[i].InsulinSensitivityFact.Value / ratioCollection[i - 1].InsulinSensitivityFact.Value);
                     }
 
-                    if ((ratioCollection?.Count ?? 0) > 0)
+                    if ((ratios?.Count ?? 0) > 0)
                     {
                         var infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
                         var extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
