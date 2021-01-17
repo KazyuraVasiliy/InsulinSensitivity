@@ -516,6 +516,7 @@ namespace InsulinSensitivity.Eating
 
                 CalculateBolusDose();
                 CalculateInsulinSensitivityFact();
+                CalculateExpectedGlucose();
             }
         }
 
@@ -979,7 +980,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateExpectedGlucose()
         {
             ExpectedGlucose = (InsulinSensitivityAuto != null || InsulinSensitivityUser != null)
-                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseFact,
+                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseFact + ActiveInsulinStart,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
                     InsulinSensitivityUser != null
@@ -1236,7 +1237,7 @@ namespace InsulinSensitivity.Eating
             // Рассчёты
             (InsulinSensitivityFact == null || InsulinSensitivityFact >= 0) &&
             (InsulinSensitivityUser == null || InsulinSensitivityUser >= 0) &&
-            BolusDoseFact > 0;
+            (BolusDoseFact + ActiveInsulinStart) > 0;
 
         public ICommand OkCommand =>
             new Command(OkExecute);
