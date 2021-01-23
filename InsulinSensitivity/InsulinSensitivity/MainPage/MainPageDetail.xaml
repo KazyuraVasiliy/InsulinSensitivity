@@ -52,6 +52,7 @@
             RefreshCommand="{Binding Path=RefreshCommand}"
             IsRefreshing="{Binding Path=IsRefreshing}"
             ItemsSource="{Binding Path=Eatings}"
+            CachingStrategy="RecycleElementAndDataTemplate"
             SelectedItem="{Binding Path=SelectedEating}">
 
             <ListView.GroupHeaderTemplate>
