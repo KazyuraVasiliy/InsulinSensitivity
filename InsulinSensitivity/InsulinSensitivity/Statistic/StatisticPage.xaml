@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+             x:Class="InsulinSensitivity.Statistic.StatisticPage"
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             Title="Статистика"
+             x:Name="Page">
+
+    <ContentPage.Resources>
+        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        <converters:InversionBoolConverter x:Key="InversionBoolConverter"/>
+
+        <Style
+            TargetType="Frame" x:Key="Frame">
+
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="10, 5, 10, 5"/>
+            <Setter Property="BorderColor" Value="SkyBlue"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <Frame
+                    Margin="5"
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=AsyncBase.Inactive, Converter={StaticResource InversionBoolConverter}}">
+
+                    <StackLayout>
+                        <Label
+                            Text="{Binding Path=AsyncBase.Description}"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <ActivityIndicator
+                            IsRunning="True"/>
+                    </StackLayout>
+                </Frame>
+
+                <ScrollView
+                    HeightRequest="300"
+                    IsVisible="{Binding Path=AsyncBase.Inactive}"
+                    HorizontalOptions="FillAndExpand"
+                    HorizontalScrollBarVisibility="Always"
+                    Orientation="Horizontal">
+
+                    <microcharts:ChartView
+                        WidthRequest="{Binding Path=WidthRequest}"
+                        Chart="{Binding Path=Chart}" />                
+                </ScrollView>
+
+                <Frame
+                    Margin="5"
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=AsyncBase.Inactive}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Информация"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="{Binding Path=Information}"/>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>    
+</ContentPage>

@@ -31,6 +31,7 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
                 new MainPageMasterItemModel("\xe125", "Экспорт", ExportCommand),
+                new MainPageMasterItemModel("\xe043", "Статистика", StatisticCommand),
             };
         }
 
@@ -158,6 +159,21 @@ namespace InsulinSensitivity
 
         public ICommand EditMenstrualCycleCommand =>
             new Command(EditMenstrualCycleExecute, EditMenstrualCycleCanExecute);
+
+        #endregion
+
+        #region --Statistic
+
+        private async void StatisticExecute()
+        {
+            var statisticPage = new Statistic.StatisticPage();
+            statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(statisticPage, true);
+        }
+
+        public ICommand StatisticCommand =>
+            new Command(StatisticExecute);
 
         #endregion
 
