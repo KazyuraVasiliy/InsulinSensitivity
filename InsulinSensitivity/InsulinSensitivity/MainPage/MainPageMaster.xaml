@@ -13,7 +13,7 @@
         
         <Frame 
             Grid.Row="0"
-            BackgroundColor="#2196F3" 
+            BackgroundColor="{AppThemeBinding Dark='#2196F3', Light='#2196F3'}"
             CornerRadius="0"
             Padding="12">
 

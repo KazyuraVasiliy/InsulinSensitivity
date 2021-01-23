@@ -11,14 +11,6 @@
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
         <converters:RadioButtonToBoolConverter x:Key="RadioButtonToBoolConverter"/>
 
-        <Style
-            TargetType="Frame" x:Key="Frame">
-
-            <Setter Property="CornerRadius" Value="3"/>
-            <Setter Property="Padding" Value="10, 5, 10, 5"/>
-            <Setter Property="BorderColor" Value="SkyBlue"/>
-        </Style>
-
         <s:Boolean x:Key="True">True</s:Boolean>
         <s:Boolean x:Key="False">False</s:Boolean>
     </ContentPage.Resources>

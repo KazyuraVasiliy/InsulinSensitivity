@@ -10,19 +10,13 @@
     <ContentPage.Resources>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
         <converters:InversionBoolConverter x:Key="InversionBoolConverter"/>
-
-        <Style
-            TargetType="Frame" x:Key="Frame">
-
-            <Setter Property="CornerRadius" Value="3"/>
-            <Setter Property="Padding" Value="10, 5, 10, 5"/>
-            <Setter Property="BorderColor" Value="SkyBlue"/>
-        </Style>
     </ContentPage.Resources>
 
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout>
+            <StackLayout
+                Spacing="0">
+                
                 <Frame
                     Margin="5"
                     Style="{StaticResource Frame}"
@@ -40,20 +34,24 @@
                     </StackLayout>
                 </Frame>
 
-                <ScrollView
-                    HeightRequest="300"
-                    IsVisible="{Binding Path=AsyncBase.Inactive}"
-                    HorizontalOptions="FillAndExpand"
-                    HorizontalScrollBarVisibility="Always"
-                    Orientation="Horizontal">
+                <Frame
+                    Style="{StaticResource Frame}"
+                    Padding="4"
+                    IsVisible="{Binding Path=AsyncBase.Inactive}">
+                    
+                    <ScrollView
+                        HeightRequest="300"                        
+                        HorizontalOptions="FillAndExpand"
+                        HorizontalScrollBarVisibility="Always"
+                        Orientation="Horizontal">
 
-                    <microcharts:ChartView
-                        WidthRequest="{Binding Path=WidthRequest}"
-                        Chart="{Binding Path=Chart}" />                
-                </ScrollView>
+                        <microcharts:ChartView
+                            WidthRequest="{Binding Path=WidthRequest}"
+                            Chart="{Binding Path=Chart}" />                
+                    </ScrollView>
+                </Frame>
 
                 <Frame
-                    Margin="5"
                     Style="{StaticResource Frame}"
                     IsVisible="{Binding Path=AsyncBase.Inactive}">
 

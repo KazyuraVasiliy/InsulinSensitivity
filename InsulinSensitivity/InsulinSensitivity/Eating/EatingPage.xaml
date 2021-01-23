@@ -8,19 +8,11 @@
 
     <ContentPage.Resources>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
-        
-        <Style
-            TargetType="Frame" x:Key="Frame">
-
-            <Setter Property="CornerRadius" Value="3"/>
-            <Setter Property="Padding" Value="10, 5, 10, 5"/>
-            <Setter Property="BorderColor" Value="SkyBlue"/>
-        </Style>
     </ContentPage.Resources>
 
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout            
+            <StackLayout
                 Margin="5">
 
                 <!--<Frame 

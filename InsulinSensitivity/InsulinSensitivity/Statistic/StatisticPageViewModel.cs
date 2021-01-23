@@ -138,9 +138,20 @@ namespace InsulinSensitivity.Statistic
                                 Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
                                     ? SkiaSharp.SKColors.Red
                                     : ovulations.Any(y => y.Date == x.Key.Date)
-                                        ? SkiaSharp.SKColors.DeepPink
+                                        ? SkiaSharp.SKColors.Pink
                                         : SkiaSharp.SKColors.Blue
-                            });
+                            })
+                        .ToList();
+
+                    if (App.Current.RequestedTheme == OSAppTheme.Dark)
+                    {
+                        foreach (var entry in entries)
+                        {
+                            entry.ValueLabelColor = SkiaSharp.SKColors.White;
+                            if (entry.Color == SkiaSharp.SKColors.Blue)
+                                entry.Color = SkiaSharp.SKColors.LightSkyBlue;
+                        }
+                    }
 
                     WidthRequest = (entries?.Count() ?? 0) * 15;
 
@@ -150,6 +161,14 @@ namespace InsulinSensitivity.Statistic
                         LabelTextSize = 40,
                         Entries = entries
                     };
+
+                    if (App.Current.RequestedTheme == OSAppTheme.Dark)
+                    {
+                        Chart.LabelColor = SkiaSharp.SKColors.White;
+                        Chart.BackgroundColor = new SkiaSharp.SKColor(29, 29, 29);
+                    }
+
+                    OnPropertyChanged(nameof(Chart));
 
                     List<string> informations = new List<string>();
                     informations.Add("Средние ФЧИ по приёмам пищи");

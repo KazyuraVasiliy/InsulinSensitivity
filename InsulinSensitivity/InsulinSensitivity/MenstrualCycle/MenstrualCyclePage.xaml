@@ -5,17 +5,6 @@
              x:Name="Page"
              Title="Циклы">
 
-    <ContentPage.Resources>
-        <Style
-            TargetType="Frame" x:Key="Frame">
-
-            <Setter Property="CornerRadius" Value="3"/>
-            <Setter Property="Margin" Value="5, 5, 5, 0"/>
-            <Setter Property="Padding" Value="10, 5, 10, 5"/>
-            <Setter Property="BorderColor" Value="SkyBlue"/>
-        </Style>
-    </ContentPage.Resources>
-
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -96,6 +85,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Frame
+                    Style="{StaticResource FrameBackgroundBase}"
                     Grid.Row="1" Grid.Column="1">
 
                     <Grid>

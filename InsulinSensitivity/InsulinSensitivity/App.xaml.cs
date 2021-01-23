@@ -283,6 +283,14 @@ namespace InsulinSensitivity
 
             // Инициализация навигации
             GlobalParameters.Navigation = ((MasterDetailPage)MainPage).Detail.Navigation;
+
+            //var detail = (NavigationPage)((MasterDetailPage)Application.Current.MainPage).Detail;
+
+            //if (App.Current.RequestedTheme == OSAppTheme.Dark)
+            //    detail.BarBackgroundColor = new Color(29, 29, 29);
+
+            //if (App.Current.RequestedTheme == OSAppTheme.Light)
+            //    detail.BarBackgroundColor = new Color(33, 150, 243);
         }
 
         protected override void OnStart()
