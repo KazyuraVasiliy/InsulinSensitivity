@@ -729,7 +729,7 @@ namespace InsulinSensitivity.Eating
                         var day = (DateTime.Now - menstrualCollection[0].DateStart).TotalDays;
                         var equivalentDay = menstrualCollection[1].DateStart.AddDays(day);
 
-                        if (equivalentDay < menstrualCollection[0].DateStart)
+                        if (equivalentDay.Date < menstrualCollection[0].DateStart.Date)
                             EquivalentDay = equivalentDay;
                     }
                 }
@@ -944,8 +944,8 @@ namespace InsulinSensitivity.Eating
                             x.Id != Eating.Id &&
                             x.InsulinSensitivityFact != null &&
                             x.EatingTypeId == EatingType.Id &&
-                            x.DateCreated >= previousDay &&
-                            x.DateCreated <= nextDay)
+                            x.DateCreated.Date >= previousDay.Date &&
+                            x.DateCreated.Date <= nextDay.Date)
                         .ToList();
 
                     if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
