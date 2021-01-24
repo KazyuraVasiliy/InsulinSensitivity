@@ -59,6 +59,20 @@ namespace InsulinSensitivity
         public string Version =>
             VersionTracking.CurrentVersion;
 
+        private bool? theme;
+        /// <summary>
+        /// Тема
+        /// </summary>
+        public bool? Theme
+        {
+            get => theme;
+            set
+            {
+                theme = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Collections
@@ -201,8 +215,8 @@ namespace InsulinSensitivity
                 var data = new LinkedList<string>();
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    data.AddLast($"Имя;Рост;Вес;УК;БК;ЖК;Гипоглекимия;Низкий;Целевой;Высокий;Гипергликимия;Базальный;Болюсный;Дозировка;Помпа");
-                    data.AddLast($"{GlobalParameters.User.Name};{GlobalParameters.User.Height};{GlobalParameters.User.Weight};" +
+                    data.AddLast($"Имя;Дата рождения;Рост;Вес;УК;БК;ЖК;Гипоглекимия;Низкий;Целевой;Высокий;Гипергликимия;Базальный;Болюсный;Дозировка;Помпа");
+                    data.AddLast($"{GlobalParameters.User.Name};{GlobalParameters.User.BirthDate.ToString("dd.MM.yyyy")};{GlobalParameters.User.Height};{GlobalParameters.User.Weight};" +
                         $"{GlobalParameters.User.CarbohydrateCoefficient};{GlobalParameters.User.ProteinCoefficient};{GlobalParameters.User.FatCoefficient};" +
                         $"{GlobalParameters.User.Hypoglycemia};{GlobalParameters.User.LowSugar};{GlobalParameters.User.TargetGlucose};{GlobalParameters.User.HighSugar};{GlobalParameters.User.Hyperglycemia};" +
                         $"{GlobalParameters.User.BasalType.Name};{GlobalParameters.User.BolusType.Name};" +
@@ -267,6 +281,38 @@ namespace InsulinSensitivity
 
         public ICommand ExportCommand =>
              new Command(ExportExecute);
+
+        #endregion
+
+        #region --Change Theme
+
+        private void ChangeThemeExecute()
+        {
+            if (Theme == null)
+            {
+                App.Current.UserAppTheme = OSAppTheme.Light;
+
+                Theme = true;
+                return;
+            }
+            else if (Theme == true)
+            {
+                App.Current.UserAppTheme = OSAppTheme.Dark;
+
+                Theme = false;
+                return;
+            }
+            else if (Theme == false)
+            {
+                App.Current.UserAppTheme = OSAppTheme.Unspecified;
+
+                Theme = null;
+                return;
+            }
+        }
+
+        public ICommand ChangeThemeCommand =>
+            new Command(ChangeThemeExecute);
 
         #endregion
 
