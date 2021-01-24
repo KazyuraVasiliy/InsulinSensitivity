@@ -726,7 +726,7 @@ namespace InsulinSensitivity.Eating
 
                     if ((menstrualCollection?.Count ?? 0) > 1)
                     {
-                        var day = (DateTime.Now - menstrualCollection[0].DateStart).TotalDays;
+                        var day = (DateTime.Now.Date - menstrualCollection[0].DateStart.Date).TotalDays;
                         var equivalentDay = menstrualCollection[1].DateStart.AddDays(day);
 
                         if (equivalentDay.Date < menstrualCollection[0].DateStart.Date)
@@ -1182,6 +1182,8 @@ namespace InsulinSensitivity.Eating
 
                 eating.InsulinSensitivityAutoOne = Eating.InsulinSensitivityAutoOne;
                 eating.InsulinSensitivityAutoTwo = Eating.InsulinSensitivityAutoTwo;
+                eating.InsulinSensitivityAutoThree = Eating.InsulinSensitivityAutoThree;
+
                 eating.InsulinSensitivityUser = Eating.InsulinSensitivityUser;
                 eating.InsulinSensitivityFact = Eating.InsulinSensitivityFact;
 
