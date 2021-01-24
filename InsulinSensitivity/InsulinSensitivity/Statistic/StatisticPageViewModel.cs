@@ -135,40 +135,38 @@ namespace InsulinSensitivity.Statistic
                             {
                                 Label = x.Key.ToString("dd.MM.yy"),
                                 ValueLabel = Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero).ToString(),
+                                ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.White
+                                    : SkiaSharp.SKColors.Black,
+
                                 Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
                                     ? SkiaSharp.SKColors.Red
                                     : ovulations.Any(y => y.Date == x.Key.Date)
                                         ? SkiaSharp.SKColors.Pink
-                                        : SkiaSharp.SKColors.Blue
+                                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                                            ? SkiaSharp.SKColors.Blue
+                                            : SkiaSharp.SKColors.LightSkyBlue
                             })
                         .ToList();
 
-                    if (App.Current.RequestedTheme == OSAppTheme.Dark)
-                    {
-                        foreach (var entry in entries)
-                        {
-                            entry.ValueLabelColor = SkiaSharp.SKColors.White;
-                            if (entry.Color == SkiaSharp.SKColors.Blue)
-                                entry.Color = SkiaSharp.SKColors.LightSkyBlue;
-                        }
-                    }
-
                     WidthRequest = (entries?.Count() ?? 0) * 15;
 
-                    Chart = new LineChart()
+                    App.Current.Dispatcher.BeginInvokeOnMainThread(() =>
                     {
-                        LineMode = LineMode.Spline,
-                        LabelTextSize = 40,
-                        Entries = entries
-                    };
+                        Chart = new LineChart()
+                        {
+                            LineMode = LineMode.Spline,
+                            LabelTextSize = 40,
+                            Entries = entries,
 
-                    if (App.Current.RequestedTheme == OSAppTheme.Dark)
-                    {
-                        Chart.LabelColor = SkiaSharp.SKColors.White;
-                        Chart.BackgroundColor = new SkiaSharp.SKColor(29, 29, 29);
-                    }
-
-                    OnPropertyChanged(nameof(Chart));
+                            LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+                            BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? new SkiaSharp.SKColor(29, 29, 29)
+                                : SkiaSharp.SKColors.White,
+                        };
+                    });
 
                     List<string> informations = new List<string>();
                     informations.Add("Средние ФЧИ по приёмам пищи");
