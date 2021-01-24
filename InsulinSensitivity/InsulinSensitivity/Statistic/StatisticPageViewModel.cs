@@ -144,8 +144,8 @@ namespace InsulinSensitivity.Statistic
                                     : ovulations.Any(y => y.Date == x.Key.Date)
                                         ? SkiaSharp.SKColors.Pink
                                         : App.Current.RequestedTheme == OSAppTheme.Dark
-                                            ? SkiaSharp.SKColors.Blue
-                                            : SkiaSharp.SKColors.LightSkyBlue
+                                            ? SkiaSharp.SKColors.LightSkyBlue
+                                            : SkiaSharp.SKColors.Blue
                             })
                         .ToList();
 

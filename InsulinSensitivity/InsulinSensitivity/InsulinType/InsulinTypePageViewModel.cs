@@ -107,6 +107,9 @@ namespace InsulinSensitivity.InsulinType
                     initialValue: ((int)typeObj.Duration).ToString(),
                     keyboard: Keyboard.Numeric);
 
+                if (string.IsNullOrWhiteSpace(result))
+                    return;
+
                 if (!int.TryParse(result, out int duration) || duration < 3 || duration > 9)
                 {
                     await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
