@@ -12,7 +12,9 @@ namespace BusinessLogicLayer.Converters
         {
             if (values is object[] array)
                 if (array[0] is Guid current && array[1] is Guid last)
-                    return current == last;
+                    return array.Length > 2 && array[2] is bool invert && invert
+                        ? current != last
+                        : current == last;
             return false;
         }
 

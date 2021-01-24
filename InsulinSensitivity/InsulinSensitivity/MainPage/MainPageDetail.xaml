@@ -52,7 +52,7 @@
             RefreshCommand="{Binding Path=RefreshCommand}"
             IsRefreshing="{Binding Path=IsRefreshing}"
             ItemsSource="{Binding Path=Eatings}"
-            CachingStrategy="RecycleElementAndDataTemplate"
+            CachingStrategy="RecycleElement"
             SelectedItem="{Binding Path=SelectedEating}">
 
             <ListView.GroupHeaderTemplate>
@@ -193,26 +193,32 @@
                                                         <ColumnDefinition/>
                                                     </Grid.ColumnDefinitions>
 
+                                                    <!-- Элемент разбит на два для корректной работы CachingStrategy -->
                                                     <Label 
                                                         Grid.Column="0"
                                                         VerticalTextAlignment="Center"
                                                         Text="{Binding Path=InsulinSensitivityFact, StringFormat='{}ФЧИ: {0:N2}'}">
 
-                                                        <Label.Style>
-                                                            <Style TargetType="Label">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger TargetType="Label" Value="True">
-                                                                        <DataTrigger.Binding>
-                                                                            <MultiBinding Converter="{StaticResource IsLastProductConverter}">
-                                                                                <Binding Path="Id"/>
-                                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
-                                                                            </MultiBinding>
-                                                                        </DataTrigger.Binding>
-                                                                        <Setter Property="Text" Value="{Binding Path=BindingContext.ActiveInsulin, StringFormat='{}акт: {0} ед.', Source={RelativeSource AncestorType={x:Type ContentPage}}}"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Label.Style>
+                                                        <Label.IsVisible>
+                                                            <MultiBinding Converter="{StaticResource IsLastProductConverter}">
+                                                                <Binding Path="Id"/>
+                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
+                                                                <Binding Source="{StaticResource True}"/>
+                                                            </MultiBinding>
+                                                        </Label.IsVisible>
+                                                    </Label>
+
+                                                    <Label 
+                                                        Grid.Column="0"
+                                                        VerticalTextAlignment="Center"
+                                                        Text="{Binding Path=BindingContext.ActiveInsulin, StringFormat='{}акт: {0} ед.', Source={RelativeSource AncestorType={x:Type ContentPage}}}">
+
+                                                        <Label.IsVisible>
+                                                            <MultiBinding Converter="{StaticResource IsLastProductConverter}">
+                                                                <Binding Path="Id"/>
+                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
+                                                            </MultiBinding>
+                                                        </Label.IsVisible>
                                                     </Label>
 
                                                     <Label
