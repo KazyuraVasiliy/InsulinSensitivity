@@ -26,5 +26,15 @@ namespace InsulinSensitivity.MenstrualCycle
             base.OnDisappearing();
             MessagingCenter.Send<object, bool>(this, "SwitchMaster", true);
         }
+
+        protected override bool OnBackButtonPressed()
+        {
+            if (BindingContext is MenstrualCyclePageViewModel context && context.IsModal)
+            {
+                context.IsModal = false;
+                return true;
+            }
+            return base.OnBackButtonPressed();
+        }
     }
 }
