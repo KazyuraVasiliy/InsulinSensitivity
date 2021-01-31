@@ -81,10 +81,12 @@ namespace InsulinSensitivity.Eating
         /// Видно ли поле для ввода базального инсулина
         /// </summary>
         public bool IsBasalDoseVisibility =>
-            GlobalParameters.User.BasalType.Duration == 12
-            ? true
-            : !Basals.Any(x =>
-                    x.DateCreated.Date == DateTime.Now.Date);
+            !GlobalParameters.User.IsPump
+                ? GlobalParameters.User.BasalType.Duration == 12
+                    ? true
+                    : !Basals.Any(x =>
+                            x.DateCreated.Date == DateTime.Now.Date)
+                : false;
 
         /// <summary>
         /// Видно ли поле для ввода начала менструального цикла

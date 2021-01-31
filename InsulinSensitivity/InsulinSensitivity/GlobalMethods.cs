@@ -6,6 +6,8 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using Xamarin.Forms;
+using System.Linq;
 
 namespace InsulinSensitivity
 {
@@ -29,5 +31,17 @@ namespace InsulinSensitivity
 
             return activeInsulin;
         }
+
+        /// <summary>
+        /// Отображает подсказку
+        /// </summary>
+        public static Command ToolTipCommand =>
+            new Command(async (object obj) =>
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Информация",
+                    $"{(string)obj}",
+                    "Ok");
+            });
     }
 }

@@ -33,7 +33,17 @@ namespace InsulinSensitivity.User
                         .FirstOrDefault(x => 
                             x.Id == userGuid.Value);
             }
-            else User = new Models.User() { BirthDate = DateTime.Now.AddYears(-20) };
+            else User = new Models.User() 
+            { 
+                BirthDate = DateTime.Now.AddYears(-20),
+                DosingAccuracy = 1M,
+
+                Hypoglycemia = 3.8M,
+                LowSugar = 4M,
+                TargetGlucose = 5M,
+                HighSugar = 7.8M,
+                Hyperglycemia = 9M
+            };
 
             // Инициализация коллекций
             using (var db = new ApplicationContext(GlobalParameters.DbPath))

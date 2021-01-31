@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.Eating.EatingPage"
+             xmlns:global="clr-namespace:InsulinSensitivity"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
              Title="Приём пищи">
@@ -65,7 +66,14 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Сахар на отработке:"/>
+                                        Text="Сахар на отработке: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Это значение глюкозы крови НЕ нужно вводить сразу при создании нового приёма пищи: вы сможете ввести его позже. Отработка - это замер сахара через 4.5 - 5 часов после приёма пищи. При вводе этого числа приём пищи будет считаться закрытым и вы не сможете его редактировать"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         Margin="0"
                                         view:Tag.Tag="GlucoseEnd"
@@ -177,7 +185,7 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Доза:"/>
+                                        Text="Доза болюсного:"/>
                                     <Entry
                                         x:Name="entryDose"
                                         view:Tag.Tag="BolusDoseFact"
@@ -271,10 +279,17 @@
                             Spacing="0">
 
                             <Label
-                                Text="Нагрузка"
+                                Text="Активность ?"
                                 FontAttributes="Bold"
                                 FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                HorizontalOptions="CenterAndExpand">
+
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                        CommandParameter="Укажите здесь свою плановую активность. Выберите Тип, укажите продолжительность в минутах и через сколько часов после инъекции начнётся эта активность. Редактировать список активностей можно в соответствующем пункте Меню"/>
+                                </Label.GestureRecognizers>
+                            </Label>
 
                             <Label
                                 Text="Тип:"/>
@@ -397,7 +412,14 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="ФЧИ расчётный:"/>
+                                        Text="ФЧИ расчётный: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         Text="{Binding Path=InsulinSensitivityAuto, Converter={StaticResource DecimalToStringConverter}}"
                                         IsReadOnly="True"
@@ -409,7 +431,14 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Доза расчётная:"/>
+                                        Text="Доза расчётная: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         Text="{Binding Path=BolusDoseCalculate, Converter={StaticResource DecimalToStringConverter}}"
                                         IsReadOnly="True"
@@ -428,7 +457,14 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="ФЧИ пользователя:"/>
+                                        Text="ФЧИ пользователя: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Если вы считаете, что рассчёт ФЧИ программой неверен, укажите более вероятный ФЧИ с учётом выше указанных параметров и своих предыдущих фактических ФЧИ"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         view:Tag.Tag="InsulinSensitivityUser"
                                         Unfocused="Entry_Unfocused"
@@ -441,7 +477,14 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Доза фактическая:"/>
+                                        Text="Доза фактическая: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Складывается из всех инъекций введённых в период активности данного приёма пищи"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         IsReadOnly="True"
                                         Text="{Binding Path=BolusDoseTotal, Converter={StaticResource DecimalToStringConverter}}"/>
@@ -459,7 +502,14 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="ФЧИ фактический:"/>
+                                        Text="ФЧИ фактический: ?">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                                CommandParameter="Рассчитается автоматически при вводе сахара на отработке по окончании приёма пищи - это реальный ФЧИ, отражающий реальную чувствительность к инсулину в рамках данного приёма пищи"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                     <Entry
                                         Keyboard="Numeric"
                                         IsReadOnly="True"
@@ -572,7 +622,7 @@
                             Spacing="0">
                             
                             <Label
-                                Text="Доза:"/>
+                                Text="Доза болюсного:"/>
                             <Entry
                                 Keyboard="Numeric"
                                 Text="{Binding Path=SelectedInjection.BolusDose, Converter={StaticResource DecimalToStringConverter}}"/>

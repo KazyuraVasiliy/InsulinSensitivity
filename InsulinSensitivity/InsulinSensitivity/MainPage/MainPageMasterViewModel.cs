@@ -26,7 +26,7 @@ namespace InsulinSensitivity
             Items = new List<MainPageMasterItemModel>()
             {
                 new MainPageMasterItemModel("\xe12c", "Пользователь", EditUserCommand),
-                new MainPageMasterItemModel("\xe0e3", "Нагрузки", EditExerciseTypeCommand),
+                new MainPageMasterItemModel("\xe0e3", "Активности", EditExerciseTypeCommand),
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),

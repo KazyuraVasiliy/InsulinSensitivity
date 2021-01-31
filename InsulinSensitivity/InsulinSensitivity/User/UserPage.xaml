@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.User.UserPage"
+             xmlns:global="clr-namespace:InsulinSensitivity"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
@@ -127,7 +128,14 @@
                                 Grid.Column="0">
 
                                 <Label
-                                    Text="УК:"/>
+                                    Text="УК: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Количество ммол/л, на которое поднимет глюкозу крови 1г углеводов без инсулина"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <Entry
                                     Keyboard="Numeric"
                                     view:Tag.Tag="CarbohydrateCoefficient"
@@ -140,7 +148,14 @@
                                 Grid.Column="1">
 
                                 <Label
-                                    Text="БК:"/>
+                                    Text="БК: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Коэффициент перевода граммов белков в граммы углеводов"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <Entry
                                     Keyboard="Numeric"
                                     view:Tag.Tag="ProteinCoefficient"
@@ -153,7 +168,14 @@
                                 Grid.Column="2">
 
                                 <Label
-                                    Text="ЖК:"/>
+                                    Text="ЖК: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Коэффициент перевода граммов жиров в граммы углеводов"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <Entry
                                     Keyboard="Numeric"
                                     view:Tag.Tag="FatCoefficient"
@@ -293,11 +315,11 @@
                             FontSize="16"
                             HorizontalOptions="CenterAndExpand"/>
 
-                        <Label
+                        <!--<Label
                             Text="Точность дозирования болюса:"/>
                         <Picker                            
                             ItemsSource="{Binding Path=DosingAccuracies}"
-                            SelectedItem="{Binding Path=User.DosingAccuracy, Mode=TwoWay}"/>
+                            SelectedItem="{Binding Path=User.DosingAccuracy, Mode=TwoWay}"/>-->
 
                         <StackLayout
                             Spacing="0"
@@ -312,8 +334,15 @@
                         </StackLayout>
 
                         <Label
-                            Text="Кол-во дней для расчёта:"
-                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
+                            Text="Кол-во дней для расчёта: ?"
+                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}">
+
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                    CommandParameter="Кол-во дней, которые считаются актуальными для расчётов системы"/>
+                            </Label.GestureRecognizers>
+                        </Label>
                         <Entry
                             Keyboard="Numeric"
                             view:Tag.Tag="PeriodOfCalculation"
