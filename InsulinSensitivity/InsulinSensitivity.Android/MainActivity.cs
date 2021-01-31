@@ -27,6 +27,7 @@ namespace InsulinSensitivity.Droid
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+            Xamarin.Forms.FormsMaterial.Init(this, savedInstanceState);
             Xamarin.Forms.Forms.SetFlags("RadioButton_Experimental");
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
