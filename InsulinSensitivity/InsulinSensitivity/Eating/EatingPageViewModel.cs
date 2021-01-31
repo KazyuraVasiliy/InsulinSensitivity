@@ -11,6 +11,7 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using System.Collections.ObjectModel;
 
 namespace InsulinSensitivity.Eating
 {
@@ -47,6 +48,13 @@ namespace InsulinSensitivity.Eating
             // Инициализация времени инъекции
             if (eating == null)
                 Eating.InjectionTime = DateTime.Now.TimeOfDay;
+
+            // Инициализация инъекций
+            if (Eating.Injections != null)
+            {
+                foreach (var el in Eating.Injections)
+                    Injections.Add(el);
+            }                
 
             // Инициализация нагрузки
             if (Eating.Exercise == null)
@@ -90,6 +98,20 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         public bool IsRemoveVisibility =>
             Eating.Id != Guid.Empty;
+
+        private bool isModal;
+        /// <summary>
+        /// Отображается ли модальное окно
+        /// </summary>
+        public bool IsModal
+        {
+            get => isModal;
+            set
+            {
+                isModal = value;
+                OnPropertyChanged();
+            }
+        }
 
         #endregion
 
@@ -146,6 +168,20 @@ namespace InsulinSensitivity.Eating
 
         #endregion
 
+        private Models.Injection selectedInjection;
+        /// <summary>
+        /// Выбранная инъекция
+        /// </summary>
+        public Models.Injection SelectedInjection
+        {
+            get => selectedInjection;
+            set
+            {
+                selectedInjection = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Текущий приём пищи
         /// </summary>
@@ -187,7 +223,7 @@ namespace InsulinSensitivity.Eating
                 WorkingTime = value.Add(new TimeSpan((int)GlobalParameters.User.BolusType.Duration, 0, 0));
 
                 if (Eating.Id != Guid.Empty)
-                    ActiveInsulinEnd = Math.Round(BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
+                    ActiveInsulinEnd = Math.Round(BolusDoseTotal * (decimal)Calculation.GetActiveInsulinPercent(
                         Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
             }
         }
@@ -484,7 +520,7 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
-        /// Доза болюсного инсулина фактическая
+        /// Основная доза
         /// </summary>
         public decimal BolusDoseFact
         {
@@ -494,14 +530,15 @@ namespace InsulinSensitivity.Eating
                 Eating.BolusDoseFact = value;
                 OnPropertyChanged();
 
-                CalculateExpectedGlucose();
-                CalculateInsulinSensitivityFact();
-
-                if (Eating.Id != Guid.Empty)
-                    ActiveInsulinEnd = Math.Round(value * (decimal)Calculation.GetActiveInsulinPercent(
-                        Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
+                BolusDoseChange();
             }
         }
+
+        /// <summary>
+        /// Доза болюсного инсулина итоговая
+        /// </summary>
+        public decimal BolusDoseTotal =>
+            Eating.BolusDoseFact + (Injections?.Sum(x => x.BolusDose) ?? 0);
 
         /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
@@ -621,6 +658,7 @@ namespace InsulinSensitivity.Eating
                     .OrderByDescending(x =>
                         x.DateCreated)
                     .Include(x => x.Exercise)
+                    .Include(x => x.Injections)
                     .Take(3)
                     .ToList();
 
@@ -742,10 +780,8 @@ namespace InsulinSensitivity.Eating
                 if ((PreviousEatings?.Count ?? 0) > 0)
                 {
                     if (Eating.Id == Guid.Empty)
-                        Eating.ActiveInsulinStart = Math.Round(PreviousEatings[0].BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
-                            Calculation.DateTimeUnionTimeSpan(PreviousEatings[0].DateCreated, PreviousEatings[0].InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
-                    else Eating.ActiveInsulinEnd = Math.Round(Eating.BolusDoseFact * (decimal)Calculation.GetActiveInsulinPercent(
-                            Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
+                        Eating.ActiveInsulinStart = GlobalMethods.GetActiveInsulin(PreviousEatings[0]);
+                    else Eating.ActiveInsulinEnd = GlobalMethods.GetActiveInsulin(Eating);
                 }
             }
         }
@@ -984,7 +1020,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateExpectedGlucose()
         {
             ExpectedGlucose = (InsulinSensitivityAuto != null || InsulinSensitivityUser != null)
-                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseFact + ActiveInsulinStart,
+                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseTotal + ActiveInsulinStart,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
                     InsulinSensitivityUser != null
@@ -998,11 +1034,11 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateInsulinSensitivityFact()
         {
-            InsulinSensitivityFact = BolusDoseFact > 0 && GlucoseEnd != null
+            InsulinSensitivityFact = BolusDoseTotal > 0 && GlucoseEnd != null
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlucoseEnd.Value,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    BolusDoseFact + ActiveInsulinStart - ActiveInsulinEnd)
+                    BolusDoseTotal + ActiveInsulinStart - ActiveInsulinEnd)
                 : (decimal?)null;
 
             CalculateAccuracyAuto();
@@ -1103,6 +1139,20 @@ namespace InsulinSensitivity.Eating
             OnPropertyChanged(nameof(InsulinSensitivityAuto));
         }
 
+        /// <summary>
+        /// Изменяет свойства зависимые от изменения дозы болюсного инсулина
+        /// </summary>
+        private void BolusDoseChange()
+        {
+            OnPropertyChanged(nameof(BolusDoseTotal));
+
+            CalculateExpectedGlucose();
+            CalculateInsulinSensitivityFact();
+
+            if (Eating.Id != Guid.Empty)
+                ActiveInsulinEnd = GlobalMethods.GetActiveInsulin(Eating, Injections);
+        }
+
         #endregion
 
         #region Collections
@@ -1135,6 +1185,12 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// Инъекции
+        /// </summary>
+        public ObservableCollection<Models.Injection> Injections { get; set; } =
+            new ObservableCollection<Models.Injection>();
+
         #endregion
 
         #region Commands
@@ -1154,6 +1210,7 @@ namespace InsulinSensitivity.Eating
 
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
+                // Нагрузка
                 var exercise = Eating.Exercise.Id == Guid.Empty
                     ? new Models.Exercise() { Id = Guid.NewGuid() }
                     : db.Exercises.Find(Eating.Exercise.Id);
@@ -1163,11 +1220,48 @@ namespace InsulinSensitivity.Eating
                 exercise.HoursAfterInjection = Eating.Exercise.HoursAfterInjection;
 
                 if (Eating.Exercise.Id == Guid.Empty)
-                    db.Exercises.Add(exercise);
+                    db.Exercises.Add(exercise);                
 
+                // Инициализация приёма пищи
                 var eating = Eating.Id == Guid.Empty
                     ? new Models.Eating() { Id = Guid.NewGuid(), DateCreated = DateTime.Now }
                     : db.Eatings.Find(Eating.Id);
+
+                // Инъекции
+                var injectionsEntity = db.Injections
+                    .Where(x =>
+                        x.EatingId == Eating.Id);
+
+                // ... Удаление / изменение
+                foreach (var injection in injectionsEntity)
+                {
+                    var item = Injections
+                        .FirstOrDefault(x =>
+                            x.Id == injection.Id);
+
+                    if (item == null)
+                        db.Injections.Remove(injection);
+                    else
+                    {
+                        injection.InjectionTime = item.InjectionTime;
+                        injection.BolusDose = item.BolusDose;
+                        injection.InjectionDate = item.InjectionDate;
+                    }
+                }
+
+                // ... Добавление
+                foreach (var injection in Injections)
+                {
+                    if (!injectionsEntity.Any(x => x.Id == injection.Id))
+                        db.Injections.Add(new Models.Injection()
+                        {
+                            Id = injection.Id,
+                            EatingId = Eating.Id,
+                            InjectionTime = injection.InjectionTime,
+                            InjectionDate = injection.InjectionDate,
+                            BolusDose = injection.BolusDose
+                        });
+                }
 
                 eating.InjectionTime = Eating.InjectionTime;
                 eating.GlucoseStart = Eating.GlucoseStart;
@@ -1243,7 +1337,7 @@ namespace InsulinSensitivity.Eating
             // Рассчёты
             (InsulinSensitivityFact == null || InsulinSensitivityFact >= 0) &&
             (InsulinSensitivityUser == null || InsulinSensitivityUser >= 0) &&
-            (BolusDoseFact + ActiveInsulinStart) > 0;
+            (BolusDoseTotal + ActiveInsulinStart) > 0;
 
         public ICommand OkCommand =>
             new Command(OkExecute);
@@ -1284,6 +1378,75 @@ namespace InsulinSensitivity.Eating
             new Command(RemoveExecute);
 
         #endregion
+
+        public ICommand AddInjectionCommand =>
+            new Command(() =>
+            {
+                SelectedInjection = new Models.Injection() 
+                { 
+                    Id = Guid.NewGuid(),
+                    InjectionTime = DateTime.Now.TimeOfDay,
+                    InjectionDate = DateTime.Now
+                };
+                IsModal = true;
+            });
+
+        public ICommand EditInjectionCommand =>
+            new Command((object obj) =>
+            {
+                SelectedInjection = (Models.Injection)obj;
+                IsModal = true;
+            });
+
+        public ICommand RemoveInjectionCommand =>
+            new Command(async (object obj) =>
+            {
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Удалить?",
+                    "Вы уверены, что хотите удалить запись?",
+                    "Да", "Нет");
+
+                if (question)
+                {
+                    Injections.Remove((Models.Injection)obj);
+                    BolusDoseChange();
+                }
+            });
+
+        #region --Save Injection
+
+        private async void SaveInjectionExecute()
+        {
+            try
+            {
+                var entity = Injections
+                    .FirstOrDefault(x =>
+                        x.Id == SelectedInjection.Id);
+
+                if (entity != null)
+                    Injections.Remove(entity);
+
+                Injections.Add(SelectedInjection);
+                BolusDoseChange();
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+
+            IsModal = false;
+        }
+
+        public ICommand SaveInjectionCommand =>
+            new Command(SaveInjectionExecute);
+
+        #endregion
+
+        public ICommand CancelInjectionCommand =>
+            new Command(() => IsModal = false);
 
         #endregion
     }

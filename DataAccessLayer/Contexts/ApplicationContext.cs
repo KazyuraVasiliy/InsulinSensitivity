@@ -14,6 +14,7 @@ namespace DataAccessLayer.Contexts
         public DbSet<InsulinType> InsulinTypes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<MenstrualCycle> MenstrualCycles { get; set; }
+        public DbSet<Injection> Injections { get; set; }
 
         public ApplicationContext(string databasePath) =>
             this.databasePath = databasePath;

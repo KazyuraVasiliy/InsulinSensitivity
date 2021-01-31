@@ -99,10 +99,10 @@ namespace InsulinSensitivity
         /// <summary>
         /// Количество активного инсулина в крови
         /// </summary>
-        public double? ActiveInsulin =>
+        public decimal? ActiveInsulin =>
             LastEating != null
-            ? Math.Round((double)LastEating.BolusDoseFact * Calculation.GetActiveInsulinPercent(Calculation.DateTimeUnionTimeSpan(LastEating.DateCreated, LastEating.InjectionTime), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero)
-            : (double?)null;
+            ? GlobalMethods.GetActiveInsulin(LastEating)
+            : (decimal?)null;
 
         #endregion
 
@@ -121,6 +121,7 @@ namespace InsulinSensitivity
                         .Include(x => x.Exercise)
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
+                        .Include(x => x.Injections)
                         .ToList()
                         .GroupBy(x =>
                             x.DateCreated.Date)

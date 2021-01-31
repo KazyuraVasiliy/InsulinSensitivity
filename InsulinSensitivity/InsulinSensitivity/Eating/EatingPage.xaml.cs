@@ -29,6 +29,16 @@ namespace InsulinSensitivity.Eating
             MessagingCenter.Send<object, bool>(this, "SwitchMaster", true);
         }
 
+        protected override bool OnBackButtonPressed()
+        {
+            if (BindingContext is EatingPageViewModel context && context.IsModal)
+            {
+                context.IsModal = false;
+                return true;
+            }
+            return base.OnBackButtonPressed();
+        }
+
         private void Entry_Unfocused(object sender, FocusEventArgs e)
         {
             if (sender is Entry entry)

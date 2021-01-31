@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DataAccessLayer.Models
 {
@@ -160,5 +161,10 @@ namespace DataAccessLayer.Models
         /// Пользователь (Навигационное свойство)
         /// </summary>
         public User User { get; set; }
+
+        /// <summary>
+        /// Инъекции (Навигационное свойство)
+        /// </summary>
+        public List<Injection> Injections { get; set; }
     }
 }
