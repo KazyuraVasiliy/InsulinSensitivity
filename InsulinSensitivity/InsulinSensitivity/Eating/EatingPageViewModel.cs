@@ -629,6 +629,10 @@ namespace InsulinSensitivity.Eating
                     ? PreviousEatings[0]
                     : null;
 
+                // Исходный сахар
+                if (previousEating?.GlucoseEnd != null)
+                    GlucoseStart = previousEating.GlucoseEnd.Value;
+
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)
                 {
