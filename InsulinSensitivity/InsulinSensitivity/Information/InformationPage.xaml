@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.Information.InformationPage"
+             Title="Информация"
+             x:Name="Page">
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout>
+                <Label 
+                    FontSize="16"
+                    Padding="12, 8"
+                    VerticalOptions="CenterAndExpand" 
+                    HorizontalOptions="CenterAndExpand"
+                    Text="{Binding Path=Information}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
