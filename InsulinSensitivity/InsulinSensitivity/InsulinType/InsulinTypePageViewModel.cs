@@ -46,7 +46,7 @@ namespace InsulinSensitivity.InsulinType
         /// Id типа болюсного инсулина, используемого пользователем
         /// </summary>
         public Guid UserBolusTypeId =>
-            GlobalParameters.User.BolusTypeId;
+            GlobalParameters.User?.BolusTypeId ?? Guid.Empty;
 
         #endregion
 

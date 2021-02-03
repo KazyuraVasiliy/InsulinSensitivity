@@ -670,7 +670,7 @@ namespace InsulinSensitivity.Eating
                     : null;
 
                 // Исходный сахар
-                if (previousEating?.GlucoseEnd != null)
+                if (previousEating?.GlucoseEnd != null && Eating.Id == Guid.Empty)
                     GlucoseStart = previousEating.GlucoseEnd.Value;
 
                 // Средний ФЧИ предыдущего типа приёма пищи
@@ -1258,7 +1258,7 @@ namespace InsulinSensitivity.Eating
                         db.Injections.Add(new Models.Injection()
                         {
                             Id = injection.Id,
-                            EatingId = Eating.Id,
+                            EatingId = eating.Id,
                             InjectionTime = injection.InjectionTime,
                             InjectionDate = injection.InjectionDate,
                             BolusDose = injection.BolusDose
