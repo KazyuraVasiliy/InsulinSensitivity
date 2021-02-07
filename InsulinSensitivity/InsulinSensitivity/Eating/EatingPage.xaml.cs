@@ -31,10 +31,13 @@ namespace InsulinSensitivity.Eating
 
         protected override bool OnBackButtonPressed()
         {
-            if (BindingContext is EatingPageViewModel context && context.IsModal)
+            if (BindingContext is EatingPageViewModel context)
             {
-                context.IsModal = false;
-                return true;
+                if (context.IsModalInjection || context.IsModalDimension)
+                {
+                    context.IsModalInjection = context.IsModalDimension = false;
+                    return true;
+                }
             }
             return base.OnBackButtonPressed();
         }

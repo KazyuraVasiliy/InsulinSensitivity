@@ -13,6 +13,8 @@
         <converters:InversionBoolConverter x:Key="InversionBoolConverter"/>
         <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
         <converters:ExpectedGlucoseBoolConverter x:Key="ExpectedGlucoseBoolConverter"/>
+        <converters:GlucoseToStringConverter x:Key="GlucoseToStringConverter"/>
+        <converters:InjectionsToStringConverter x:Key="InjectionsToStringConverter"/>
 
         <s:Boolean x:Key="True">True</s:Boolean>
 
@@ -239,9 +241,10 @@
                                         </xct:Expander.Header>
 
                                         <StackLayout>
-                                            <Grid>
+                                            <Grid
+                                                Margin="0, 4, 0, 0">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition/>
                                                     <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
 
@@ -249,20 +252,96 @@
                                                     Spacing="0"
                                                     Grid.Column="0">
 
-                                                    <Label Text="{Binding Path=Protein, StringFormat='{}Б: {0}'}"/>
-                                                    <Label Text="{Binding Path=Fat, StringFormat='{}Ж: {0}'}"/>
-                                                    <Label Text="{Binding Path=Carbohydrate, StringFormat='{}У: {0}'}"/>
+                                                    <StackLayout
+                                                        Spacing="0"
+                                                        Orientation="Horizontal">
+
+                                                        <Label
+                                                            Grid.Column="1"
+                                                            Margin="0, 4, 0, 0"
+                                                            VerticalTextAlignment="Start"
+                                                            HorizontalTextAlignment="Center"
+                                                            FontFamily="Typicons"
+                                                            Text="&#xe120; "/>
+                                                        <Label>
+                                                            <Label.Text>
+                                                                <MultiBinding StringFormat="{}{0:00}:{1:00} ({2} мин)">
+                                                                    <Binding Path="InjectionTime.Hours"/>
+                                                                    <Binding Path="InjectionTime.Minutes"/>
+                                                                    <Binding Path="Pause"/>
+                                                                </MultiBinding>
+                                                            </Label.Text>
+                                                        </Label>
+                                                    </StackLayout>
+
+                                                    <StackLayout
+                                                        Spacing="0"
+                                                        Orientation="Horizontal">
+
+                                                        <Label
+                                                            Grid.Column="1"
+                                                            Margin="0, 4, 0, 0"
+                                                            VerticalTextAlignment="Start"
+                                                            HorizontalTextAlignment="Center"
+                                                            FontFamily="Typicons"
+                                                            Text="&#xe04e; "/>
+                                                        <Label>
+                                                            <Label.Text>
+                                                                <MultiBinding StringFormat="{}{0} / {1} / {2}">
+                                                                    <Binding Path="Protein"/>
+                                                                    <Binding Path="Fat"/>
+                                                                    <Binding Path="Carbohydrate"/>
+                                                                </MultiBinding>
+                                                            </Label.Text>
+                                                        </Label>
+                                                    </StackLayout>
                                                 </StackLayout>
 
                                                 <StackLayout
                                                     Spacing="0"
                                                     Grid.Column="1">
 
-                                                    <Label Text="{Binding Path=Exercise.ExerciseType.Name, StringFormat='{}Тип нагрузки: {0}'}"/>
-                                                    <Label Text="{Binding Path=Exercise.Duration, StringFormat='{}Продолжительность: {0}'}"/>
-                                                    <Label Text="{Binding Path=Exercise.HoursAfterInjection, StringFormat='{}Часов после инъекции: {0}'}"/>
+                                                    <StackLayout
+                                                        Spacing="0"
+                                                        Orientation="Horizontal">
+
+                                                        <Label
+                                                            Grid.Column="1"
+                                                            Margin="0, 4, 0, 0"
+                                                            VerticalTextAlignment="Start"
+                                                            FontFamily="Typicons"
+                                                            Text="&#xe0e3; "/>
+                                                        <Label>
+                                                            <Label.Text>
+                                                                <MultiBinding StringFormat="{}{0} ({1} мин) через {2} ч">
+                                                                    <Binding Path="Exercise.ExerciseType.Name"/>
+                                                                    <Binding Path="Exercise.Duration"/>
+                                                                    <Binding Path="Exercise.HoursAfterInjection"/>
+                                                                </MultiBinding>
+                                                            </Label.Text>
+                                                        </Label>
+                                                    </StackLayout>
                                                 </StackLayout>
                                             </Grid>
+
+                                            <StackLayout
+                                                Margin="0"
+                                                Spacing="0">
+                                                
+                                                <Label Text="{Binding ., Converter={StaticResource InjectionsToStringConverter}, TargetNullValue='Инъекции: '}"/>                                            
+                                                <Label Text="{Binding ., Converter={StaticResource GlucoseToStringConverter}, TargetNullValue='Гликемия: '}"/>
+
+                                                <StackLayout
+                                                    Spacing="0"
+                                                    Orientation="Horizontal"
+                                                    IsVisible="{Binding Path=Error, Converter={StaticResource CommentToVisibilityConverter}}">
+                                                    
+                                                    <Label Text="Ошибка: "/>
+                                                    <Label 
+                                                        TextColor="Red"
+                                                        Text="{Binding Path=Error, StringFormat='{}{0}', TargetNullValue='отсутствует'}"/>
+                                                </StackLayout>
+                                            </StackLayout>
 
                                             <StackLayout
                                                 IsVisible="{Binding Path=Comment, Converter={StaticResource CommentToVisibilityConverter}}"

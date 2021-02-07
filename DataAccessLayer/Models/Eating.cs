@@ -36,6 +36,16 @@ namespace DataAccessLayer.Models
         public decimal? ExpectedGlucose { get; set; }
 
         /// <summary>
+        /// Пауза после инъекции
+        /// </summary>
+        public int Pause { get; set; }
+
+        /// <summary>
+        /// Ошибка, совершённая во приёма пищи
+        /// </summary>
+        public string Error { get; set; }
+
+        /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
         /// </summary>
         public decimal ActiveInsulinStart { get; set; }
@@ -166,5 +176,10 @@ namespace DataAccessLayer.Models
         /// Инъекции (Навигационное свойство)
         /// </summary>
         public List<Injection> Injections { get; set; }
+
+        /// <summary>
+        /// Промежуточные измерения (Навигационное свойство)
+        /// </summary>
+        public List<IntermediateDimension> IntermediateDimensions { get; set; }
     }
 }

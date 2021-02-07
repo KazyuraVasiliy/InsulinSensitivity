@@ -35,11 +35,27 @@
                         <StackLayout
                             Spacing="0">
 
-                            <Label
-                                Text="Пища"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label
+                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Text="Пища"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand"/>
+
+                                <Button
+                                    Grid.Column="1"
+                                    Padding="0"
+                                    HeightRequest="20"
+                                    WidthRequest="50"
+                                    Text="+"
+                                    Command="{Binding Path=AddDimensionCommand}"/>
+                            </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -129,6 +145,78 @@
                                         Keyboard="Numeric"/>
                                 </StackLayout>
                             </Grid>
+
+                            <StackLayout
+                                BindableLayout.ItemsSource="{Binding IntermediateDimensions}"
+                                Margin="0, 4, 0, 8"
+                                Padding="5, 0">
+
+                                <StackLayout.Style>
+                                    <Style TargetType="StackLayout">
+                                        <Style.Triggers>
+                                            <DataTrigger 
+                                                TargetType="StackLayout" 
+                                                Binding="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IntermediateDimensions.Count, TargetNullValue=0, FallbackValue=0}"
+                                                Value="0">
+                                                
+                                                <Setter Property="IsVisible" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackLayout.Style>
+                                
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Frame
+                                            Style="{StaticResource Frame}"
+                                            Margin="0"
+                                            BorderColor="LightBlue">
+
+                                            <Frame.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditDimensionCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            </Frame.GestureRecognizers>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Label
+                                                    Grid.Column="0">
+
+                                                    <Label.Text>
+                                                        <MultiBinding StringFormat="{}Время: {0:00}:{1:00} - Сахар: {2} ммол/л">
+                                                            <Binding Path="DimensionTime.Hours"/>
+                                                            <Binding Path="DimensionTime.Minutes"/>
+                                                            <Binding Path="Glucose"/>
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+
+                                                <StackLayout
+                                                    Grid.Column="1"
+                                                    Orientation="Horizontal"
+                                                    Spacing="0">
+
+                                                    <Button
+                                                        Padding="0" Margin="0, 2, 0, 1"
+                                                        HeightRequest="15"
+                                                        WidthRequest="20"
+                                                        BackgroundColor="Transparent"
+                                                        FontSize="15"
+                                                        Text="&#xe122;"
+                                                        FontFamily="Typicons"
+                                                        Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveDimensionCommand}"
+                                                        CommandParameter="{Binding .}"/>
+                                                </StackLayout>
+                                            </Grid>
+                                        </Frame>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </StackLayout>
                         </StackLayout>
                     </Frame>
 
@@ -167,6 +255,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
+                                    <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -185,7 +274,7 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Доза болюсного:"/>
+                                        Text="Доза:"/>
                                     <Entry
                                         x:Name="entryDose"
                                         view:Tag.Tag="BolusDoseFact"
@@ -193,12 +282,39 @@
                                         Text="{Binding Path=BolusDoseFact, Converter={StaticResource DecimalToStringConverter}}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="2">
+
+                                    <Label
+                                        Text="Пауза:"/>
+                                    <Entry
+                                        view:Tag.Tag="Pause"
+                                        Unfocused="Entry_Unfocused"
+                                        Text="{Binding Path=Pause}"
+                                        Keyboard="Numeric"/>
+                                </StackLayout>
                             </Grid>
 
-                            <StackLayout 
+                            <StackLayout
                                 BindableLayout.ItemsSource="{Binding Injections}"
                                 Margin="0, 4, 0, 8"
                                 Padding="5, 0">
+
+                                <StackLayout.Style>
+                                    <Style TargetType="StackLayout">
+                                        <Style.Triggers>
+                                            <DataTrigger 
+                                                TargetType="StackLayout" 
+                                                Binding="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.Injections.Count, TargetNullValue=0, FallbackValue=0}"
+                                                Value="0">
+
+                                                <Setter Property="IsVisible" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackLayout.Style>
 
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
@@ -546,10 +662,10 @@
                 </StackLayout>
             </ScrollView>
 
-            <!-- Модальное окно -->
+            <!-- Модальное окно ввода инъекции -->
             <Grid
                 BackgroundColor="{AppThemeBinding Dark='#80404040', Light='#80808080'}"
-                IsVisible="{Binding Path=IsModal}">
+                IsVisible="{Binding Path=IsModalInjection, FallbackValue='False'}">
 
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -595,10 +711,10 @@
 
                             <DatePicker
                                 Grid.Row="1"
-                                Date="{Binding Source={x:Reference materialDatePicker}, Path=Date}"/>
+                                Date="{Binding Source={x:Reference materialDatePickerInjection}, Path=Date}"/>
 
                             <DatePicker
-                                x:Name="materialDatePicker"
+                                x:Name="materialDatePickerInjection"
                                 Grid.Row="1"
                                 Visual="Material"
                                 Opacity="0"
@@ -613,7 +729,6 @@
                             <Label
                                 Text="Время:"/>
                             <TimePicker
-                                x:Name="modalTimePicker"
                                 Time="{Binding Path=SelectedInjection.InjectionTime}"/>
                         </StackLayout>
 
@@ -637,6 +752,100 @@
                             Grid.Row="2" Grid.Column="1"
                             Text="Сохранить"
                             Command="{Binding Path=SaveInjectionCommand}"/>
+                    </Grid>
+                </Frame>
+            </Grid>
+
+            <!-- Модальное окно ввода промежуточного измерения -->
+            <Grid
+                BackgroundColor="{AppThemeBinding Dark='#80404040', Light='#80808080'}"
+                IsVisible="{Binding Path=IsModalDimension, FallbackValue='False'}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Frame
+                    Style="{StaticResource FrameBackgroundBase}"
+                    Grid.Row="1" Grid.Column="1">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
+                        <Grid 
+                            Grid.Row="0" Grid.Column="0"
+                            RowSpacing="0">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Text="Дата:"/>
+
+                            <DatePicker
+                                Grid.Row="1"
+                                Date="{Binding Source={x:Reference materialDatePickerDimension}, Path=Date}"/>
+
+                            <DatePicker
+                                x:Name="materialDatePickerDimension"
+                                Grid.Row="1"
+                                Visual="Material"
+                                Opacity="0"
+                                HeightRequest="0"
+                                Date="{Binding Path=SelectedDimension.DimensionDate}"/>
+                        </Grid>
+
+                        <StackLayout
+                            Grid.Row="0" Grid.Column="1"
+                            Spacing="0">
+
+                            <Label
+                                Text="Время:"/>
+                            <TimePicker
+                                Time="{Binding Path=SelectedDimension.DimensionTime}"/>
+                        </StackLayout>
+
+                        <StackLayout
+                            Grid.Row="1" Grid.ColumnSpan="2"
+                            Spacing="0">
+
+                            <Label
+                                Text="Сахар:"/>
+                            <Entry
+                                Keyboard="Numeric"
+                                Text="{Binding Path=SelectedDimension.Glucose, Converter={StaticResource DecimalToStringConverter}}"/>
+                        </StackLayout>
+
+                        <Button
+                            Grid.Row="2" Grid.Column="0"
+                            Text="Отмена"
+                            Command="{Binding Path=CancelDimensionCommand}"/>
+
+                        <Button
+                            Grid.Row="2" Grid.Column="1"
+                            Text="Сохранить"
+                            Command="{Binding Path=SaveDimensionCommand}"/>
                     </Grid>
                 </Frame>
             </Grid>

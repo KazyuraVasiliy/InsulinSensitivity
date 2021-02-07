@@ -122,6 +122,7 @@ namespace InsulinSensitivity
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
                         .Include(x => x.Injections)
+                        .Include(x => x.IntermediateDimensions)
                         .ToList()
                         .GroupBy(x =>
                             x.DateCreated.Date)
@@ -201,6 +202,22 @@ namespace InsulinSensitivity
                     var exercise = db.Exercises.Find(eatingObj.Exercise.Id);
                     if (exercise != null)
                         db.Exercises.Remove(exercise);
+
+                    var injections = db.Injections
+                        .Where(x =>
+                            x.EatingId == eatingObj.Id)
+                        .ToList();
+
+                    foreach (var injection in injections)
+                        db.Injections.Remove(injection);
+
+                    var dimensions = db.IntermediateDimensions
+                        .Where(x =>
+                            x.EatingId == eatingObj.Id)
+                        .ToList();
+
+                    foreach (var dimension in dimensions)
+                        db.IntermediateDimensions.Remove(dimension);
 
                     var eating = db.Eatings.Find(eatingObj.Id);
                     if (eating != null)

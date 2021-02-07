@@ -23,7 +23,7 @@ namespace InsulinSensitivity.Eating
         {
             // Инициализация приёма пищи
             Eating = eating == null
-                ? new Models.Eating()
+                ? new Models.Eating() { DateCreated = DateTime.Now }
                 : eating;
 
             // Инициализация коллекций
@@ -54,7 +54,14 @@ namespace InsulinSensitivity.Eating
             {
                 foreach (var el in Eating.Injections)
                     Injections.Add(el);
-            }                
+            }
+
+            // Инициализация промежуточных измерений
+            if (Eating.IntermediateDimensions != null)
+            {
+                foreach (var el in Eating.IntermediateDimensions)
+                    IntermediateDimensions.Add(el);
+            }
 
             // Инициализация нагрузки
             if (Eating.Exercise == null)
@@ -101,16 +108,30 @@ namespace InsulinSensitivity.Eating
         public bool IsRemoveVisibility =>
             Eating.Id != Guid.Empty;
 
-        private bool isModal;
+        private bool isModalInjection;
         /// <summary>
-        /// Отображается ли модальное окно
+        /// Отображается ли модальное окно ввода инъекции
         /// </summary>
-        public bool IsModal
+        public bool IsModalInjection
         {
-            get => isModal;
+            get => isModalInjection;
             set
             {
-                isModal = value;
+                isModalInjection = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool isModalDimension;
+        /// <summary>
+        /// Отображается ли модальное окно ввода промежуточного измерения
+        /// </summary>
+        public bool IsModalDimension
+        {
+            get => isModalDimension;
+            set
+            {
+                isModalDimension = value;
                 OnPropertyChanged();
             }
         }
@@ -184,6 +205,20 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private Models.IntermediateDimension selectedDimension;
+        /// <summary>
+        /// Выбранное промежуточное измерение
+        /// </summary>
+        public Models.IntermediateDimension SelectedDimension
+        {
+            get => selectedDimension;
+            set
+            {
+                selectedDimension = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Текущий приём пищи
         /// </summary>
@@ -239,6 +274,19 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.WorkingTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Пауза
+        /// </summary>
+        public int Pause
+        {
+            get => Eating.Pause;
+            set
+            {
+                Eating.Pause = value;
                 OnPropertyChanged();
             }
         }
@@ -661,6 +709,7 @@ namespace InsulinSensitivity.Eating
                         x.DateCreated)
                     .Include(x => x.Exercise)
                     .Include(x => x.Injections)
+                    .Include(x => x.IntermediateDimensions)
                     .Take(3)
                     .ToList();
 
@@ -1155,6 +1204,69 @@ namespace InsulinSensitivity.Eating
                 ActiveInsulinEnd = GlobalMethods.GetActiveInsulin(Eating, Injections);
         }
 
+        /// <summary>
+        /// Определяет, какую ошибку совершил пользователь
+        /// </summary>
+        private string GetError()
+        {
+            if (GlucoseEnd == null)
+                return null;
+
+            if (GlucoseEnd >= GlobalParameters.User.Hyperglycemia)
+                return "Слишком мало инсулина";
+            else if (GlucoseEnd >= GlobalParameters.User.HighSugar)
+            {
+                if (((Protein * 4 + Fat * 9) / 100) >= 4 && (Injections?.Count ?? 0) == 0)
+                    return "Отсутствует дополнительная инъекция на белки и жиры";
+                else return "Мало инсулина";
+            }
+            else if (GlucoseEnd <= GlobalParameters.User.Hypoglycemia)
+                return "Слишком много инсулина";
+            else if (GlucoseEnd <= GlobalParameters.User.LowSugar)
+                return "Много инсулина";
+            else
+            {
+                var dimensions = IntermediateDimensions
+                    .OrderByDescending(x =>
+                        x.DimensionDate.Date)
+                    .ThenByDescending(x =>
+                        x.DimensionTime);
+
+                foreach (var dimension in dimensions)
+                {
+                    if (dimension.Glucose > GlobalParameters.User.LowSugar && dimension.Glucose < GlobalParameters.User.HighSugar)
+                        continue;
+
+                    var timeSpan = (Calculation.DateTimeUnionTimeSpan(dimension.DimensionDate, dimension.DimensionTime) - 
+                        Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime)).TotalMinutes;
+
+                    if (timeSpan > 100)
+                    {
+                        if (dimension.Glucose >= GlobalParameters.User.Hyperglycemia && GlucoseEnd > GlobalParameters.User.TargetGlucose)
+                            return "Мало инсулина";
+                        else if (dimension.Glucose <= GlobalParameters.User.Hypoglycemia)
+                            return "Слишком много инсулина";
+                        else if (dimension.Glucose <= GlobalParameters.User.LowSugar && (Injections?.Count ?? 0) > 0 && ((Protein * 4 + Fat * 9) / 100) >= 4)
+                            return "Слишком много инсулина на белки и жиры";
+                    }
+                    else
+                    {
+                        if (dimension.Glucose >= GlobalParameters.User.HighSugar && (dimension.Glucose - GlucoseStart) > 3)
+                        {
+                            var fast = (dimension.Glucose - GlucoseStart) >= 5 ? "быстрые " : "";
+
+                            if (Pause == 0)
+                                return $"Отсутствует пауза на {fast}углеводы";
+                            else return $"Недостаточно паузы на {fast}углеводы";
+                        }
+                        else if (dimension.Glucose <= GlobalParameters.User.Hypoglycemia)
+                            return "Слишком длинная пауза после инъекции";
+                    }
+                }
+            }
+            return null;
+        }
+
         #endregion
 
         #region Collections
@@ -1193,6 +1305,12 @@ namespace InsulinSensitivity.Eating
         public ObservableCollection<Models.Injection> Injections { get; set; } =
             new ObservableCollection<Models.Injection>();
 
+        /// <summary>
+        /// Промежуточные измерения
+        /// </summary>
+        public ObservableCollection<Models.IntermediateDimension> IntermediateDimensions { get; set; } =
+            new ObservableCollection<Models.IntermediateDimension>();
+
         #endregion
 
         #region Commands
@@ -1226,7 +1344,7 @@ namespace InsulinSensitivity.Eating
 
                 // Инициализация приёма пищи
                 var eating = Eating.Id == Guid.Empty
-                    ? new Models.Eating() { Id = Guid.NewGuid(), DateCreated = DateTime.Now }
+                    ? new Models.Eating() { Id = Guid.NewGuid() }
                     : db.Eatings.Find(Eating.Id);
 
                 // Инъекции
@@ -1265,6 +1383,42 @@ namespace InsulinSensitivity.Eating
                         });
                 }
 
+                // Промежуточные измерения
+                var dimensionsEntity = db.IntermediateDimensions
+                    .Where(x =>
+                        x.EatingId == Eating.Id);
+
+                // ... Удаление / изменение
+                foreach (var dimension in dimensionsEntity)
+                {
+                    var item = IntermediateDimensions
+                        .FirstOrDefault(x =>
+                            x.Id == dimension.Id);
+
+                    if (item == null)
+                        db.IntermediateDimensions.Remove(dimension);
+                    else
+                    {
+                        dimension.DimensionTime = item.DimensionTime;
+                        dimension.Glucose = item.Glucose;
+                        dimension.DimensionDate = item.DimensionDate;
+                    }
+                }
+
+                // ... Добавление
+                foreach (var dimension in IntermediateDimensions)
+                {
+                    if (!dimensionsEntity.Any(x => x.Id == dimension.Id))
+                        db.IntermediateDimensions.Add(new Models.IntermediateDimension()
+                        {
+                            Id = dimension.Id,
+                            EatingId = eating.Id,
+                            DimensionTime = dimension.DimensionTime,
+                            DimensionDate = dimension.DimensionDate,
+                            Glucose = dimension.Glucose
+                        });
+                }
+
                 eating.InjectionTime = Eating.InjectionTime;
                 eating.GlucoseStart = Eating.GlucoseStart;
                 eating.GlucoseEnd = Eating.GlucoseEnd;
@@ -1297,9 +1451,11 @@ namespace InsulinSensitivity.Eating
                 eating.UserId = GlobalParameters.User.Id;
 
                 eating.ExpectedGlucose = Eating.ExpectedGlucose;
+                eating.Error = GetError();
 
                 // eating.WriteOff = GlobalParameters.User.BasalType.Duration;
                 eating.WorkingTime = Eating.WorkingTime;
+                eating.Pause = Eating.Pause;
                 eating.ExerciseId = exercise.Id;
 
                 if (Eating.Id == Guid.Empty)
@@ -1339,7 +1495,9 @@ namespace InsulinSensitivity.Eating
             // Рассчёты
             (InsulinSensitivityFact == null || InsulinSensitivityFact >= 0) &&
             (InsulinSensitivityUser == null || InsulinSensitivityUser >= 0) &&
-            (BolusDoseTotal + ActiveInsulinStart) > 0;
+            (BolusDoseTotal + ActiveInsulinStart) > 0 &&
+            // Пауза
+            Pause >= 0;
 
         public ICommand OkCommand =>
             new Command(OkExecute);
@@ -1365,6 +1523,22 @@ namespace InsulinSensitivity.Eating
                 if (exercise != null)
                     db.Exercises.Remove(exercise);
 
+                var injections = db.Injections
+                    .Where(x =>
+                        x.EatingId == Eating.Id)
+                    .ToList();
+
+                foreach (var injection in injections)
+                    db.Injections.Remove(injection);
+
+                var dimensions = db.IntermediateDimensions
+                    .Where(x =>
+                        x.EatingId == Eating.Id)
+                    .ToList();
+
+                foreach (var dimension in dimensions)
+                    db.IntermediateDimensions.Remove(dimension);
+
                 var eating = db.Eatings.Find(Eating.Id);
                 if (eating != null)
                     db.Eatings.Remove(eating);
@@ -1381,23 +1555,25 @@ namespace InsulinSensitivity.Eating
 
         #endregion
 
+        #region ~--Injection
+
         public ICommand AddInjectionCommand =>
             new Command(() =>
             {
-                SelectedInjection = new Models.Injection() 
-                { 
+                SelectedInjection = new Models.Injection()
+                {
                     Id = Guid.NewGuid(),
                     InjectionTime = DateTime.Now.TimeOfDay,
                     InjectionDate = DateTime.Now
                 };
-                IsModal = true;
+                IsModalInjection = true;
             });
 
         public ICommand EditInjectionCommand =>
             new Command((object obj) =>
             {
                 SelectedInjection = (Models.Injection)obj;
-                IsModal = true;
+                IsModalInjection = true;
             });
 
         public ICommand RemoveInjectionCommand =>
@@ -1415,7 +1591,7 @@ namespace InsulinSensitivity.Eating
                 }
             });
 
-        #region --Save Injection
+        #region ----Save Injection
 
         private async void SaveInjectionExecute()
         {
@@ -1439,7 +1615,7 @@ namespace InsulinSensitivity.Eating
                     "Ok");
             }
 
-            IsModal = false;
+            IsModalInjection = false;
         }
 
         public ICommand SaveInjectionCommand =>
@@ -1448,7 +1624,78 @@ namespace InsulinSensitivity.Eating
         #endregion
 
         public ICommand CancelInjectionCommand =>
-            new Command(() => IsModal = false);
+            new Command(() => IsModalInjection = false);
+
+        #endregion
+
+        #region ~--Dimension
+
+        public ICommand AddDimensionCommand =>
+            new Command(() =>
+            {
+                SelectedDimension = new Models.IntermediateDimension()
+                {
+                    Id = Guid.NewGuid(),
+                    DimensionTime = DateTime.Now.TimeOfDay,
+                    DimensionDate = DateTime.Now
+                };
+                IsModalDimension = true;
+            });
+
+        public ICommand EditDimensionCommand =>
+            new Command((object obj) =>
+            {
+                SelectedDimension = (Models.IntermediateDimension)obj;
+                IsModalDimension = true;
+            });
+
+        public ICommand RemoveDimensionCommand =>
+            new Command(async (object obj) =>
+            {
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Удалить?",
+                    "Вы уверены, что хотите удалить запись?",
+                    "Да", "Нет");
+
+                if (question)
+                    IntermediateDimensions.Remove((Models.IntermediateDimension)obj);
+            });
+
+        #region ----Save Dimension
+
+        private async void SaveDimensionExecute()
+        {
+            try
+            {
+                var entity = IntermediateDimensions
+                    .FirstOrDefault(x =>
+                        x.Id == SelectedDimension.Id);
+
+                if (entity != null)
+                    IntermediateDimensions.Remove(entity);
+
+                IntermediateDimensions.Add(SelectedDimension);
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+
+            IsModalDimension = false;
+        }
+
+        public ICommand SaveDimensionCommand =>
+            new Command(SaveDimensionExecute);
+
+        #endregion
+
+        public ICommand CancelDimensionCommand =>
+            new Command(() => IsModalDimension = false);
+
+        #endregion
 
         #endregion
     }
