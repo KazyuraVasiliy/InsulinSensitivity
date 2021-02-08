@@ -257,7 +257,7 @@ namespace InsulinSensitivity.Eating
                         x.TimeStart <= value &&
                         x.TimeEnd >= value);
 
-                WorkingTime = value.Add(new TimeSpan((int)GlobalParameters.User.BolusType.Duration, 0, 0));
+                SetWorkingTime();
 
                 if (Eating.Id != Guid.Empty)
                     ActiveInsulinEnd = Math.Round(BolusDoseTotal * (decimal)Calculation.GetActiveInsulinPercent(
@@ -334,6 +334,7 @@ namespace InsulinSensitivity.Eating
                 Eating.Protein = value;
                 OnPropertyChanged();
 
+                SetWorkingTime();
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
                 CalculateInsulinSensitivityFact();
@@ -351,6 +352,7 @@ namespace InsulinSensitivity.Eating
                 Eating.Fat = value;
                 OnPropertyChanged();
 
+                SetWorkingTime();
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
                 CalculateInsulinSensitivityFact();
@@ -368,6 +370,7 @@ namespace InsulinSensitivity.Eating
                 Eating.Carbohydrate = value;
                 OnPropertyChanged();
 
+                SetWorkingTime();
                 CalculateBolusDose();
                 CalculateExpectedGlucose();
                 CalculateInsulinSensitivityFact();
@@ -1242,8 +1245,13 @@ namespace InsulinSensitivity.Eating
 
                     if (timeSpan > 100)
                     {
-                        if (dimension.Glucose >= GlobalParameters.User.Hyperglycemia && GlucoseEnd > GlobalParameters.User.TargetGlucose)
-                            return "Мало инсулина";
+                        if (dimension.Glucose >= GlobalParameters.User.Hyperglycemia)
+                        {
+                            if (GlucoseEnd > GlobalParameters.User.TargetGlucose)
+                                return "Мало инсулина";
+                            else if ((Injections?.Count ?? 0) > 0)
+                                return "Дробление инъекции было излишним";
+                        }                            
                         else if (dimension.Glucose <= GlobalParameters.User.Hypoglycemia)
                             return "Слишком много инсулина";
                         else if (dimension.Glucose <= GlobalParameters.User.LowSugar && (Injections?.Count ?? 0) > 0 && ((Protein * 4 + Fat * 9) / 100) >= 4)
@@ -1265,6 +1273,18 @@ namespace InsulinSensitivity.Eating
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Задаёт время отработки пищи
+        /// </summary>
+        private void SetWorkingTime()
+        {
+            var workingTime = Math.Round(-30 + ((Carbohydrate / 19.5d) + (Protein / 24d) + (Fat / 15d)) * 60, 0, MidpointRounding.AwayFromZero);
+            if (workingTime < 180)
+                workingTime = 180;
+
+            WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
         }
 
         #endregion
@@ -1344,7 +1364,7 @@ namespace InsulinSensitivity.Eating
 
                 // Инициализация приёма пищи
                 var eating = Eating.Id == Guid.Empty
-                    ? new Models.Eating() { Id = Guid.NewGuid() }
+                    ? new Models.Eating() { Id = Guid.NewGuid(), DateCreated = Eating.DateCreated }
                     : db.Eatings.Find(Eating.Id);
 
                 // Инъекции
