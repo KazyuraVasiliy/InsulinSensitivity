@@ -95,7 +95,7 @@ namespace InsulinSensitivity.Statistic
         #region Methods
 
         /// <summary>
-        /// Инициализирует список циклов
+        /// Инициализирует статистику
         /// </summary>
         private async void InitStatistic()
         {
@@ -125,6 +125,10 @@ namespace InsulinSensitivity.Statistic
                         .Include(x => x.EatingType)
                         .ToList();
 
+                    var basals = eatings
+                        .GroupBy(x =>
+                            x.DateCreated.Date);
+
                     var entries = eatings
                         .OrderBy(x =>
                             x.DateCreated.Date)
@@ -134,7 +138,8 @@ namespace InsulinSensitivity.Statistic
                             new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
                             {
                                 Label = x.Key.ToString("dd.MM.yy"),
-                                ValueLabel = Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero).ToString(),
+                                ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                                    $"({basals.FirstOrDefault(y => y.Key == x.Key).Sum(y => y.BasalDose)})",
                                 ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                                     ? SkiaSharp.SKColors.White
                                     : SkiaSharp.SKColors.Black,
