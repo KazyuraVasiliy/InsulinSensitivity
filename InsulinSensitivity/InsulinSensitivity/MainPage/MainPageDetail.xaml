@@ -313,7 +313,7 @@
                                                             Text="&#xe0e3; "/>
                                                         <Label>
                                                             <Label.Text>
-                                                                <MultiBinding StringFormat="{}{0} ({1} мин) через {2} ч">
+                                                                <MultiBinding StringFormat="{}{0}&#10;({1} мин) через {2} ч">
                                                                     <Binding Path="Exercise.ExerciseType.Name"/>
                                                                     <Binding Path="Exercise.Duration"/>
                                                                     <Binding Path="Exercise.HoursAfterInjection"/>
