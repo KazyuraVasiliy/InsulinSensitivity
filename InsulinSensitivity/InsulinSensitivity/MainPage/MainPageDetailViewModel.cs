@@ -21,37 +21,8 @@ namespace InsulinSensitivity
         /// <summary>
         /// Конструктор
         /// </summary>
-        public MainPageDetailViewModel()
-        {
-            // Инициализация пользователя
-            using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                GlobalParameters.User = db.Users
-                    .Include(x => x.BolusType)
-                    .Include(x => x.BasalType)
-                    .FirstOrDefault();
-
-            InitEatings();
-
-            // Подписки на события
-            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
-                (sender) =>
-                {
-                    InitEatings();
-                    OnPropertyChanged(nameof(LastEating));
-                    OnPropertyChanged(nameof(TargetGlucose));
-                });
-
-            MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
-                (sender) =>
-                {
-                    InitEatings();
-                    OnPropertyChanged(nameof(LastEating));
-                    OnPropertyChanged(nameof(ActiveInsulin));
-                });
-
-            MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
-                (sender) => OnPropertyChanged(nameof(ActiveInsulin)));
-        }
+        public MainPageDetailViewModel() =>
+            Init();
 
         #endregion
 
@@ -107,6 +78,44 @@ namespace InsulinSensitivity
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Первичная инициализация
+        /// </summary>
+        private async void Init() =>
+            await AsyncBase.NewTask(() =>
+            {
+                Initialize.Init(GlobalParameters.DbPath);
+
+                // Инициализация пользователя
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    GlobalParameters.User = db.Users
+                        .Include(x => x.BolusType)
+                        .Include(x => x.BasalType)
+                        .FirstOrDefault();
+
+                InitEatings();
+
+                // Подписки на события
+                MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
+                    (sender) =>
+                    {
+                        InitEatings();
+                        OnPropertyChanged(nameof(LastEating));
+                        OnPropertyChanged(nameof(TargetGlucose));
+                    });
+
+                MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
+                    (sender) =>
+                    {
+                        InitEatings();
+                        OnPropertyChanged(nameof(LastEating));
+                        OnPropertyChanged(nameof(ActiveInsulin));
+                    });
+
+                MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
+                    (sender) => OnPropertyChanged(nameof(ActiveInsulin)));
+            }, "Инициализация\nПожалуйста, подождите");
 
         /// <summary>
         /// Инициализация приёмов пищи
