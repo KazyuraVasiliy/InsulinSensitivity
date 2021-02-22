@@ -321,17 +321,22 @@
                             ItemsSource="{Binding Path=DosingAccuracies}"
                             SelectedItem="{Binding Path=User.DosingAccuracy, Mode=TwoWay}"/>-->
 
-                        <StackLayout
-                            Spacing="0"
-                            Orientation="Horizontal">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
 
                             <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
                                 Text="Помпа:"/>
                             <Switch
+                                Grid.Column="1"
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=User.IsPump}"/>
-                        </StackLayout>
+                        </Grid>
 
                         <Label
                             Text="Кол-во дней для расчёта: ?"

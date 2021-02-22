@@ -32,7 +32,8 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
                 new MainPageMasterItemModel("\xe125", "Экспорт", ExportCommand),
                 new MainPageMasterItemModel("\xe043", "Статистика", StatisticCommand),
-                new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand),
+                new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand, true),
+                new MainPageMasterItemModel("\xe04f", "Настройки", SettingsCommand),
             };
         }
 
@@ -297,6 +298,21 @@ namespace InsulinSensitivity
 
         public ICommand ExportCommand =>
              new Command(ExportExecute);
+
+        #endregion
+
+        #region --Settings
+
+        private async void SettingsExecute()
+        {
+            var settingsPage = new Settings.SettingsPage();
+            settingsPage.BindingContext = new Settings.SettingsPageViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(settingsPage, true);
+        }
+
+        public ICommand SettingsCommand =>
+            new Command(SettingsExecute);
 
         #endregion
 

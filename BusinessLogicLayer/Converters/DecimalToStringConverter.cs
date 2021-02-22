@@ -8,10 +8,16 @@ namespace BusinessLogicLayer.Converters
 {
     public class DecimalToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
-            value?.ToString()
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            decimal? number = (decimal?)value;
+            if (number != null && int.TryParse(parameter?.ToString(), out int digits) && digits >= 0)
+                number = Math.Round(number.Value, digits, MidpointRounding.AwayFromZero);
+
+            return number?.ToString()
                 .Replace(".", CultureInfo.CurrentUICulture.NumberFormat.NumberDecimalSeparator)
                 .Replace(",", CultureInfo.CurrentUICulture.NumberFormat.NumberDecimalSeparator);
+        }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {

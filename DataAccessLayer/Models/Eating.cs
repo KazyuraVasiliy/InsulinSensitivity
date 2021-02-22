@@ -48,11 +48,13 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
         /// </summary>
+        [Obsolete("This property is obsolete.", false)]
         public decimal ActiveInsulinStart { get; set; }
 
         /// <summary>
         /// Количество активного инсулина в крови на отработке
         /// </summary>
+        [Obsolete("This property is obsolete.", false)]
         public decimal ActiveInsulinEnd { get; set; }
 
         /// <summary>
@@ -74,6 +76,11 @@ namespace DataAccessLayer.Models
         /// Доза базального инсулина
         /// </summary>
         public decimal BasalDose { get; set; }
+
+        /// <summary>
+        /// Время инъекции базального инсулина
+        /// </summary>
+        public DateTime? BasalInjectionTime { get; set; }
 
         /// <summary>
         /// Доза болюсного инсулина рассчитанная
@@ -120,6 +127,11 @@ namespace DataAccessLayer.Models
         /// Время отработки
         /// </summary>
         public TimeSpan WorkingTime { get; set; }
+
+        /// <summary>
+        /// Планируемое / Фактическое время отработки для расчёта активного базального инсулина
+        /// </summary>
+        public DateTime? EndEating { get; set; }
 
         /// <summary>
         /// Начало менструального цикла

@@ -26,6 +26,11 @@ namespace DataAccessLayer.Models
         public decimal Duration { get; set; }
 
         /// <summary>
+        /// Смещение, через которое начинает действовать инсулин после инъекции (минут)
+        /// </summary>
+        public int Offset { get; set; }
+
+        /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
         /// </summary>
         public List<User> BasalUsers { get; set; }

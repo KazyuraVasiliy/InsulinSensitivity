@@ -22,13 +22,14 @@
                         Padding="12" 
                         CornerRadius="3">
 
-                    <Label 
-                        Text="Приём пищи" 
-                        HorizontalTextAlignment="Center" 
-                        TextColor="White" 
-                        FontSize="24"/>
-                </Frame>-->
+                        <Label 
+                            Text="Приём пищи" 
+                            HorizontalTextAlignment="Center" 
+                            TextColor="White" 
+                            FontSize="24"/>
+                    </Frame>-->
 
+                    <!-- Пища -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -70,6 +71,7 @@
                                     <Label
                                         Text="Исходный сахар:"/>
                                     <Entry
+                                        x:Name="glucoseStart"
                                         Margin="0"
                                         view:Tag.Tag="GlucoseStart"
                                         Unfocused="Entry_Unfocused"
@@ -99,6 +101,52 @@
                                 </StackLayout>
                             </Grid>
 
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="0">
+
+                                    <Label                                
+                                        Text="Время отработки:"/>
+                                    <TimePicker
+                                        HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
+                                        Time="{Binding Path=EndEatingTime}"/>
+                                </StackLayout>
+
+                                <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
+                                <Grid 
+                                    Grid.Column="1"
+                                    RowSpacing="0">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Label
+                                        Grid.Row="0"
+                                        Text="Дата отработки:"/>
+
+                                    <DatePicker
+                                        Grid.Row="1"
+                                        HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
+                                        Date="{Binding Source={x:Reference materialDatePickerEndEating}, Path=Date}"/>
+
+                                    <DatePicker
+                                        x:Name="materialDatePickerEndEating"
+                                        Grid.Row="1"
+                                        Visual="Material"
+                                        Opacity="0"
+                                        HeightRequest="0"
+                                        Date="{Binding Path=EndEatingDate}"/>
+                                </Grid>
+                            </Grid>
+                            
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -220,6 +268,7 @@
                         </StackLayout>
                     </Frame>
 
+                    <!-- Инъекции -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -388,6 +437,7 @@
                         </StackLayout>
                     </Frame>
 
+                    <!-- Активность -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -449,6 +499,84 @@
                         </StackLayout>
                     </Frame>
 
+                    <!-- Базальный инсулин -->
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Базальный инсулин"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="0">
+
+                                    <Label                                
+                                        Text="Доза:"/>
+                                    <Entry
+                                        x:Name="basalDose"
+                                        Keyboard="Numeric"
+                                        view:Tag.Tag="BasalDose"
+                                        Unfocused="Entry_Unfocused"
+                                        Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="1">
+
+                                    <Label                                
+                                        Text="Время:"/>
+                                    <TimePicker
+                                        HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
+                                        Time="{Binding Path=BasalInjectionTime}"/>
+                                </StackLayout>
+
+                                <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
+                                <Grid 
+                                    Grid.Column="2"
+                                    RowSpacing="0">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Label
+                                        Grid.Row="0"
+                                        Text="Дата:"/>
+
+                                    <DatePicker
+                                        Grid.Row="1"
+                                        HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
+                                        Date="{Binding Source={x:Reference materialDatePickerBasalDose}, Path=Date}"/>
+
+                                    <DatePicker
+                                        x:Name="materialDatePickerBasalDose"
+                                        Grid.Row="1"
+                                        Visual="Material"
+                                        Opacity="0"
+                                        HeightRequest="0"
+                                        Date="{Binding Path=BasalInjectionDate}"/>
+                                </Grid>
+                            </Grid>
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Дополнительно -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -460,18 +588,8 @@
                                 FontAttributes="Bold"
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
-
-                            <Label
-                                IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
-                                Text="Доза базального инсулина:"/>
-                            <Entry
-                                IsVisible="{Binding Path=IsBasalDoseVisibility, Mode=OneWay}"
-                                Keyboard="Numeric"
-                                view:Tag.Tag="BasalDose"
-                                Unfocused="Entry_Unfocused"
-                                Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
-
-                            <Label
+                            
+                            <!--<Label
                                 Text="Активного инсулина в крови до инъекции:"/>
                             <Entry
                                 Keyboard="Numeric"
@@ -482,19 +600,27 @@
                             <Label
                                 Text="Активного инсулина в крови на отработке:"/>
                             <Entry
-                                Keyboard="Numeric"
-                                view:Tag.Tag="ActiveInsulinEnd"
-                                Unfocused="Entry_Unfocused"
-                                Text="{Binding Path=ActiveInsulinEnd, Converter={StaticResource DecimalToStringConverter}}"/>
+                                IsReadOnly="True"
+                                Text="{Binding Path=ActiveInsulinEnd, Converter={StaticResource DecimalToStringConverter}}"/>-->
 
-                            <Label
-                                IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}"
-                                VerticalOptions="Center"
-                                Text="Начало менструального цикла:"/>
-                            <Switch
-                                IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}"
-                                VerticalOptions="Center"
-                                IsToggled="{Binding Path=IsMenstrualCycleStart}"/>
+                            <Grid
+                                IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}">
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Label
+                                    Grid.Column="0"
+                                    Margin="0, 0, 0, 5"
+                                    VerticalOptions="Center"
+                                    Text="Начало менструального цикла:"/>
+                                <Switch
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    IsToggled="{Binding Path=IsMenstrualCycleStart}"/>
+                            </Grid>
 
                             <Label
                                 Text="Комментарий:"/>
@@ -502,9 +628,18 @@
                                 Keyboard="Chat"
                                 AutoSize="TextChanges"
                                 Text="{Binding Path=Comment}"/>
+
+                            <!--<Label
+                                Text="Информация:"/>
+                            <Editor
+                                Keyboard="Chat"
+                                AutoSize="TextChanges"
+                                IsReadOnly="True"
+                                Text="{Binding Path=ActiveInformation}"/>-->
                         </StackLayout>
                     </Frame>
 
+                    <!-- Расчёт -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -538,8 +673,7 @@
                                     </Label>
                                     <Entry
                                         Text="{Binding Path=InsulinSensitivityAuto, Converter={StaticResource DecimalToStringConverter}}"
-                                        IsReadOnly="True"
-                                        Keyboard="Numeric"/>
+                                        IsReadOnly="True"/>
                                 </StackLayout>
 
                                 <StackLayout
@@ -556,9 +690,8 @@
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
-                                        Text="{Binding Path=BolusDoseCalculate, Converter={StaticResource DecimalToStringConverter}}"
-                                        IsReadOnly="True"
-                                        Keyboard="Numeric"/>
+                                        Text="{Binding Path=BolusDoseCalculate, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=2}"
+                                        IsReadOnly="True"/>
                                 </StackLayout>
                             </Grid>
 
@@ -598,7 +731,7 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Складывается из всех инъекций введённых в период активности данного приёма пищи"/>
+                                                CommandParameter="{Binding Path=ActiveInformation, StringFormat='{}Складывается из всех инъекций введённых в период активности данного приёма пищи:\&#10;\&#10;{0}'}"/>
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
@@ -627,9 +760,8 @@
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
-                                        Keyboard="Numeric"
                                         IsReadOnly="True"
-                                        Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}}"/>
+                                        Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=3}"/>
                                 </StackLayout>
 
                                 <StackLayout
@@ -639,9 +771,8 @@
                                     <Label
                                         Text="Ожидаемый сахар:"/>
                                     <Entry
-                                        Keyboard="Numeric"
                                         IsReadOnly="True"
-                                        Text="{Binding Path=ExpectedGlucose, Converter={StaticResource DecimalToStringConverter}}"/>
+                                        Text="{Binding Path=ExpectedGlucose, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=2}"/>
                                 </StackLayout>
                             </Grid>
                         </StackLayout>

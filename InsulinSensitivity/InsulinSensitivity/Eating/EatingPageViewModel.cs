@@ -47,7 +47,10 @@ namespace InsulinSensitivity.Eating
 
             // Инициализация времени инъекции
             if (eating == null)
-                Eating.InjectionTime = DateTime.Now.TimeOfDay;
+            {
+                Eating.InjectionTime = Calculation.TimeSpanWithoutSeconds(DateTime.Now.TimeOfDay);
+                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(5));
+            }
 
             // Инициализация инъекций
             if (Eating.Injections != null)
@@ -92,7 +95,7 @@ namespace InsulinSensitivity.Eating
                 ? GlobalParameters.User.BasalType.Duration == 12
                     ? true
                     : !Basals.Any(x =>
-                            x.DateCreated.Date == DateTime.Now.Date)
+                        x.DateCreated.Date == DateTime.Now.Date)
                 : false;
 
         /// <summary>
@@ -153,6 +156,12 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
+        /// Предыдущие приёмы пищи в которых есть база
+        /// </summary>
+        private List<Models.Eating> BasalEatings { get; set; } =
+            new List<Models.Eating>();
+
+        /// <summary>
         /// Средний ФЧИ предыдущего типа приёма пищи
         /// </summary>
         private decimal? PreviousAverageEatingTypeSensitivity { get; set; }
@@ -189,7 +198,19 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private decimal? Infinum { get; set; }
 
+        /// <summary>
+        /// Средний ФЧИ за расчётный период
+        /// </summary>
+        private decimal? AverageInsulinSensitivity { get; set; }
+
+        /// <summary>
+        /// Среднесуточная база за расчётный период
+        /// </summary>
+        private decimal? AverageBasal { get; set; }
+
         #endregion
+
+        #region --Selected
 
         private Models.Injection selectedInjection;
         /// <summary>
@@ -219,6 +240,179 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        #endregion
+
+        #region --Exercise
+
+        /// <summary>
+        /// Тип нагрузки
+        /// </summary>
+        public Models.ExerciseType ExerciseType
+        {
+            get => Eating.Exercise.ExerciseType;
+            set
+            {
+                Eating.Exercise.ExerciseType = value;
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Продолжительность нагрузки в десятках минут
+        /// </summary>
+        public int Duration
+        {
+            get => Eating.Exercise.Duration;
+            set
+            {
+                Eating.Exercise.Duration = value;
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Количество часов после инъекции до начала нагрузки
+        /// </summary>
+        public int HoursAfterInjection
+        {
+            get => Eating.Exercise.HoursAfterInjection;
+            set
+            {
+                Eating.Exercise.HoursAfterInjection = value;
+                CalculateTotal();
+            }
+        }
+
+        #endregion
+
+        private decimal? insulinSensitivityAuto;
+        /// <summary>
+        /// ФЧИ рассчитанный (средний)
+        /// </summary>
+        public decimal? InsulinSensitivityAuto
+        {
+            get => insulinSensitivityAuto;
+            set
+            {
+                insulinSensitivityAuto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #region --Nutritional
+
+        /// <summary>
+        /// Белки
+        /// </summary>
+        public int Protein
+        {
+            get => Eating.Protein;
+            set
+            {
+                Eating.Protein = value;
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Жиры
+        /// </summary>
+        public int Fat
+        {
+            get => Eating.Fat;
+            set
+            {
+                Eating.Fat = value;
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Углеводы
+        /// </summary>
+        public int Carbohydrate
+        {
+            get => Eating.Carbohydrate;
+            set
+            {
+                Eating.Carbohydrate = value;
+                CalculateTotal();
+            }
+        }
+
+        #endregion
+
+        #region --Basal
+
+        private decimal activeBasal;
+        /// <summary>
+        /// Активный базальный инсулин
+        /// </summary>
+        public decimal ActiveBasal
+        {
+            get => activeBasal;
+            set
+            {
+                activeBasal = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string activeInformation;
+        /// <summary>
+        /// Информация об активном базальном инсулине
+        /// </summary>
+        public string ActiveInformation
+        {
+            get => activeInformation;
+            set
+            {
+                activeInformation = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Дата инъекции базального инсулина
+        /// </summary>
+        public DateTime BasalInjectionDate
+        {
+            get => Eating.BasalInjectionTime ?? DateTime.Now;
+            set
+            {
+                Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(value, BasalInjectionTime);
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Время инъекции базального инсулина
+        /// </summary>
+        public TimeSpan BasalInjectionTime
+        {
+            get => Eating.BasalInjectionTime?.TimeOfDay ?? DateTime.Now.TimeOfDay;
+            set
+            {
+                Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(BasalInjectionDate, value);
+                CalculateTotal();
+            }
+        }
+
+        /// <summary>
+        /// Доза базального инсулина
+        /// </summary>
+        public decimal BasalDose
+        {
+            get => Eating.BasalDose;
+            set
+            {
+                Eating.BasalDose = value;
+                CalculateTotal();
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Текущий приём пищи
         /// </summary>
@@ -234,10 +428,6 @@ namespace InsulinSensitivity.Eating
             {
                 Eating.EatingType = value;
                 OnPropertyChanged();
-
-                CalculateInfinumExtremum();
-                CalculateInsulinSensitivityOne();
-                CalculateInsulinSensitivityThree();
             }
         }
 
@@ -250,31 +440,38 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.InjectionTime = value;
-                OnPropertyChanged();
 
-                EatingType = EatingTypes
-                    .FirstOrDefault(x =>
-                        x.TimeStart <= value &&
-                        x.TimeEnd >= value);
+                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(5);
+                OnPropertyChanged(nameof(EndEatingTime));
+                OnPropertyChanged(nameof(EndEatingDate));
 
-                SetWorkingTime();
+                CalculateTotal();
+            }
+        }
 
-                if (Eating.Id != Guid.Empty)
-                    ActiveInsulinEnd = Math.Round(BolusDoseTotal * (decimal)Calculation.GetActiveInsulinPercent(
-                        Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value), DateTime.Now, (int)GlobalParameters.User.BolusType.Duration), 2, MidpointRounding.AwayFromZero);
+        /// <summary>
+        /// Дата отработки
+        /// </summary>
+        public DateTime EndEatingDate
+        {
+            get => Eating.EndEating ?? DateTime.Now;
+            set
+            {
+                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
+                CalculateTotal();
             }
         }
 
         /// <summary>
         /// Время отработки
         /// </summary>
-        public TimeSpan WorkingTime
+        public TimeSpan EndEatingTime
         {
-            get => Eating.WorkingTime;
+            get => Eating.EndEating?.TimeOfDay ?? DateTime.Now.TimeOfDay;
             set
             {
-                Eating.WorkingTime = value;
-                OnPropertyChanged();
+                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
+                CalculateTotal();
             }
         }
 
@@ -284,11 +481,7 @@ namespace InsulinSensitivity.Eating
         public int Pause
         {
             get => Eating.Pause;
-            set
-            {
-                Eating.Pause = value;
-                OnPropertyChanged();
-            }
+            set => Eating.Pause = value;
         }
 
         /// <summary>
@@ -300,11 +493,7 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.GlucoseStart = value;
-                OnPropertyChanged();
-
-                CalculateBolusDose();
-                CalculateExpectedGlucose();
-                CalculateInsulinSensitivityFact();
+                CalculateTotal();
             }
         }
 
@@ -317,222 +506,21 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.GlucoseEnd = value;
-                OnPropertyChanged();
 
-                CalculateInsulinSensitivityFact();
+                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now);
+                OnPropertyChanged(nameof(EndEatingTime));
+                OnPropertyChanged(nameof(EndEatingDate));
+
+                CalculateTotal();
             }
         }
-
-        /// <summary>
-        /// Белки
-        /// </summary>
-        public int Protein
-        {
-            get => Eating.Protein;
-            set
-            {
-                Eating.Protein = value;
-                OnPropertyChanged();
-
-                SetWorkingTime();
-                CalculateBolusDose();
-                CalculateExpectedGlucose();
-                CalculateInsulinSensitivityFact();
-            }
-        }
-
-        /// <summary>
-        /// Жиры
-        /// </summary>
-        public int Fat
-        {
-            get => Eating.Fat;
-            set
-            {
-                Eating.Fat = value;
-                OnPropertyChanged();
-
-                SetWorkingTime();
-                CalculateBolusDose();
-                CalculateExpectedGlucose();
-                CalculateInsulinSensitivityFact();
-            }
-        }
-
-        /// <summary>
-        /// Углеводы
-        /// </summary>
-        public int Carbohydrate
-        {
-            get => Eating.Carbohydrate;
-            set
-            {
-                Eating.Carbohydrate = value;
-                OnPropertyChanged();
-
-                SetWorkingTime();
-                CalculateBolusDose();
-                CalculateExpectedGlucose();
-                CalculateInsulinSensitivityFact();
-            }
-        }
-
-        /// <summary>
-        /// Тип нагрузки
-        /// </summary>
-        public Models.ExerciseType ExerciseType
-        {
-            get => Eating.Exercise.ExerciseType;
-            set
-            {
-                Eating.Exercise.ExerciseType = value;
-                OnPropertyChanged();
-
-                CalculateInsulinSensitivityTwo();
-            }
-        }
-
-        /// <summary>
-        /// Продолжительность нагрузки в десятках минут
-        /// </summary>
-        public int Duration
-        {
-            get => Eating.Exercise.Duration;
-            set
-            {
-                Eating.Exercise.Duration = value;
-                OnPropertyChanged();
-
-                CalculateInsulinSensitivityTwo();
-            }
-        }
-
-        /// <summary>
-        /// Количество часов после инъекции до начала нагрузки
-        /// </summary>
-        public int HoursAfterInjection
-        {
-            get => Eating.Exercise.HoursAfterInjection;
-            set
-            {
-                Eating.Exercise.HoursAfterInjection = value;
-                OnPropertyChanged();
-
-                CalculateInsulinSensitivityTwo();
-            }
-        }
-
-        /// <summary>
-        /// Доза базального инсулина
-        /// </summary>
-        public decimal BasalDose
-        {
-            get => Eating.BasalDose;
-            set
-            {
-                Eating.BasalDose = value;
-                OnPropertyChanged();
-
-                CalculateInsulinSensitivityTwo();
-            }
-        }
-
-        /// <summary>
-        /// ФЧИ рассчитанный по первой формуле
-        /// </summary>
-        private decimal? InsulinSensitivityAutoOne
-        {
-            get => Eating.InsulinSensitivityAutoOne;
-            set
-            {
-                Eating.InsulinSensitivityAutoOne = value;
-                OnPropertyChanged();
-
-                OnPropertyChanged(nameof(InsulinSensitivityAuto));
-                CalculateExpectedGlucose();
-                CalculateAccuracyAuto();
-            }
-        }
-
-        /// <summary>
-        /// ФЧИ рассчитанный по второй формуле
-        /// </summary>
-        private decimal? InsulinSensitivityAutoTwo
-        {
-            get => Eating.InsulinSensitivityAutoTwo;
-            set
-            {
-                Eating.InsulinSensitivityAutoTwo = value;
-                OnPropertyChanged();
-
-                OnPropertyChanged(nameof(InsulinSensitivityAuto));
-                CalculateExpectedGlucose();
-                CalculateAccuracyAuto();
-            }
-        }
-
-        /// <summary>
-        /// ФЧИ рассчитанный по третьей формуле
-        /// </summary>
-        private decimal? InsulinSensitivityAutoThree
-        {
-            get => Eating.InsulinSensitivityAutoThree;
-            set
-            {
-                Eating.InsulinSensitivityAutoThree = value;
-                OnPropertyChanged();
-
-                OnPropertyChanged(nameof(InsulinSensitivityAuto));
-                CalculateExpectedGlucose();
-                CalculateAccuracyAuto();
-            }
-        }
-
-        /// <summary>
-        /// ФЧИ рассчитанный (средний)
-        /// </summary>
-        public decimal? InsulinSensitivityAuto
-        {
-            get
-            {
-                var values = new List<decimal?>()
-                {
-                    InsulinSensitivityAutoOne,
-                    InsulinSensitivityAutoTwo,
-                    InsulinSensitivityAutoThree
-                };
-
-                values = values
-                    .Where(x =>
-                        x != null)
-                    .ToList();
-
-                if (Infinum != null || Extremum != null)
-                {
-                    for (int i = 0; i < (values?.Count ?? 0); i++)
-                    {
-                        if (Infinum != null)
-                            values[i] = values[i] < Infinum ? Infinum : values[i];
-
-                        if (Extremum != null)
-                            values[i] = values[i] > Extremum ? Extremum : values[i];
-                    }
-                }
-
-                return (values?.Count ?? 0) == 0
-                    ? (decimal?)null
-                    : Math.Round(values.Average().Value, 3, MidpointRounding.AwayFromZero);
-            }
-        }            
 
         /// <summary>
         /// ФЧИ фактический
         /// </summary>
         public decimal? InsulinSensitivityFact
         {
-            get => Eating.InsulinSensitivityFact == null
-                ? (decimal?)null
-                : Math.Round(Eating.InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero);
+            get => Eating.InsulinSensitivityFact;
             set
             {
                 Eating.InsulinSensitivityFact = value;
@@ -549,11 +537,7 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.InsulinSensitivityUser = value;
-                OnPropertyChanged();
-
-                CalculateBolusDose();
-                CalculateAccuracyUser();
-                CalculateExpectedGlucose();
+                CalculateTotal();
             }
         }
 
@@ -562,9 +546,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         public decimal? BolusDoseCalculate
         {
-            get => Eating.BolusDoseCalculate == null
-                ? (decimal?)null
-                : Math.Round(Eating.BolusDoseCalculate.Value, 2, MidpointRounding.AwayFromZero);
+            get => Eating.BolusDoseCalculate;
             set
             {
                 Eating.BolusDoseCalculate = value;
@@ -581,89 +563,28 @@ namespace InsulinSensitivity.Eating
             set
             {
                 Eating.BolusDoseFact = value;
-                OnPropertyChanged();
-
-                BolusDoseChange();
+                CalculateTotal();
             }
         }
 
+        private decimal bolusDoseTotal;
         /// <summary>
         /// Доза болюсного инсулина итоговая
         /// </summary>
-        public decimal BolusDoseTotal =>
-            Eating.BolusDoseFact + (Injections?.Sum(x => x.BolusDose) ?? 0);
-
-        /// <summary>
-        /// Количество активного инсулина в крови перед поставновкой инъекции
-        /// </summary>
-        public decimal ActiveInsulinStart
+        public decimal BolusDoseTotal
         {
-            get => Eating.ActiveInsulinStart;
+            get => bolusDoseTotal;
             set
             {
-                Eating.ActiveInsulinStart = value;
-                OnPropertyChanged();
-
-                CalculateBolusDose();
-                CalculateInsulinSensitivityFact();
-                CalculateExpectedGlucose();
-            }
-        }
-
-        /// <summary>
-        /// Количество активного инсулина в крови на отработке
-        /// </summary>
-        public decimal ActiveInsulinEnd
-        {
-            get => Eating.ActiveInsulinEnd;
-            set
-            {
-                Eating.ActiveInsulinEnd = value;
-                OnPropertyChanged();
-
-                CalculateInsulinSensitivityFact();
-            }
-        }
-
-        /// <summary>
-        /// Точность автоматического ФЧИ
-        /// </summary>
-        public int? AccuracyAuto
-        {
-            get => Eating.AccuracyAuto;
-            set
-            {
-                Eating.AccuracyAuto = value;
+                bolusDoseTotal = value;
                 OnPropertyChanged();
             }
         }
 
-        /// <summary>
-        /// Точность ФЧИ пользователя
-        /// </summary>
-        public int? AccuracyUser
-        {
-            get => Eating.AccuracyUser;
-            set
-            {
-                Eating.AccuracyUser = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool isMenstrualCycleStart;
         /// <summary>
         /// Начало менструального цикла
         /// </summary>
-        public bool IsMenstrualCycleStart
-        {
-            get => isMenstrualCycleStart;
-            set
-            {
-                isMenstrualCycleStart = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool IsMenstrualCycleStart { get; set; }
 
         /// <summary>
         /// Комментарий
@@ -671,11 +592,7 @@ namespace InsulinSensitivity.Eating
         public string Comment
         {
             get => Eating.Comment;
-            set
-            {
-                Eating.Comment = value;
-                OnPropertyChanged();
-            }
+            set => Eating.Comment = value;
         }
 
         /// <summary>
@@ -683,9 +600,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         public decimal? ExpectedGlucose
         {
-            get => Eating.ExpectedGlucose == null
-                ? (decimal?)null
-                : Math.Round(Eating.ExpectedGlucose.Value, 2, MidpointRounding.AwayFromZero);
+            get => Eating.ExpectedGlucose;
             set
             {
                 Eating.ExpectedGlucose = value;
@@ -713,6 +628,15 @@ namespace InsulinSensitivity.Eating
                     .Include(x => x.Exercise)
                     .Include(x => x.Injections)
                     .Include(x => x.IntermediateDimensions)
+                    .Take(3)
+                    .ToList();
+
+                // Предыдущие приёмы пищи, в которых есть база
+                BasalEatings = db.Eatings
+                    .Where(x =>
+                        x.Id != Eating.Id &&
+                        x.BasalDose != 0 &&
+                        x.BasalInjectionTime != null)
                     .Take(3)
                     .ToList();
 
@@ -808,6 +732,49 @@ namespace InsulinSensitivity.Eating
                     .Take(4)
                     .ToList();
 
+                // Средний ФЧИ
+                var averageInsulinSensitivityQuery = db.Eatings
+                    .Where(x =>
+                        x.Id != Eating.Id &&
+                        x.InsulinSensitivityFact != null);
+
+                if (GlobalParameters.User.PeriodOfCalculation > 0)
+                    averageInsulinSensitivityQuery = averageInsulinSensitivityQuery
+                        .Where(x =>
+                            x.DateCreated.Date >= Period.Date);
+
+                var averageInsulinSensitivityCollection = averageInsulinSensitivityQuery
+                    .ToList();
+
+                AverageInsulinSensitivity = (averageInsulinSensitivityCollection?.Count ?? 0) > 0
+                    ? averageInsulinSensitivityCollection
+                        .Average(x =>
+                            x.InsulinSensitivityFact)
+                    : null;
+
+                // Среднесуточная база
+                var averageBasalQuery = db.Eatings
+                    .Where(x =>
+                        x.Id != Eating.Id &&
+                        x.BasalDose != 0);
+
+                if (GlobalParameters.User.PeriodOfCalculation > 0)
+                    averageBasalQuery = averageBasalQuery
+                        .Where(x =>
+                            x.DateCreated.Date >= Period.Date);
+
+                var averageBasalCollection = averageBasalQuery
+                    .ToList();
+
+                AverageBasal = (averageBasalCollection?.Count ?? 0) > 0
+                    ? averageBasalCollection
+                        .GroupBy(x =>
+                            x.DateCreated.Date)
+                        .Select(x =>
+                            x.Sum(y => y.BasalDose))
+                        .Average()
+                    : (decimal?)null;
+
                 // Эквивалентный день предыдущего цикла
                 if (GlobalParameters.User.Gender == false)
                 {
@@ -829,14 +796,6 @@ namespace InsulinSensitivity.Eating
                             EquivalentDay = equivalentDay;
                     }
                 }
-
-                // Активный инсулин
-                if ((PreviousEatings?.Count ?? 0) > 0)
-                {
-                    if (Eating.Id == Guid.Empty)
-                        Eating.ActiveInsulinStart = GlobalMethods.GetActiveInsulin(PreviousEatings[0]);
-                    else Eating.ActiveInsulinEnd = GlobalMethods.GetActiveInsulin(Eating);
-                }
             }
         }
 
@@ -846,7 +805,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityOne()
         {
             // Рассчёт ФЧИ по первой формуле
-            InsulinSensitivityAutoOne = null;
+            Eating.InsulinSensitivityAutoOne = null;
             if ((PreviousEatings?.Count ?? 0) > 0 && PreviousEatings[0].InsulinSensitivityFact != null && (PreviousAverageEatingTypeSensitivity ?? 0) != 0 && EatingType != null)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
@@ -872,12 +831,9 @@ namespace InsulinSensitivity.Eating
                         : null;
 
                     if (averageEatingTypeSensitivity != null)
-                        InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
+                        Eating.InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
                 }
             }
-
-            // Рассчёт дозы болюсного инсулина
-            CalculateBolusDose();
         }
 
         /// <summary>
@@ -885,8 +841,8 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateInsulinSensitivityTwo()
         {
-            // Рассчёт ФЧИ по второй формуле
-            InsulinSensitivityAutoTwo = null;
+            // Расчёт ФЧИ по второй формуле
+            Eating.InsulinSensitivityAutoTwo = null;
             var check = (PreviousEatings?.Count ?? 0) == 3 &&
                 PreviousEatings.All(x => x.InsulinSensitivityFact != null) &&
                 (PreviousAverageExerciseTypeSensitivitys?.Count ?? 0) == 3 &&
@@ -952,9 +908,9 @@ namespace InsulinSensitivity.Eating
 
                         // Учёт базы
                         decimal basal = 1;
-                        if (!GlobalParameters.User.IsPump)
+                        if (!GlobalParameters.User.IsPump && !GlobalParameters.Settings.IsActiveBasal)
                         {
-                            if (GlobalParameters.User.BasalType.Duration != 12)
+                            if (GlobalParameters.User.BasalType.Duration > 12)
                             {
                                 if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
                                     basal = BasalDose / Basals[0].BasalDose;
@@ -962,11 +918,11 @@ namespace InsulinSensitivity.Eating
                                     basal = Basals[0].BasalDose / Basals[1].BasalDose;
 
                                 // ... 24 часовые инсулины
-                                if (GlobalParameters.User.BasalType.Duration == 24)
+                                if (GlobalParameters.User.BasalType.Duration > 12 && GlobalParameters.User.BasalType.Duration <= 24)
                                     basal = (basal + 1) / 2;
 
                                 // ... 48 часовые инсулины
-                                if (GlobalParameters.User.BasalType.Duration == 48)
+                                if (GlobalParameters.User.BasalType.Duration > 24)
                                     basal = (basal + 2) / 3;
                             }
                             else
@@ -1005,13 +961,10 @@ namespace InsulinSensitivity.Eating
                             }
                         }
 
-                        InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
+                        Eating.InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
                     }
                 }
             }
-
-            // Рассчёт дозы болюсного инсулина
-            CalculateBolusDose();
         }
 
         /// <summary>
@@ -1020,7 +973,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityThree()
         {
             // Рассчёт ФЧИ по третьей формуле
-            InsulinSensitivityAutoThree = null;
+            Eating.InsulinSensitivityAutoThree = null;
             var check = 
                 !GlobalParameters.User.Gender &&
                 EquivalentDay != null &&
@@ -1043,48 +996,89 @@ namespace InsulinSensitivity.Eating
                         .ToList();
 
                     if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
-                        InsulinSensitivityAutoThree = averageEatingTypeSensitivityCollection
+                        Eating.InsulinSensitivityAutoThree = averageEatingTypeSensitivityCollection
                             .Average(x =>
                                 x.InsulinSensitivityFact);
                 }
             }
-
-            // Рассчёт дозы болюсного инсулина
-            CalculateBolusDose();
         }
 
         /// <summary>
-        /// Рассчёт дозы болюсного инсулина
+        /// Рассчитывает автоматический ФЧИ (средний)
+        /// </summary>
+        private void CalculateInsulinSensitivityAuto()
+        {
+            var values = new List<decimal?>()
+            {
+                Eating.InsulinSensitivityAutoOne,
+                Eating.InsulinSensitivityAutoTwo,
+                Eating.InsulinSensitivityAutoThree
+            };
+
+            values = values
+                .Where(x =>
+                    x != null)
+                .ToList();
+
+            if (Infinum != null || Extremum != null)
+            {
+                for (int i = 0; i < (values?.Count ?? 0); i++)
+                {
+                    if (Infinum != null)
+                        values[i] = values[i] < Infinum ? Infinum : values[i];
+
+                    if (Extremum != null)
+                        values[i] = values[i] > Extremum ? Extremum : values[i];
+                }
+            }
+
+            InsulinSensitivityAuto = (values?.Count ?? 0) == 0
+                ? (decimal?)null
+                : Math.Round(values.Average().Value, 3, MidpointRounding.AwayFromZero);
+        }
+
+        /// <summary>
+        /// Расчёт дозы болюсного инсулина
         /// </summary>
         private void CalculateBolusDose()
         {
-            BolusDoseCalculate = (InsulinSensitivityAuto ?? 0) != 0 || (InsulinSensitivityUser ?? 0) != 0
+            var bolusDose = (InsulinSensitivityAuto ?? 0) != 0 || (InsulinSensitivityUser ?? 0) != 0
                 ? Calculation.GetBolusDose(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
                     (InsulinSensitivityUser ?? 0) != 0
-                    ? InsulinSensitivityUser.Value
-                    : InsulinSensitivityAuto.Value) - ActiveInsulinStart
+                        ? InsulinSensitivityUser.Value
+                        : InsulinSensitivityAuto.Value) - GlobalMethods.GetActiveInsulin(Eating, Injections,
+                            Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating, Eating.Id, true,
+                            Eating.Carbohydrate, AverageInsulinSensitivity, AverageBasal).insulin
+                : (decimal?)null;
+
+            if (bolusDose != null && Eating.EndEating != null)
+                bolusDose = bolusDose * (decimal)(1 - Calculation.GetActiveInsulinPercent(
+                    Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating.Value, (int)GlobalParameters.User.BolusType.Duration));
+
+            BolusDoseCalculate = bolusDose != null
+                ? bolusDose
                 : (decimal?)null;
         }
 
         /// <summary>
-        /// Рассчёт ожидаемого сахара
+        /// Расчёт ожидаемого сахара
         /// </summary>
         private void CalculateExpectedGlucose()
         {
             ExpectedGlucose = (InsulinSensitivityAuto != null || InsulinSensitivityUser != null)
-                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseTotal + ActiveInsulinStart,
+                ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseTotal,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
                     InsulinSensitivityUser != null
-                    ? InsulinSensitivityUser.Value
-                    : InsulinSensitivityAuto.Value)
+                        ? InsulinSensitivityUser.Value
+                        : InsulinSensitivityAuto.Value)
                 : (decimal?)null;
         }
 
         /// <summary>
-        /// Рассчёт фактического ФЧИ
+        /// Расчёт фактического ФЧИ
         /// </summary>
         private void CalculateInsulinSensitivityFact()
         {
@@ -1092,49 +1086,37 @@ namespace InsulinSensitivity.Eating
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlucoseEnd.Value,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    BolusDoseTotal + ActiveInsulinStart - ActiveInsulinEnd)
+                    BolusDoseTotal)
                 : (decimal?)null;
-
-            CalculateAccuracyAuto();
-            CalculateAccuracyUser();
         }
 
         /// <summary>
-        /// Рассчёт точности рассчётного ФЧИ
+        /// Расчёт точности расчётного ФЧИ
         /// </summary>
         private void CalculateAccuracyAuto()
         {
-            AccuracyAuto = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityAuto != null
+            Eating.AccuracyAuto = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityAuto != null
                 ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
                 : (int?)null;
         }
 
         /// <summary>
-        /// Рассчёт точности ФЧИ пользователя
+        /// Расчёт точности ФЧИ пользователя
         /// </summary>
         private void CalculateAccuracyUser()
         {
-            AccuracyUser = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null
+            Eating.AccuracyUser = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null
                 ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
                 : (int?)null;
         }
 
         /// <summary>
-        /// Рассчёт минимального и максимального отношения ФЧИ текущего типа приёма пищи к предыдущему
+        /// Расчёт минимального и максимального отношения ФЧИ текущего типа приёма пищи к предыдущему
         /// </summary>
         private void CalculateInfinumExtremum()
         {
             Infinum = null;
             Extremum = null;
-
-            //var mod = EatingTypes.Count;
-            //Models.EatingType previousType = EatingTypes[((EatingTypes.IndexOf(EatingType) - 1) % mod + mod) % mod];
-
-            //var previousEating = PreviousEatings?
-            //    .FirstOrDefault(x =>
-            //        x.EatingTypeId == previousType.Id &&
-            //        x.InsulinSensitivityFact != null &&
-            //        x.DateCreated.Date == DateTime.Now.Date);
 
             bool check =
                 EatingType != null &&
@@ -1189,22 +1171,6 @@ namespace InsulinSensitivity.Eating
                     }
                 }
             }
-
-            OnPropertyChanged(nameof(InsulinSensitivityAuto));
-        }
-
-        /// <summary>
-        /// Изменяет свойства зависимые от изменения дозы болюсного инсулина
-        /// </summary>
-        private void BolusDoseChange()
-        {
-            OnPropertyChanged(nameof(BolusDoseTotal));
-
-            CalculateExpectedGlucose();
-            CalculateInsulinSensitivityFact();
-
-            if (Eating.Id != Guid.Empty)
-                ActiveInsulinEnd = GlobalMethods.GetActiveInsulin(Eating, Injections);
         }
 
         /// <summary>
@@ -1284,7 +1250,55 @@ namespace InsulinSensitivity.Eating
             if (workingTime < 180)
                 workingTime = 180;
 
-            WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
+            Eating.WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
+        }
+
+        /// <summary>
+        /// Расчёт всех значений
+        /// </summary>
+        private void CalculateTotal()
+        {
+            var startEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+
+            // Тип приёма пищи
+            EatingType = EatingTypes
+                .FirstOrDefault(x =>
+                    x.TimeStart <= Eating.InjectionTime &&
+                    x.TimeEnd >= Eating.InjectionTime);            
+
+            // Минимальное и максимальное отношения ФЧИ текущего типа приёма пищи к предыдущему
+            CalculateInfinumExtremum();
+
+            // Расчётное ФЧИ
+            CalculateInsulinSensitivityOne();
+            CalculateInsulinSensitivityTwo();
+            CalculateInsulinSensitivityThree();
+
+            // Расчётное ФЧИ (средний)
+            CalculateInsulinSensitivityAuto();
+
+            var active = GlobalMethods.GetActiveInsulin(Eating, Injections,
+                startEating, Eating.EndEating, Eating.Id, false,
+                Eating.Carbohydrate, AverageInsulinSensitivity, AverageBasal);
+
+            BolusDoseTotal = active.insulin;
+            ActiveInformation = string.Join("\n", active.informations);
+
+            // Доза болюсного инсулина
+            CalculateBolusDose();
+
+            // Ожидаемый сахар
+            CalculateExpectedGlucose();
+
+            // Время отработки пищи
+            SetWorkingTime();
+
+            // Фактический ФЧИ
+            CalculateInsulinSensitivityFact();
+
+            // Точность
+            CalculateAccuracyUser();
+            CalculateAccuracyAuto();
         }
 
         #endregion
@@ -1307,7 +1321,7 @@ namespace InsulinSensitivity.Eating
 
         private List<Models.ExerciseType> exerciseTypes;
         /// <summary>
-        /// Типы нагрзуки
+        /// Типы нагрузки
         /// </summary>
         public List<Models.ExerciseType> ExerciseTypes
         {
@@ -1443,14 +1457,16 @@ namespace InsulinSensitivity.Eating
                 eating.GlucoseStart = Eating.GlucoseStart;
                 eating.GlucoseEnd = Eating.GlucoseEnd;
 
-                eating.ActiveInsulinStart = Eating.ActiveInsulinStart;
-                eating.ActiveInsulinEnd = Eating.ActiveInsulinEnd;
+                //eating.ActiveInsulinStart = Eating.ActiveInsulinStart;
+                //eating.ActiveInsulinEnd = Eating.ActiveInsulinEnd;
 
                 eating.Protein = Eating.Protein;
                 eating.Fat = Eating.Fat;
                 eating.Carbohydrate = Eating.Carbohydrate;
 
                 eating.BasalDose = Eating.BasalDose;
+                eating.BasalInjectionTime = Eating.BasalInjectionTime;
+
                 eating.BolusDoseCalculate = Eating.BolusDoseCalculate;
                 eating.BolusDoseFact = Eating.BolusDoseFact;
 
@@ -1477,6 +1493,7 @@ namespace InsulinSensitivity.Eating
                 eating.WorkingTime = Eating.WorkingTime;
                 eating.Pause = Eating.Pause;
                 eating.ExerciseId = exercise.Id;
+                eating.EndEating = Eating.EndEating;
 
                 if (Eating.Id == Guid.Empty)
                     db.Eatings.Add(eating);
@@ -1510,12 +1527,9 @@ namespace InsulinSensitivity.Eating
             Carbohydrate >= 0 &&
             // Дополнительно
             BasalDose >= 0 &&
-            ActiveInsulinStart >= 0 &&
-            ActiveInsulinEnd >= 0 &&
-            // Рассчёты
+            // Расчёты
             (InsulinSensitivityFact == null || InsulinSensitivityFact >= 0) &&
             (InsulinSensitivityUser == null || InsulinSensitivityUser >= 0) &&
-            (BolusDoseTotal + ActiveInsulinStart) > 0 &&
             // Пауза
             Pause >= 0;
 
@@ -1607,7 +1621,7 @@ namespace InsulinSensitivity.Eating
                 if (question)
                 {
                     Injections.Remove((Models.Injection)obj);
-                    BolusDoseChange();
+                    CalculateTotal();
                 }
             });
 
@@ -1624,8 +1638,10 @@ namespace InsulinSensitivity.Eating
                 if (entity != null)
                     Injections.Remove(entity);
 
+                SelectedInjection.InjectionTime = Calculation.TimeSpanWithoutSeconds(SelectedInjection.InjectionTime);
                 Injections.Add(SelectedInjection);
-                BolusDoseChange();
+
+                CalculateTotal();
             }
             catch (Exception ex)
             {
@@ -1694,6 +1710,7 @@ namespace InsulinSensitivity.Eating
                 if (entity != null)
                     IntermediateDimensions.Remove(entity);
 
+                SelectedDimension.DimensionTime = Calculation.TimeSpanWithoutSeconds(SelectedDimension.DimensionTime);
                 IntermediateDimensions.Add(SelectedDimension);
             }
             catch (Exception ex)

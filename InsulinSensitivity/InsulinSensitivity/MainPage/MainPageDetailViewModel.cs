@@ -101,8 +101,8 @@ namespace InsulinSensitivity
         /// </summary>
         public decimal? ActiveInsulin =>
             LastEating != null
-            ? GlobalMethods.GetActiveInsulin(LastEating)
-            : (decimal?)null;
+                ? GlobalMethods.GetActiveInsulin().insulin
+                : (decimal?)null;
 
         #endregion
 

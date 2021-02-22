@@ -214,7 +214,23 @@ namespace BusinessLogicLayer.Service
         /// <param name="t">TimeSpan</param>
         /// <returns>DateTime, где TimeOfDay = t</returns>
         public static DateTime DateTimeUnionTimeSpan(DateTime d, TimeSpan t) =>
-            new DateTime(d.Year, d.Month, d.Day, t.Hours, t.Minutes, t.Seconds);
+            new DateTime(d.Year, d.Month, d.Day, t.Hours, t.Minutes, 0);
+
+        /// <summary>
+        /// Создаёт новый DateTime исключая секунды
+        /// </summary>
+        /// <param name="d">DateTime</param>
+        /// <returns></returns>
+        public static DateTime DateTimeWithoutSeconds(DateTime d) =>
+            new DateTime(d.Year, d.Month, d.Day, d.Hour, d.Minute, 0);
+
+        /// <summary>
+        /// Создаёт новый TimeSpan исключая секунды
+        /// </summary>
+        /// <param name="t">TimeSpan</param>
+        /// <returns></returns>
+        public static TimeSpan TimeSpanWithoutSeconds(TimeSpan t) =>
+            new TimeSpan(t.Hours, t.Minutes, 0);
 
         /// <summary>
         /// Возвращает процент активного инсулина
@@ -225,8 +241,11 @@ namespace BusinessLogicLayer.Service
         /// <returns></returns>
         public static double GetActiveInsulinPercent(DateTime start, DateTime now, int duration)
         {
+            if (now == start)
+                return 1;
+
             var minutes = GetMinutesAfterInjection(start, now);
-            return minutes >= duration * 60 || now <= start
+            return minutes >= duration * 60 || now < start
                 ? 0
                 : 1 - InsulinActivityCurvesIntegrate(minutes * 6 / duration);
         }

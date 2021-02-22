@@ -76,27 +76,14 @@
                                     <StackLayout>
                                         <Label
                                             Text="{Binding Path=Name}"/>
-                                        <StackLayout
-                                            Orientation="Horizontal"
-                                            Spacing="0">
-
-                                            <Label
-                                                Text="{Binding Path=Duration, StringFormat='{}Продолжительность: {0:N0};'}"/>
-                                            <!--<Label
-                                                Padding="4, 0, 0, 0"
-                                                Text="Болюсный">
-
-                                                <Label.Style>
-                                                    <Style TargetType="Label">
-                                                        <Style.Triggers>
-                                                            <DataTrigger TargetType="Label" Binding="{Binding Path=IsBasal}" Value="True">
-                                                                <Setter Property="Text" Value="Базальный"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Label.Style>
-                                            </Label>-->
-                                        </StackLayout>
+                                        <Label>
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}Продолжительность: {0:N0}; Смещение: {1:N0}">
+                                                    <Binding Path="Duration"/>
+                                                    <Binding Path="Offset"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>                                        
                                     </StackLayout>
                                 </Frame>
                             </ViewCell.View>
