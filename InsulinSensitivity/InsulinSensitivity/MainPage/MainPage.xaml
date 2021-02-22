@@ -2,7 +2,8 @@
 <MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 			 x:Class="InsulinSensitivity.MainPage"
-			 xmlns:pages="clr-namespace:InsulinSensitivity">
+			 xmlns:pages="clr-namespace:InsulinSensitivity"
+             IsGestureEnabled="{Binding Source={x:Reference DetailPage}, Path=BindingContext.AsyncBase.Inactive, Mode=OneWay}">
     <MasterDetailPage.Master>
         <pages:MainPageMaster x:Name="MasterPage">
             <pages:MainPageMaster.BindingContext>
@@ -13,7 +14,7 @@
     <MasterDetailPage.Detail>
         <NavigationPage>
 	        <x:Arguments>
-                <pages:MainPageDetail>
+                <pages:MainPageDetail x:Name="DetailPage">
                     <pages:MainPageDetail.BindingContext>
                         <pages:MainPageDetailViewModel/>
                     </pages:MainPageDetail.BindingContext>

@@ -7,6 +7,7 @@
              xmlns:s="clr-namespace:System;assembly=mscorlib"
              Title="Приёмы пищи"
              x:Name="page">
+    
     <ContentPage.Resources>
         <converters:BorderColorLastProductConverter x:Key="BorderColorLastProductConverter"/>
         <converters:IsLastProductConverter x:Key="IsLastProductConverter"/>
@@ -79,7 +80,8 @@
             IsRefreshing="{Binding Path=IsRefreshing}"
             ItemsSource="{Binding Path=Eatings}"
             CachingStrategy="RecycleElement"
-            SelectedItem="{Binding Path=SelectedEating}">
+            SelectedItem="{Binding Path=SelectedEating}"
+            IsVisible="{Binding Path=AsyncBase.Inactive}">
 
             <ListView.GroupHeaderTemplate>
                 <DataTemplate>
@@ -404,7 +406,8 @@
             FontSize="30"
             FontFamily="Typicons"
             TextColor="White"
-            Command="{Binding Path=AddCommand}">
+            Command="{Binding Path=AddCommand}"
+            IsVisible="{Binding Path=AsyncBase.Inactive}">
 
             <Button.Style>
                 <Style TargetType="Button">
