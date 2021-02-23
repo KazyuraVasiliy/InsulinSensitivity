@@ -139,7 +139,9 @@ namespace InsulinSensitivity
                             x.Key)
                         .Select(x =>
                             new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime))));
+
             OnPropertyChanged(nameof(Eatings));
+            OnPropertyChanged(nameof(LastEating));
         }
 
         #endregion

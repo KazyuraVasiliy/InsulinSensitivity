@@ -198,16 +198,6 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private decimal? Infinum { get; set; }
 
-        /// <summary>
-        /// Средний ФЧИ за расчётный период
-        /// </summary>
-        private decimal? AverageInsulinSensitivity { get; set; }
-
-        /// <summary>
-        /// Среднесуточная база за расчётный период
-        /// </summary>
-        private decimal? AverageBasal { get; set; }
-
         #endregion
 
         #region --Selected
@@ -732,49 +722,6 @@ namespace InsulinSensitivity.Eating
                     .Take(4)
                     .ToList();
 
-                // Средний ФЧИ
-                var averageInsulinSensitivityQuery = db.Eatings
-                    .Where(x =>
-                        x.Id != Eating.Id &&
-                        x.InsulinSensitivityFact != null);
-
-                if (GlobalParameters.User.PeriodOfCalculation > 0)
-                    averageInsulinSensitivityQuery = averageInsulinSensitivityQuery
-                        .Where(x =>
-                            x.DateCreated.Date >= Period.Date);
-
-                var averageInsulinSensitivityCollection = averageInsulinSensitivityQuery
-                    .ToList();
-
-                AverageInsulinSensitivity = (averageInsulinSensitivityCollection?.Count ?? 0) > 0
-                    ? averageInsulinSensitivityCollection
-                        .Average(x =>
-                            x.InsulinSensitivityFact)
-                    : null;
-
-                // Среднесуточная база
-                var averageBasalQuery = db.Eatings
-                    .Where(x =>
-                        x.Id != Eating.Id &&
-                        x.BasalDose != 0);
-
-                if (GlobalParameters.User.PeriodOfCalculation > 0)
-                    averageBasalQuery = averageBasalQuery
-                        .Where(x =>
-                            x.DateCreated.Date >= Period.Date);
-
-                var averageBasalCollection = averageBasalQuery
-                    .ToList();
-
-                AverageBasal = (averageBasalCollection?.Count ?? 0) > 0
-                    ? averageBasalCollection
-                        .GroupBy(x =>
-                            x.DateCreated.Date)
-                        .Select(x =>
-                            x.Sum(y => y.BasalDose))
-                        .Average()
-                    : (decimal?)null;
-
                 // Эквивалентный день предыдущего цикла
                 if (GlobalParameters.User.Gender == false)
                 {
@@ -1050,7 +997,7 @@ namespace InsulinSensitivity.Eating
                         ? InsulinSensitivityUser.Value
                         : InsulinSensitivityAuto.Value) - GlobalMethods.GetActiveInsulin(Eating, Injections,
                             Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating, Eating.Id, true,
-                            Eating.Carbohydrate, AverageInsulinSensitivity, AverageBasal).insulin
+                            Eating.Carbohydrate, Eating.Pause).insulin
                 : (decimal?)null;
 
             if (bolusDose != null && Eating.EndEating != null)
@@ -1246,7 +1193,10 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void SetWorkingTime()
         {
-            var workingTime = Math.Round(-30 + ((Carbohydrate / 19.5d) + (Protein / 24d) + (Fat / 15d)) * 60, 0, MidpointRounding.AwayFromZero);
+            var workingTime = Math.Round(-30 + ((Carbohydrate / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates) + 
+                (Protein / (double)GlobalParameters.User.AbsorptionRateOfProteins) + 
+                (Fat / (double)GlobalParameters.User.AbsorptionRateOfFats)) * 60, 0, MidpointRounding.AwayFromZero);
+
             if (workingTime < 180)
                 workingTime = 180;
 
@@ -1279,7 +1229,7 @@ namespace InsulinSensitivity.Eating
 
             var active = GlobalMethods.GetActiveInsulin(Eating, Injections,
                 startEating, Eating.EndEating, Eating.Id, false,
-                Eating.Carbohydrate, AverageInsulinSensitivity, AverageBasal);
+                Eating.Carbohydrate, Eating.Pause);
 
             BolusDoseTotal = active.insulin;
             ActiveInformation = string.Join("\n", active.informations);

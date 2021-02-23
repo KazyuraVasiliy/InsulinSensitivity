@@ -25,8 +25,7 @@ namespace InsulinSensitivity
         /// <param name="excludeId">Идентификатор приёма пищи, который необходимо исключить</param>
         /// <param name="isOnlyStart">Учитывать только те инъекции, которые были поставлены до начала приёма пищи</param>
         /// <param name="carbohydrate">Углеводы</param>
-        /// <param name="averageInsulinSensitivity">Средний ФЧИ</param>
-        /// <param name="averageBasal">Среднесуточная база</param>
+        /// <param name="pause">Пауза</param>
         /// <returns></returns>
         public static (decimal insulin, List<string> informations) GetActiveInsulin(
             // Текущий приём пищи
@@ -39,10 +38,9 @@ namespace InsulinSensitivity
             Guid? excludeId = null,
             // Инъекции только на начало приёма (для расчётной дозы)
             bool isOnlyStart = false,
-            // Углеводы, Средний ФЧИ, Среднесуточная база (для расчёта коэффициента базы)
+            // Углеводы, Пауза (для расчёта время действия базы)
             int? carbohydrate = null,
-            decimal? averageInsulinSensitivity = null,
-            decimal? averageBasal = null)
+            int? pause = null)
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
@@ -58,14 +56,6 @@ namespace InsulinSensitivity
                         x.DateCreated.Date >= period.Date &&
                         x.Id != excludeId)
                     .ToList();
-
-                decimal coefficient = 1;
-                if (carbohydrate != null && averageInsulinSensitivity != null && averageBasal != null && beginPeriod != null && endPeriod != null && GlobalParameters.Settings.IsActiveBasal)
-                {
-                    var limit = averageBasal.Value / 24M * averageInsulinSensitivity.Value / GlobalParameters.User.CarbohydrateCoefficient * (decimal)(endPeriod - beginPeriod).Value.TotalHours;
-                    if (carbohydrate.Value < limit)
-                        coefficient = carbohydrate.Value / limit;
-                }
 
                 if (currentEating != null)
                     eatings.Add(new Models.Eating()
@@ -129,6 +119,15 @@ namespace InsulinSensitivity
 
                 beginPeriod = beginPeriod ?? DateTime.Now;
 
+                DateTime? basalBeginPeriod = beginPeriod;
+                DateTime? basalEndPeriod = endPeriod;
+
+                if (pause != null && carbohydrate != null && basalBeginPeriod != null && basalEndPeriod != null)
+                {
+                    basalBeginPeriod = basalBeginPeriod.Value.AddMinutes(pause.Value);
+                    basalEndPeriod = basalBeginPeriod.Value.AddHours(carbohydrate.Value / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates);
+                }
+
                 if (endPeriod == null)
                 {
                     foreach (var injection in injections.OrderBy(x => x.InjectionTime))
@@ -140,17 +139,25 @@ namespace InsulinSensitivity
                             2, MidpointRounding.AwayFromZero);
 
                         result.insulin += value;
-                        result.informations.Add($"— {value} ед. болюса\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose} ед.)");
+                        result.informations.Add($"— {value:N2} ед. болюса\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                     }
                 }
                 else
                 {
                     foreach (var injection in injections.OrderBy(x => x.InjectionTime))
                     {
-                        if (injection.End <= beginPeriod || injection.Dose <= 0 || injection.Start >= endPeriod)
+                        DateTime? localBeginPeriod = injection.IsBasal
+                            ? basalBeginPeriod
+                            : beginPeriod;
+
+                        DateTime? localEndPeriod = injection.IsBasal
+                            ? basalEndPeriod
+                            : endPeriod;
+
+                        if (injection.End <= localBeginPeriod || injection.Dose <= 0 || injection.Start >= localEndPeriod)
                             continue;
 
-                        if (isOnlyStart && injection.InjectionTime >= beginPeriod)
+                        if (isOnlyStart && injection.InjectionTime >= localBeginPeriod)
                             continue;
 
                         if (!GlobalParameters.Settings.IsActiveBasal && injection.IsBasal)
@@ -161,43 +168,41 @@ namespace InsulinSensitivity
 
                         // | -- Insulin -- | ---
                         // --- | -- Eating --| 
-                        if (injection.Start <= beginPeriod.Value && injection.End <= endPeriod.Value)
+                        if (injection.Start <= localBeginPeriod.Value && injection.End <= localEndPeriod.Value)
                         {
                             value = injection.Duration <= 12
-                                ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod.Value, injection.Duration)
-                                : (decimal)(injection.End - beginPeriod.Value).TotalHours * insulinPerHours;
+                                ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration)
+                                : (decimal)(injection.End - localBeginPeriod.Value).TotalHours * insulinPerHours;
                         }
 
                         // | ---- Insulin ---- |
                         // -- | - Eating - | --
-                        else if (injection.Start <= beginPeriod.Value && injection.End > endPeriod.Value)
+                        else if (injection.Start <= localBeginPeriod.Value && injection.End > localEndPeriod.Value)
                         {
                             value = injection.Duration <= 12
-                                ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod.Value, injection.Duration) -
-                                    (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, endPeriod.Value, injection.Duration))
-                                : (decimal)(endPeriod.Value - beginPeriod.Value).TotalHours * insulinPerHours;
+                                ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration) -
+                                    (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration))
+                                : (decimal)(localEndPeriod.Value - localBeginPeriod.Value).TotalHours * insulinPerHours;
                         }
 
                         // -- | - Insulin - | --
                         // | ---- Eating ---- |
-                        else if (injection.Start > beginPeriod.Value && injection.End <= endPeriod.Value)
+                        else if (injection.Start > localBeginPeriod.Value && injection.End <= localEndPeriod.Value)
                             value = injection.Dose;
 
                         // --- | -- Insulin -- |
                         // | -- Eating -- | ---
-                        else if (injection.Start > beginPeriod.Value && injection.End > endPeriod.Value)
+                        else if (injection.Start > localBeginPeriod.Value && injection.End > localEndPeriod.Value)
                         {
                             value = injection.Duration <= 12
-                                ? injection.Dose - (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, endPeriod.Value, injection.Duration))
-                                : (decimal)(endPeriod.Value - injection.Start).TotalHours * insulinPerHours;
+                                ? injection.Dose - (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration))
+                                : (decimal)(localEndPeriod.Value - injection.Start).TotalHours * insulinPerHours;
                         }
 
-                        if (injection.IsBasal)
-                            value *= coefficient;
                         value = Math.Round(value, 2, MidpointRounding.AwayFromZero);
 
                         result.insulin += value;
-                        result.informations.Add($"— {value} ед. {(injection.IsBasal ? "базы" : "болюса")}\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose} ед.)");
+                        result.informations.Add($"— {value:N2} ед. {(injection.IsBasal ? "базы" : "болюса")}\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                     }
                 }
 

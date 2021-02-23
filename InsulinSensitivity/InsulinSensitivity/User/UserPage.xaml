@@ -184,6 +184,76 @@
                             </StackLayout>
                         </Grid>
 
+                        <Grid
+                            IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="АУ: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Скорость абсорбции углеводов (грамм в час)"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="AbsorptionRateOfCarbohydrates"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=AbsorptionRateOfCarbohydrates, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="АБ: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Скорость абсорбции белков (грамм в час)"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="AbsorptionRateOfProteins"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=AbsorptionRateOfProteins, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="2">
+
+                                <Label
+                                    Text="АЖ: ?">
+
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                            CommandParameter="Скорость абсорбции жиров (грамм в час)"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Entry
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="AbsorptionRateOfFats"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=AbsorptionRateOfFats, Converter={StaticResource DecimalToStringConverter}}"/>
+                            </StackLayout>
+                        </Grid>
+
                         <Label
                             Text="Пол:"/>
                         <StackLayout

@@ -86,6 +86,21 @@ namespace DataAccessLayer.Models
         public decimal FatCoefficient { get; set; }
 
         /// <summary>
+        /// Скорость абсорбции углеводов
+        /// </summary>
+        public decimal AbsorptionRateOfCarbohydrates { get; set; }
+
+        /// <summary>
+        /// Скорость абсорбции белков
+        /// </summary>
+        public decimal AbsorptionRateOfProteins { get; set; }
+
+        /// <summary>
+        /// Скорость абсорбции жиров
+        /// </summary>
+        public decimal AbsorptionRateOfFats { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина
         /// </summary>
         public Guid BasalTypeId { get; set; }

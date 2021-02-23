@@ -139,6 +139,45 @@ namespace InsulinSensitivity.User
         }
 
         /// <summary>
+        /// АУ
+        /// </summary>
+        public decimal AbsorptionRateOfCarbohydrates
+        {
+            get => User.AbsorptionRateOfCarbohydrates;
+            set
+            {
+                User.AbsorptionRateOfCarbohydrates = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// АБ
+        /// </summary>
+        public decimal AbsorptionRateOfProteins
+        {
+            get => User.AbsorptionRateOfProteins;
+            set
+            {
+                User.AbsorptionRateOfProteins = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// АЖ
+        /// </summary>
+        public decimal AbsorptionRateOfFats
+        {
+            get => User.AbsorptionRateOfFats;
+            set
+            {
+                User.AbsorptionRateOfFats = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// Гипоглекимия
         /// </summary>
         public decimal Hypoglycemia
@@ -304,7 +343,11 @@ namespace InsulinSensitivity.User
                 user.BasalTypeId = User.BasalType.Id;
 
                 user.DosingAccuracy = User.DosingAccuracy;
-                user.IsPump = User.IsPump;                
+                user.IsPump = User.IsPump;
+
+                user.AbsorptionRateOfCarbohydrates = User.AbsorptionRateOfCarbohydrates;
+                user.AbsorptionRateOfProteins = User.AbsorptionRateOfProteins;
+                user.AbsorptionRateOfFats = User.AbsorptionRateOfFats;
 
                 if (User.Id == Guid.Empty)
                 {
@@ -355,7 +398,15 @@ namespace InsulinSensitivity.User
             // Точность дозирования
             User.DosingAccuracy > 0 &&
             // Кол-во дней для расчёта
-            User.PeriodOfCalculation >= 0;
+            User.PeriodOfCalculation >= 0 &&
+            // Скорость абсорбции
+            User.AbsorptionRateOfCarbohydrates > 0 &&
+            User.AbsorptionRateOfProteins > 0 &&
+            User.AbsorptionRateOfFats > 0 &&
+            // Коэффициенты
+            User.CarbohydrateCoefficient > 0 &&
+            User.ProteinCoefficient > 0 &&
+            User.FatCoefficient > 0;
 
         public ICommand OkCommand =>
             new Command(OkExecute);
