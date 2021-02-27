@@ -18,7 +18,6 @@
                 Spacing="0">
                 
                 <Frame
-                    Margin="5"
                     Style="{StaticResource Frame}"
                     IsVisible="{Binding Path=AsyncBase.Inactive, Converter={StaticResource InversionBoolConverter}}">
 
@@ -34,40 +33,99 @@
                     </StackLayout>
                 </Frame>
 
-                <Frame
-                    Style="{StaticResource Frame}"
-                    Padding="4"
+                <StackLayout
+                    Spacing="0"
                     IsVisible="{Binding Path=AsyncBase.Inactive}">
                     
-                    <ScrollView
-                        HeightRequest="300"                        
-                        HorizontalOptions="FillAndExpand"
-                        HorizontalScrollBarVisibility="Always"
-                        Orientation="Horizontal">
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Padding="4">
 
-                        <microcharts:ChartView
-                            WidthRequest="{Binding Path=WidthRequest}"
-                            Chart="{Binding Path=Chart}" />                
-                    </ScrollView>
-                </Frame>
+                        <StackLayout
+                            Spacing="0">
 
-                <Frame
-                    Style="{StaticResource Frame}"
-                    IsVisible="{Binding Path=AsyncBase.Inactive}">
+                            <ScrollView
+                                HeightRequest="300"                        
+                                HorizontalOptions="FillAndExpand"
+                                HorizontalScrollBarVisibility="Always"
+                                Orientation="Horizontal">
 
-                    <StackLayout
-                        Spacing="0">
+                                <microcharts:ChartView
+                                    WidthRequest="{Binding Path=WidthRequest}"
+                                    Chart="{Binding Path=Chart}" />
+                            </ScrollView>
+                        </StackLayout>
+                    </Frame>
 
-                        <Label
-                            Text="Информация"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
+                    <Frame
+                        Style="{StaticResource Frame}">
 
-                        <Label
-                            Text="{Binding Path=Information}"/>
-                    </StackLayout>
-                </Frame>
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="ФЧИ"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Label
+                                Text="{Binding Path=InsulinSensitivity}"/>
+                        </StackLayout>
+                    </Frame>
+                    
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        IsVisible="{Binding Path=IsCycleVisibility}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Цикл"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Label
+                                Text="{Binding Path=Cycle}"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Активность"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Label
+                                Text="{Binding Path=Exercise}"/>
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Точность"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Label
+                                Text="{Binding Path=Accuracy}"/>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>    
