@@ -1038,6 +1038,20 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Расчёт ФЧИ пользователя (если он не введён)
+        /// </summary>
+        private void CalculateInsulinSensitivityUser()
+        {
+            Eating.InsulinSensitivityUser = BolusDoseTotal > 0 && GlucoseEnd != null && InsulinSensitivityUser != null
+                ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlobalParameters.User.TargetGlucose,
+                    GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
+                    Protein, Fat, Carbohydrate,
+                    BolusDoseTotal)
+                : InsulinSensitivityUser;
+            OnPropertyChanged(nameof(InsulinSensitivityUser));
+        }
+
+        /// <summary>
         /// Расчёт точности расчётного ФЧИ
         /// </summary>
         private void CalculateAccuracyAuto()
@@ -1245,6 +1259,9 @@ namespace InsulinSensitivity.Eating
 
             // Фактический ФЧИ
             CalculateInsulinSensitivityFact();
+
+            // ФЧИ пользователя
+            CalculateInsulinSensitivityUser();
 
             // Точность
             CalculateAccuracyUser();
