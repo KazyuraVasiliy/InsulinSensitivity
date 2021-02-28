@@ -78,16 +78,16 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
-        private string cycles;
+        private string cycle;
         /// <summary>
         /// Циклы
         /// </summary>
-        public string Cycles
+        public string Cycle
         {
-            get => cycles;
+            get => cycle;
             set
             {
-                cycles = value;
+                cycle = value;
                 OnPropertyChanged();
             }
         }
@@ -260,7 +260,7 @@ namespace InsulinSensitivity.Statistic
                         .Select(x =>
                             $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
 
-                    Cycles = string.Join("\n", eatingTypeCycleAverages);
+                    Cycle = string.Join("\n", eatingTypeCycleAverages);
                 }                
 
                 // Активность
