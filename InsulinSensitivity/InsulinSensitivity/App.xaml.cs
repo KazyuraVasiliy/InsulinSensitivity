@@ -25,7 +25,8 @@ namespace InsulinSensitivity
             InitializeComponent();
             VersionTracking.Track();
 
-            GlobalParameters.DbPath = DependencyService.Get<IPath>().GetDatabasePath(DBFILENAME);            
+            GlobalParameters.DbPath = DependencyService.Get<IPath>().GetDatabasePath(DBFILENAME);
+            Initialize.Init(GlobalParameters.DbPath);
 
             // Инициализация главной страницы
             MainPage = new MainPage();
