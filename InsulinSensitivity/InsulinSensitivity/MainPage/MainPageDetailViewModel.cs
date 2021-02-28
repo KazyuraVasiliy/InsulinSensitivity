@@ -21,37 +21,8 @@ namespace InsulinSensitivity
         /// <summary>
         /// Конструктор
         /// </summary>
-        public MainPageDetailViewModel()
-        {
-            // Инициализация пользователя
-            using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                GlobalParameters.User = db.Users
-                    .Include(x => x.BolusType)
-                    .Include(x => x.BasalType)
-                    .FirstOrDefault();
-
-            InitEatings();
-
-            // Подписки на события
-            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
-                (sender) =>
-                {
-                    InitEatings();
-                    OnPropertyChanged(nameof(LastEating));
-                    OnPropertyChanged(nameof(TargetGlucose));
-                });
-
-            MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
-                (sender) =>
-                {
-                    InitEatings();
-                    OnPropertyChanged(nameof(LastEating));
-                    OnPropertyChanged(nameof(ActiveInsulin));
-                });
-
-            MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
-                (sender) => OnPropertyChanged(nameof(ActiveInsulin)));
-        }
+        public MainPageDetailViewModel() =>
+            Init();
 
         #endregion
 
@@ -96,17 +67,66 @@ namespace InsulinSensitivity
             }
         }
 
+        private decimal? activeInsulin;
         /// <summary>
         /// Количество активного инсулина в крови
         /// </summary>
-        public decimal? ActiveInsulin =>
-            LastEating != null
-                ? GlobalMethods.GetActiveInsulin().insulin
+        public decimal? ActiveInsulin
+        {
+            get => LastEating != null
+                ? activeInsulin
                 : (decimal?)null;
+            set
+            {
+                activeInsulin = value;
+                OnPropertyChanged();
+            }
+        }
 
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Первичная инициализация
+        /// </summary>
+        private async void Init() =>
+            await AsyncBase.NewTask(() =>
+            {
+                // Инициализация БД
+                Initialize.Init(GlobalParameters.DbPath);
+
+                // Инициализация пользователя
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    GlobalParameters.User = db.Users
+                        .Include(x => x.BolusType)
+                        .Include(x => x.BasalType)
+                        .FirstOrDefault();
+
+                InitEatings();
+
+                // Подписки на события
+                MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
+                    (sender) =>
+                    {
+                        InitEatings();
+                        OnPropertyChanged(nameof(LastEating));
+                        OnPropertyChanged(nameof(TargetGlucose));
+                        ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
+                    });
+
+                MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
+                    (sender) =>
+                    {
+                        InitEatings();
+                        OnPropertyChanged(nameof(LastEating));
+                        ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
+                    });
+
+                MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
+                    (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
+            }, "Инициализация\nПожалуйста, подождите");
+
 
         /// <summary>
         /// Инициализация приёмов пищи
@@ -270,7 +290,7 @@ namespace InsulinSensitivity
 
         private void RefreshExecute()
         {
-            OnPropertyChanged(nameof(ActiveInsulin));
+            ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
             IsRefreshing = false;
         }
 
