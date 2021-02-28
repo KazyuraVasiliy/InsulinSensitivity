@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:global="clr-namespace:InsulinSensitivity"
              x:Class="InsulinSensitivity.Settings.SettingsPage"
              Title="Настройки">
     
@@ -31,7 +32,14 @@
                                 Grid.Column="0"
                                 Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
-                                Text="Учитывать активный базальный инсулин:"/>
+                                Text="Учитывать активный базальный инсулин: ?">
+
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                        CommandParameter="При учёте базального инсулина на время абсорбции углеводов он будет встраиваться в компенсацию приёма пищи, содержащего углеводы. При этом для сохранения текущей величины ФЧИ необходимо повысить УК и уменьшить БК и ЖК на 10-20%. Учёт базального инсулина повышает точность прогнозов сахара на отработке."/>
+                                </Label.GestureRecognizers>
+                            </Label>
                             <Switch
                                 Grid.Column="1"
                                 VerticalOptions="Center"
