@@ -1089,7 +1089,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateInsulinSensitivityUser()
         {
-            Eating.InsulinSensitivityUser = BolusDoseTotal > 0 && GlucoseEnd != null && InsulinSensitivityUser != null
+            Eating.InsulinSensitivityUser = BolusDoseTotal > 0 && GlucoseEnd != null && InsulinSensitivityUser == null
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
