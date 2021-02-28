@@ -78,7 +78,7 @@
                                             Text="{Binding Path=Name}"/>
                                         <Label>
                                             <Label.Text>
-                                                <MultiBinding StringFormat="{}Продолжительность: {0:N0}; Смещение: {1:N0}">
+                                                <MultiBinding StringFormat="{}Продолжительность: {0:N0} ч.; Смещение: {1:N0} мин.">
                                                     <Binding Path="Duration"/>
                                                     <Binding Path="Offset"/>
                                                 </MultiBinding>

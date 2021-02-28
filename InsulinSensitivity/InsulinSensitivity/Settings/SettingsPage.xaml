@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:global="clr-namespace:InsulinSensitivity"
              x:Class="InsulinSensitivity.Settings.SettingsPage"
-             Title="Настройки">
+             Title="Настройки"
+             IsEnabled="{Binding Path=AsyncBase.Inactive}">
     
     <ContentPage.Content>
         <ScrollView>

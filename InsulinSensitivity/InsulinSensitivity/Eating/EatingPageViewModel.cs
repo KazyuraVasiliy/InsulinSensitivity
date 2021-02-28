@@ -22,9 +22,22 @@ namespace InsulinSensitivity.Eating
         public EatingPageViewModel(Models.Eating eating = null)
         {
             // Инициализация приёма пищи
-            Eating = eating == null
-                ? new Models.Eating() { DateCreated = DateTime.Now }
-                : eating;
+            if (eating != null)
+            {
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    Eating = db.Eatings
+                        .Include(x => x.Exercise)
+                            .ThenInclude(x => x.ExerciseType)
+                        .Include(x => x.EatingType)
+                        .Include(x => x.Injections)
+                        .Include(x => x.IntermediateDimensions)
+                        .FirstOrDefault(x =>
+                            x.Id == eating.Id);
+            }
+            else Eating = new Models.Eating()
+            {
+                DateCreated = DateTime.Now
+            };
 
             // Инициализация коллекций
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
@@ -242,8 +255,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Exercise.ExerciseType;
             set
             {
-                Eating.Exercise.ExerciseType = value;
-                CalculateTotal();
+                if (Eating.Exercise.ExerciseType != value)
+                {
+                    Eating.Exercise.ExerciseType = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -255,8 +271,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Exercise.Duration;
             set
             {
-                Eating.Exercise.Duration = value;
-                CalculateTotal();
+                if (Eating.Exercise.Duration != value)
+                {
+                    Eating.Exercise.Duration = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -268,8 +287,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Exercise.HoursAfterInjection;
             set
             {
-                Eating.Exercise.HoursAfterInjection = value;
-                CalculateTotal();
+                if (Eating.Exercise.HoursAfterInjection != value)
+                {
+                    Eating.Exercise.HoursAfterInjection = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -299,8 +321,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Protein;
             set
             {
-                Eating.Protein = value;
-                CalculateTotal();
+                if (Eating.Protein != value)
+                {
+                    Eating.Protein = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -312,8 +337,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Fat;
             set
             {
-                Eating.Fat = value;
-                CalculateTotal();
+                if (Eating.Fat != value)
+                {
+                    Eating.Fat = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -325,8 +353,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.Carbohydrate;
             set
             {
-                Eating.Carbohydrate = value;
-                CalculateTotal();
+                if (Eating.Carbohydrate != value)
+                {
+                    Eating.Carbohydrate = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -334,23 +365,9 @@ namespace InsulinSensitivity.Eating
 
         #region --Basal
 
-        private decimal activeBasal;
-        /// <summary>
-        /// Активный базальный инсулин
-        /// </summary>
-        public decimal ActiveBasal
-        {
-            get => activeBasal;
-            set
-            {
-                activeBasal = value;
-                OnPropertyChanged();
-            }
-        }
-
         private string activeInformation;
         /// <summary>
-        /// Информация об активном базальном инсулине
+        /// Информация об активном инсулине
         /// </summary>
         public string ActiveInformation
         {
@@ -370,8 +387,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.BasalInjectionTime ?? DateTime.Now;
             set
             {
-                Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(value, BasalInjectionTime);
-                CalculateTotal();
+                if (Eating.BasalInjectionTime?.Date != value.Date)
+                {
+                    Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(value, BasalInjectionTime);
+                    CalculateTotal();
+                }
             }
         }
 
@@ -383,8 +403,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.BasalInjectionTime?.TimeOfDay ?? DateTime.Now.TimeOfDay;
             set
             {
-                Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(BasalInjectionDate, value);
-                CalculateTotal();
+                if (Eating.BasalInjectionTime == null || Calculation.TimeSpanWithoutSeconds(Eating.BasalInjectionTime.Value.TimeOfDay) != value)
+                {
+                    Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(BasalInjectionDate, value);
+                    CalculateTotal();
+                }
             }
         }
 
@@ -396,8 +419,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.BasalDose;
             set
             {
-                Eating.BasalDose = value;
-                CalculateTotal();
+                if (Eating.BasalDose != value)
+                {
+                    Eating.BasalDose = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -429,13 +455,16 @@ namespace InsulinSensitivity.Eating
             get => Eating.InjectionTime;
             set
             {
-                Eating.InjectionTime = value;
+                if (Calculation.TimeSpanWithoutSeconds(Eating.InjectionTime) != value)
+                {
+                    Eating.InjectionTime = value;
 
-                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(5);
-                OnPropertyChanged(nameof(EndEatingTime));
-                OnPropertyChanged(nameof(EndEatingDate));
+                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(5);
+                    OnPropertyChanged(nameof(EndEatingTime));
+                    OnPropertyChanged(nameof(EndEatingDate));
 
-                CalculateTotal();
+                    CalculateTotal();
+                }
             }
         }
 
@@ -447,8 +476,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.EndEating ?? DateTime.Now;
             set
             {
-                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
-                CalculateTotal();
+                if (Eating.EndEating?.Date != value)
+                {
+                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
+                    CalculateTotal();
+                }
             }
         }
 
@@ -460,8 +492,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.EndEating?.TimeOfDay ?? DateTime.Now.TimeOfDay;
             set
             {
-                Eating.EndEating = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
-                CalculateTotal();
+                if (Eating.EndEating == null || Calculation.TimeSpanWithoutSeconds(Eating.EndEating.Value.TimeOfDay) != value)
+                {
+                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
+                    CalculateTotal();
+                }
             }
         }
 
@@ -482,8 +517,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.GlucoseStart;
             set
             {
-                Eating.GlucoseStart = value;
-                CalculateTotal();
+                if (Eating.GlucoseStart != value)
+                {
+                    Eating.GlucoseStart = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -495,13 +533,16 @@ namespace InsulinSensitivity.Eating
             get => Eating.GlucoseEnd;
             set
             {
-                Eating.GlucoseEnd = value;
+                if (Eating.GlucoseEnd != value)
+                {
+                    Eating.GlucoseEnd = value;
 
-                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now);
-                OnPropertyChanged(nameof(EndEatingTime));
-                OnPropertyChanged(nameof(EndEatingDate));
+                    Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now);
+                    OnPropertyChanged(nameof(EndEatingTime));
+                    OnPropertyChanged(nameof(EndEatingDate));
 
-                CalculateTotal();
+                    CalculateTotal();
+                }
             }
         }
 
@@ -526,8 +567,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.InsulinSensitivityUser;
             set
             {
-                Eating.InsulinSensitivityUser = value;
-                CalculateTotal();
+                if (Eating.InsulinSensitivityUser != value)
+                {
+                    Eating.InsulinSensitivityUser = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -552,8 +596,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.BolusDoseFact;
             set
             {
-                Eating.BolusDoseFact = value;
-                CalculateTotal();
+                if (Eating.BolusDoseFact != value)
+                {
+                    Eating.BolusDoseFact = value;
+                    CalculateTotal();
+                }
             }
         }
 

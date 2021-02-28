@@ -5,7 +5,8 @@
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
-             Title="Приёмы пищи"
+             Title="Приёмы пищи" 
+             IsEnabled="{Binding Path=IsEnabled}"
              x:Name="page">
     
     <ContentPage.Resources>

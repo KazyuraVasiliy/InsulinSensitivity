@@ -25,15 +25,26 @@ namespace InsulinSensitivity.Settings
         public bool IsActiveBasal
         {
             get => GlobalParameters.Settings.IsActiveBasal;
-            set
-            {
-                bool question = GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
-                    "Запрос",
-                    "Пересчитать пищевые коэффициенты при переходе на новую формулу расчёта?",
-                    "Да",
-                    "Нет").Result;
+            set => _ = SetActiveBasal(value);
+        }
 
-                if (question)
+        #endregion
+
+        #region Methods
+
+        private async Task SetActiveBasal(bool value)
+        {
+            if (value == GlobalParameters.Settings.IsActiveBasal)
+                return;
+
+            bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                "Запрос",
+                "Пересчитать пищевые коэффициенты при переходе на новую формулу расчёта?",
+                "Да",
+                "Нет");
+
+            if (question)
+                await AsyncBase.NewTask(() =>
                 {
                     using (var db = new ApplicationContext(GlobalParameters.DbPath))
                     {
@@ -42,25 +53,24 @@ namespace InsulinSensitivity.Settings
                         {
                             if (value)
                             {
-                                entity.CarbohydrateCoefficient *= 1.15M;
-                                entity.ProteinCoefficient /= 1.15M;
-                                entity.FatCoefficient /= 1.15M;
+                                entity.CarbohydrateCoefficient = Math.Round(entity.CarbohydrateCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
+                                entity.ProteinCoefficient = Math.Round(entity.ProteinCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
+                                entity.FatCoefficient = Math.Round(entity.FatCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
                             }
                             else
                             {
-                                entity.CarbohydrateCoefficient /= 1.15M;
-                                entity.ProteinCoefficient *= 1.15M;
-                                entity.FatCoefficient *= 1.15M;
+                                entity.CarbohydrateCoefficient = Math.Round(entity.CarbohydrateCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
+                                entity.ProteinCoefficient = Math.Round(entity.ProteinCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
+                                entity.FatCoefficient = Math.Round(entity.FatCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
                             }
 
                             db.SaveChanges();
                         }
                     }
-                }
+                }, "Применение опции");
 
-                GlobalParameters.Settings.IsActiveBasal = value;
-                OnPropertyChanged();
-            }
+            GlobalParameters.Settings.IsActiveBasal = value;
+            OnPropertyChanged(nameof(IsActiveBasal));
         }
 
         #endregion

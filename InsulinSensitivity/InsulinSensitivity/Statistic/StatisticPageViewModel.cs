@@ -274,7 +274,7 @@ namespace InsulinSensitivity.Statistic
                     .Select(x =>
                         new
                         {
-                            ExerciseType = $"{x.Key.ExerciseType.Name} ({x.Key.HoursAfterInjection} ч.)",
+                            ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
                             InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
                         })
                     .OrderBy(x =>

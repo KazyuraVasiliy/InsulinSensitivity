@@ -83,6 +83,20 @@ namespace InsulinSensitivity
             }
         }
 
+        private bool isEnabled = true;
+        /// <summary>
+        /// Активно ли окно
+        /// </summary>
+        public bool IsEnabled
+        {
+            get => isEnabled;
+            set
+            {
+                isEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -153,6 +167,7 @@ namespace InsulinSensitivity
 
             OnPropertyChanged(nameof(Eatings));
             OnPropertyChanged(nameof(LastEating));
+            ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
         }
 
         #endregion
@@ -163,6 +178,7 @@ namespace InsulinSensitivity
 
         private async void AddExecute()
         {
+            IsEnabled = false;
             try
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
@@ -196,6 +212,7 @@ namespace InsulinSensitivity
                     ex.Message + ex?.InnerException?.Message,
                     "Ok");
             }
+            IsEnabled = true;
         }
 
         public ICommand AddCommand =>
@@ -207,6 +224,7 @@ namespace InsulinSensitivity
 
         private async void RemoveExecute(object obj)
         {
+            IsEnabled = false;
             try
             {
                 bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
@@ -256,33 +274,11 @@ namespace InsulinSensitivity
                     ex.Message + ex?.InnerException?.Message,
                     "Ok");
             }
+            IsEnabled = true;
         }
 
         public ICommand RemoveCommand =>
             new Command(RemoveExecute);
-
-        #endregion
-
-        #region --Option
-
-        private async void OptionExecute()
-        {
-            using (var db = new ApplicationContext(GlobalParameters.DbPath))
-            {
-                if (GlobalParameters.User != null)
-                {
-                    var userPage = new User.UserPage()
-                    {
-                        BindingContext = new User.UserPageViewModel(GlobalParameters.User.Id)
-                    };
-
-                    await GlobalParameters.Navigation.PushAsync(userPage, true);
-                }
-            }
-        }
-
-        public ICommand OptionCommand =>
-            new Command(OptionExecute);
 
         #endregion
 
