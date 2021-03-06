@@ -828,7 +828,14 @@ namespace InsulinSensitivity.Eating
         {
             // Рассчёт ФЧИ по первой формуле
             Eating.InsulinSensitivityAutoOne = null;
-            if ((PreviousEatings?.Count ?? 0) > 0 && PreviousEatings[0].InsulinSensitivityFact != null && (PreviousAverageEatingTypeSensitivity ?? 0) != 0 && EatingType != null)
+            bool check =
+                GlobalParameters.Settings.IsAverageCalculateActive &&
+                (PreviousEatings?.Count ?? 0) > 0 &&
+                PreviousEatings[0].InsulinSensitivityFact != null &&
+                (PreviousAverageEatingTypeSensitivity ?? 0) != 0 &&
+                EatingType != null;
+
+            if (check)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
@@ -865,7 +872,9 @@ namespace InsulinSensitivity.Eating
         {
             // Расчёт ФЧИ по второй формуле
             Eating.InsulinSensitivityAutoTwo = null;
-            var check = (PreviousEatings?.Count ?? 0) == 3 &&
+            var check =
+                GlobalParameters.Settings.IsExerciseCalculateActive &&
+                (PreviousEatings?.Count ?? 0) == 3 &&
                 PreviousEatings.All(x => x.InsulinSensitivityFact != null) &&
                 (PreviousAverageExerciseTypeSensitivitys?.Count ?? 0) == 3 &&
                 PreviousAverageExerciseTypeSensitivitys.All(x => (x ?? 0) != 0) &&
@@ -996,7 +1005,8 @@ namespace InsulinSensitivity.Eating
         {
             // Рассчёт ФЧИ по третьей формуле
             Eating.InsulinSensitivityAutoThree = null;
-            var check = 
+            var check =
+                GlobalParameters.Settings.IsCycleCalculateActive &&
                 !GlobalParameters.User.Gender &&
                 EquivalentDay != null &&
                 EatingType != null;

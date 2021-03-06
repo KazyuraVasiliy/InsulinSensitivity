@@ -20,12 +20,66 @@ namespace InsulinSensitivity.Settings
         #region Properties
 
         /// <summary>
+        /// Видна ли настройка по циклам
+        /// </summary>
+        public bool IsCycleVisibility =>
+            !GlobalParameters.User.Gender;
+
+        /// <summary>
         /// Учитывается ли активный базальный
         /// </summary>
         public bool IsActiveBasal
         {
             get => GlobalParameters.Settings.IsActiveBasal;
             set => _ = SetActiveBasal(value);
+        }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по средним значениям
+        /// </summary>
+        public bool IsAverageCalculateActive
+        {
+            get => GlobalParameters.Settings.IsAverageCalculateActive;
+            set
+            {
+                if (GlobalParameters.Settings.IsAverageCalculateActive != value)
+                {
+                    GlobalParameters.Settings.IsAverageCalculateActive = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по нагрузкам
+        /// </summary>
+        public bool IsExerciseCalculateActive
+        {
+            get => GlobalParameters.Settings.IsExerciseCalculateActive;
+            set
+            {
+                if (GlobalParameters.Settings.IsExerciseCalculateActive != value)
+                {
+                    GlobalParameters.Settings.IsExerciseCalculateActive = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по дню цикла
+        /// </summary>
+        public bool IsCycleCalculateActive
+        {
+            get => GlobalParameters.Settings.IsCycleCalculateActive;
+            set
+            {
+                if (GlobalParameters.Settings.IsCycleCalculateActive != value)
+                {
+                    GlobalParameters.Settings.IsCycleCalculateActive = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         #endregion

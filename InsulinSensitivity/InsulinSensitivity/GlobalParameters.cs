@@ -47,6 +47,63 @@ namespace InsulinSensitivity
                     isActiveBasal = value;
                 }
             }
+
+            private static bool? isAverageCalculateActive;
+            /// <summary>
+            /// Активен ли расчёт ФЧИ по средним значениям
+            /// </summary>
+            public static bool IsAverageCalculateActive
+            {
+                get
+                {
+                    if (isAverageCalculateActive == null)
+                        isAverageCalculateActive = Preferences.Get("isAverageCalculateActive", true);
+                    return isAverageCalculateActive.Value;
+                }
+                set
+                {
+                    Preferences.Set("isAverageCalculateActive", value);
+                    isAverageCalculateActive = value;
+                }
+            }
+
+            private static bool? isExerciseCalculateActive;
+            /// <summary>
+            /// Активен ли расчёт ФЧИ по нагрузкам
+            /// </summary>
+            public static bool IsExerciseCalculateActive
+            {
+                get
+                {
+                    if (isExerciseCalculateActive == null)
+                        isExerciseCalculateActive = Preferences.Get("isExerciseCalculateActive", true);
+                    return isExerciseCalculateActive.Value;
+                }
+                set
+                {
+                    Preferences.Set("isExerciseCalculateActive", value);
+                    isExerciseCalculateActive = value;
+                }
+            }
+
+            private static bool? isCycleCalculateActive;
+            /// <summary>
+            /// Активен ли расчёт ФЧИ по дню цикла
+            /// </summary>
+            public static bool IsCycleCalculateActive
+            {
+                get
+                {
+                    if (isCycleCalculateActive == null)
+                        isCycleCalculateActive = Preferences.Get("isCycleCalculateActive", true);
+                    return isCycleCalculateActive.Value;
+                }
+                set
+                {
+                    Preferences.Set("isCycleCalculateActive", value);
+                    isCycleCalculateActive = value;
+                }
+            }
         }
     }
 }

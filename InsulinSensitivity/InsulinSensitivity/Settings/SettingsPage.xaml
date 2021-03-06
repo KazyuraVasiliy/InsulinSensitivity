@@ -48,6 +48,81 @@
                         </Grid>
                     </StackLayout>
                 </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=IsCycleVisibility}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Расчёт ФЧИ"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Grid
+                            IsVisible="False">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="По средним значениям:"/>
+                            
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsAverageCalculateActive}"/>
+                        </Grid>
+
+                        <Grid
+                            IsVisible="False">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="По нагрузкам:"/>
+
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsExerciseCalculateActive}"/>
+                        </Grid>
+
+                        <Grid
+                            IsVisible="{Binding Path=IsCycleVisibility}">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="По дню цикла:"/>
+
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsCycleCalculateActive}"/>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
