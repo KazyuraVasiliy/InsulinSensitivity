@@ -34,7 +34,8 @@ namespace InsulinSensitivity.Statistic
         /// Видна ли статистика по циклам
         /// </summary>
         public bool IsCycleVisibility =>
-            !GlobalParameters.User.Gender;
+            !GlobalParameters.User.Gender &&
+            !string.IsNullOrWhiteSpace(Cycle);
 
         private bool isRefreshing;
         /// <summary>
@@ -88,6 +89,22 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 cycle = value;
+                OnPropertyChanged();
+
+                OnPropertyChanged(nameof(IsCycleVisibility));
+            }
+        }
+
+        private int cycleDay;
+        /// <summary>
+        /// День цикла
+        /// </summary>
+        public int CycleDay
+        {
+            get => cycleDay;
+            set
+            {
+                cycleDay = value;
                 OnPropertyChanged();
             }
         }
@@ -237,12 +254,12 @@ namespace InsulinSensitivity.Statistic
                 // Цикл
                 if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
                 {
-                    var day = (DateTime.Now - cycles.Last().DateStart).TotalDays;
+                    CycleDay = (int)Math.Round((DateTime.Now - cycles.Last().DateStart).TotalDays, 0, MidpointRounding.AwayFromZero);
                     List<DateTime> dates = new List<DateTime>();
 
                     for (int i = 0; i < cycles.Count; i++)
                     {
-                        var equivalentDay = cycles[i].DateStart.AddDays(day);
+                        var equivalentDay = cycles[i].DateStart.AddDays(CycleDay);
                         if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
                             dates.Add(equivalentDay);
 
@@ -274,6 +291,7 @@ namespace InsulinSensitivity.Statistic
                     .Select(x =>
                         new
                         {
+                            Count = x.Count(),
                             ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
                             InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
                         })
@@ -281,12 +299,18 @@ namespace InsulinSensitivity.Statistic
                         x.InsulinSensitivityFact)
                     .ToList();
 
+                var maxElement = (exercises?.Count ?? 0) > 0
+                    ? exercises
+                        .FirstOrDefault(x =>
+                            x.Count == exercises.Max(y => y.Count))
+                    : null;
+
                 StringBuilder exercisesInformation = new StringBuilder(exercises.Count);
-                for (int i = 0; i < (exercises?.Count() ?? 0); i++)
+                for (int i = 0; i < (exercises?.Count ?? 0); i++)
                 {
-                    if (i != 0)
+                    if (exercises[i] != maxElement)
                     {
-                        var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / exercises[0].InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
+                        var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
                         exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} (+{increase}%)");
                     }
                     else exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
