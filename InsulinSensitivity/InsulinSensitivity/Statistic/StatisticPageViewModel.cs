@@ -160,6 +160,22 @@ namespace InsulinSensitivity.Statistic
         #region Methods
 
         /// <summary>
+        /// Возвращает знак числа в виде строки
+        /// </summary>
+        /// <param name="value">Число</param>
+        /// <returns></returns>
+        private string GetSign(int value)
+        {
+            if (value > 0)
+                return "+";
+
+            if (value < 0)
+                return "-";
+
+            return "";
+        }
+
+        /// <summary>
         /// Инициализирует статистику
         /// </summary>
         private void InitStatistic()
@@ -311,7 +327,7 @@ namespace InsulinSensitivity.Statistic
                     if (exercises[i] != maxElement)
                     {
                         var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
-                        exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} (+{increase}%)");
+                        exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
                     }
                     else exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
                 }

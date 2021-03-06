@@ -588,6 +588,34 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private decimal? bolusDoseCarbohydrate;
+        /// <summary>
+        /// Доза инсулина на углеводы
+        /// </summary>
+        public decimal? BolusDoseCarbohydrate
+        {
+            get => bolusDoseCarbohydrate;
+            set
+            {
+                bolusDoseCarbohydrate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal? bolusDoseFatAndProtein;
+        /// <summary>
+        /// Доза инсулина на жиры и белки
+        /// </summary>
+        public decimal? BolusDoseFatAndProtein
+        {
+            get => bolusDoseFatAndProtein;
+            set
+            {
+                bolusDoseFatAndProtein = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Основная доза
         /// </summary>
@@ -1054,6 +1082,17 @@ namespace InsulinSensitivity.Eating
             BolusDoseCalculate = bolusDose != null
                 ? bolusDose
                 : (decimal?)null;
+
+            var proteinAndFat = Protein * GlobalParameters.User.ProteinCoefficient +
+                Fat * GlobalParameters.User.FatCoefficient;
+
+            BolusDoseCarbohydrate = BolusDoseCalculate != null
+                ? Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * Carbohydrate, 2, MidpointRounding.AwayFromZero)
+                : (decimal?)null;
+
+            BolusDoseFatAndProtein = BolusDoseCalculate != null
+                ? Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * proteinAndFat, 2, MidpointRounding.AwayFromZero)
+                : (decimal?)null;
         }
 
         /// <summary>
@@ -1090,10 +1129,10 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityUser()
         {
             Eating.InsulinSensitivityUser = BolusDoseTotal > 0 && GlucoseEnd != null && InsulinSensitivityUser == null
-                ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlobalParameters.User.TargetGlucose,
+                ? Math.Round(Calculation.GetInsulinSensitivityFact(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
                     Protein, Fat, Carbohydrate,
-                    BolusDoseTotal)
+                    BolusDoseTotal), 3, MidpointRounding.AwayFromZero)
                 : InsulinSensitivityUser;
             OnPropertyChanged(nameof(InsulinSensitivityUser));
         }

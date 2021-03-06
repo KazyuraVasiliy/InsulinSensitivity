@@ -685,8 +685,15 @@
 
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
-                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)"/>
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}">
+
+                                                <TapGestureRecognizer.CommandParameter>
+                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля):&#10;&#10;Углеводы: {0}&#10;Белки и жиры: {1}">
+                                                        <Binding Path="BolusDoseCarbohydrate"/>
+                                                        <Binding Path="BolusDoseFatAndProtein"/>
+                                                    </MultiBinding>
+                                                </TapGestureRecognizer.CommandParameter>
+                                            </TapGestureRecognizer>
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
