@@ -7,6 +7,7 @@ using System.Text;
 using Xamarin.Forms;
 
 using Models = DataAccessLayer.Models;
+using BusinessLogicLayer.Service.Models;
 
 namespace BusinessLogicLayer.Converters
 {
@@ -17,17 +18,32 @@ namespace BusinessLogicLayer.Converters
             if (value is Models.Eating eating)
             {
                 var dateTime = Service.Calculation.DateTimeUnionTimeSpan(eating.DateCreated, eating.InjectionTime);
-                var injections = eating.Injections?
-                    .OrderBy(x =>
-                        x.InjectionDate.Date)
-                    .ThenBy(x =>
-                        x.InjectionTime)
-                    .Select(x =>
-                        $"{x.BolusDose} ({Math.Round((Service.Calculation.DateTimeUnionTimeSpan(x.InjectionDate, x.InjectionTime) - dateTime).TotalMinutes, 0, MidpointRounding.AwayFromZero)} мин)")
-                    .ToList() ?? new List<string>();
+                var injections = new List<InjectionToString>();
 
-                var injectionsToString = injections.Count > 0 ? $" + {string.Join(" + ", injections)}" : "";
-                return $"Инъекции: {eating.BolusDoseFact}{injectionsToString}";
+                injections.Add(new InjectionToString()
+                {
+                    Dose = eating.BolusDoseFact,
+                    Offset = 0,
+                    Name = eating.BolusType?.Name ?? "Инъекции"
+                });
+
+                foreach (var injection in eating.Injections ?? new List<Models.Injection>())
+                {
+                    injections.Add(new InjectionToString()
+                    {
+                        Dose = injection.BolusDose,
+                        Offset = (int)Math.Round((Service.Calculation.DateTimeUnionTimeSpan(injection.InjectionDate, injection.InjectionTime) - dateTime).TotalMinutes, 0, MidpointRounding.AwayFromZero),
+                        Name = injection.BolusType?.Name ?? "Инъекции"
+                    });
+                }
+
+                return string.Join("\n", injections
+                    .GroupBy(x =>
+                        x.Name)
+                    .OrderBy(x =>
+                        x.Key)
+                    .Select(x =>
+                        $"{x.Key}: {string.Join(" + ", x.OrderBy(y => y.Offset).Select(y => y.ToString()))}"));
             }
             return "";
         }
