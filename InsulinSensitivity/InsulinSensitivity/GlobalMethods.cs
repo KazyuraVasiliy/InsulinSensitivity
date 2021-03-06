@@ -51,6 +51,9 @@ namespace InsulinSensitivity
                 var period = DateTime.Now.Date.AddDays(-3);
                 var eatings = db.Eatings
                     .Include(x => x.Injections)
+                        .ThenInclude(x => x.BolusType)
+                    .Include(x => x.BolusType)
+                    .Include(x => x.BasalType)
                     .ToList()
                     .Where(x =>
                         x.DateCreated.Date >= period.Date &&
@@ -63,22 +66,24 @@ namespace InsulinSensitivity
                         DateCreated = currentEating.DateCreated,
                         InjectionTime = currentEating.InjectionTime,
                         BolusDoseFact = currentEating.BolusDoseFact,
+                        BolusType = currentEating.BolusType,
 
                         BasalDose = currentEating.BasalDose,
                         BasalInjectionTime = currentEating.BasalInjectionTime,
+                        BasalType = currentEating.BasalType,
 
                         Injections = currentInjections?.ToList() ?? new List<Models.Injection>()
-                    });
-
-                var basalDuration = (int)GlobalParameters.User.BasalType.Duration;
-                var bolusDuration = (int)GlobalParameters.User.BolusType.Duration;
-
-                var basalOffset = GlobalParameters.User.BasalType.Offset;
-                var bolusOffset = GlobalParameters.User.BolusType.Offset;
+                    });                
 
                 List<Injection> injections = new List<Injection>();
                 foreach (var eating in eatings)
                 {
+                    var basalDuration = (int)(eating.BasalType?.Duration ?? GlobalParameters.User.BasalType.Duration);
+                    var bolusDuration = (int)(eating.BolusType?.Duration ?? GlobalParameters.User.BolusType.Duration);
+
+                    var basalOffset = eating.BasalType?.Offset ?? GlobalParameters.User.BasalType.Offset;
+                    var bolusOffset = eating.BolusType?.Offset ?? GlobalParameters.User.BolusType.Offset;
+
                     // ... Базальный
                     if (eating.BasalInjectionTime != null && eating.BasalDose != 0)
                         injections.Add(new Injection()
@@ -88,7 +93,8 @@ namespace InsulinSensitivity
                             Start = eating.BasalInjectionTime.Value.AddMinutes(basalOffset),
                             End = eating.BasalInjectionTime.Value.AddMinutes(basalOffset + basalDuration * 60),
                             Dose = eating.BasalDose,
-                            Duration = basalDuration
+                            Duration = basalDuration,
+                            Name = eating.BasalType?.Name ?? ""
                         });
 
                     // ... Основная инъекция
@@ -99,12 +105,16 @@ namespace InsulinSensitivity
                         Start = startInjection.AddMinutes(bolusOffset),
                         End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                         Dose = eating.BolusDoseFact,
-                        Duration = bolusDuration
+                        Duration = bolusDuration,
+                        Name = eating.BolusType?.Name ?? ""
                     });
 
                     // ... Подколки
                     foreach (var injection in eating?.Injections ?? new List<Models.Injection>())
                     {
+                        bolusDuration = (int)(injection.BolusType?.Duration ?? GlobalParameters.User.BolusType.Duration);
+                        bolusOffset = injection.BolusType?.Offset ?? GlobalParameters.User.BolusType.Offset;
+
                         startInjection = Calculation.DateTimeUnionTimeSpan(injection.InjectionDate, injection.InjectionTime);
                         injections.Add(new Injection()
                         {
@@ -112,7 +122,8 @@ namespace InsulinSensitivity
                             Start = startInjection.AddMinutes(bolusOffset),
                             End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                             Dose = injection.BolusDose,
-                            Duration = bolusDuration
+                            Duration = bolusDuration,
+                            Name = injection.BolusType?.Name ?? ""
                         });
                     }
                 }
@@ -139,7 +150,7 @@ namespace InsulinSensitivity
                             2, MidpointRounding.AwayFromZero);
 
                         result.insulin += value;
-                        result.informations.Add($"— {value:N2} ед. болюса\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
+                        result.informations.Add($"— {value:N2} ед. болюса ({injection.Name})\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                     }
                 }
                 else
@@ -202,7 +213,7 @@ namespace InsulinSensitivity
                         value = Math.Round(value, 2, MidpointRounding.AwayFromZero);
 
                         result.insulin += value;
-                        result.informations.Add($"— {value:N2} ед. {(injection.IsBasal ? "базы" : "болюса")}\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
+                        result.informations.Add($"— {value:N2} ед. {(injection.IsBasal ? "базы" : "болюса")} ({injection.Name})\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                     }
                 }
 

@@ -35,5 +35,10 @@ namespace BusinessLogicLayer.Service.Models
         /// Это базальный инсулин?
         /// </summary>
         public bool IsBasal { get; set; }
+
+        /// <summary>
+        /// Наименование инсулина
+        /// </summary>
+        public string Name { get; set; }
     }
 }

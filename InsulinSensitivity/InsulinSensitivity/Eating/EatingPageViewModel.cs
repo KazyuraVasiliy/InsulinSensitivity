@@ -30,7 +30,10 @@ namespace InsulinSensitivity.Eating
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
                         .Include(x => x.Injections)
+                            .ThenInclude(x => x.BolusType)
                         .Include(x => x.IntermediateDimensions)
+                        .Include(x => x.BasalType)
+                        .Include(x => x.BolusType)
                         .FirstOrDefault(x =>
                             x.Id == eating.Id);
             }
@@ -56,6 +59,18 @@ namespace InsulinSensitivity.Eating
                     .OrderBy(x =>
                         x.Name)
                     .ToList();
+
+                // ... Типы инсулинов
+                InsulinTypes = db.InsulinTypes
+                    .OrderBy(x =>
+                        x.Name)
+                    .ToList();
+
+                // ... Типы болюсных инсулинов
+                BolusInsulinTypes = InsulinTypes
+                    .Where(x =>
+                        !x.IsBasal)
+                    .ToList();
             }
 
             // Инициализация времени инъекции
@@ -69,7 +84,11 @@ namespace InsulinSensitivity.Eating
             if (Eating.Injections != null)
             {
                 foreach (var el in Eating.Injections)
+                {
+                    if (el.BolusType == null)
+                        el.BolusType = GlobalParameters.User.BolusType;
                     Injections.Add(el);
+                }
             }
 
             // Инициализация промежуточных измерений
@@ -89,6 +108,12 @@ namespace InsulinSensitivity.Eating
                     Duration = (int)Math.Round(GlobalParameters.User.BolusType.Duration * 60, 0, MidpointRounding.AwayFromZero),
                     HoursAfterInjection = 0
                 };
+
+            if (Eating.BasalType == null)
+                Eating.BasalType = GlobalParameters.User.BasalType;
+
+            if (Eating.BolusType == null)
+                Eating.BolusType = GlobalParameters.User.BolusType;
 
             // Инициализация данных для расчёта
             InitPrevious();
@@ -169,12 +194,6 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
-        /// Предыдущие приёмы пищи в которых есть база
-        /// </summary>
-        private List<Models.Eating> BasalEatings { get; set; } =
-            new List<Models.Eating>();
-
-        /// <summary>
         /// Средний ФЧИ предыдущего типа приёма пищи
         /// </summary>
         private decimal? PreviousAverageEatingTypeSensitivity { get; set; }
@@ -205,6 +224,12 @@ namespace InsulinSensitivity.Eating
         /// Нижняя граница
         /// </summary>
         private decimal? Infinum { get; set; }
+
+        /// <summary>
+        /// Дни для расчёта ФЧИ по циклу
+        /// </summary>
+        private List<DateTime> EquivalentDays { get; set; } =
+            new List<DateTime>();
 
         #endregion
 
@@ -422,6 +447,22 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// Тип базального инсулина
+        /// </summary>
+        public Models.InsulinType BasalType
+        {
+            get => Eating.BasalType;
+            set
+            {
+                if (Eating.BasalType != value)
+                {
+                    Eating.BasalType = value;
+                    CalculateTotal();
+                }
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -627,6 +668,22 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// Тип болюсного инсулина
+        /// </summary>
+        public Models.InsulinType BolusType
+        {
+            get => Eating.BolusType;
+            set
+            {
+                if (Eating.BolusType != value)
+                {
+                    Eating.BolusType = value;
+                    CalculateTotal();
+                }
+            }
+        }
+
         private decimal bolusDoseTotal;
         /// <summary>
         /// Доза болюсного инсулина итоговая
@@ -688,15 +745,6 @@ namespace InsulinSensitivity.Eating
                     .Include(x => x.Exercise)
                     .Include(x => x.Injections)
                     .Include(x => x.IntermediateDimensions)
-                    .Take(3)
-                    .ToList();
-
-                // Предыдущие приёмы пищи, в которых есть база
-                BasalEatings = db.Eatings
-                    .Where(x =>
-                        x.Id != Eating.Id &&
-                        x.BasalDose != 0 &&
-                        x.BasalInjectionTime != null)
                     .Take(3)
                     .ToList();
 
@@ -795,14 +843,33 @@ namespace InsulinSensitivity.Eating
                 // Эквивалентный день предыдущего цикла
                 if (GlobalParameters.User.Gender == false)
                 {
-                    var menstrualCollection = db.MenstrualCycles
-                        .OrderByDescending(x =>
+                    var cycles = db.MenstrualCycles
+                        .OrderBy(x =>
                             x.DateStart)
-                        .Take(2)
                         .ToList();
 
-                    if ((menstrualCollection?.Count ?? 0) > 0)
-                        LastMenstruationDate = menstrualCollection[0].DateStart;
+                    var cycleDay = (int)Math.Round((Eating.DateCreated.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
+
+                    for (int i = 0; i < cycles.Count; i++)
+                    {
+                        var equivalentDay = cycles[i].DateStart.AddDays(cycleDay);
+                        if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
+                            EquivalentDays.Add(equivalentDay);
+
+                        if (i == (cycles.Count - 1))
+                            EquivalentDays.Add(equivalentDay);
+                    }
+
+                    var tDates = new List<DateTime>();
+                    foreach (var date in EquivalentDays)
+                    {
+                        tDates.Add(date.AddDays(-1));
+                        tDates.Add(date.AddDays(1));
+                    }
+                    EquivalentDays.AddRange(tDates);
+
+                    if ((cycles?.Count ?? 0) > 0)
+                        LastMenstruationDate = cycles.Last().DateStart;
                 }
             }
         }
@@ -999,31 +1066,7 @@ namespace InsulinSensitivity.Eating
             if (check)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                {
-                    var cycles = db.MenstrualCycles
-                        .OrderBy(x =>
-                            x.DateStart)
-                        .ToList();
-
-                    var cycleDay = (int)Math.Round((DateTime.Now - cycles.Last().DateStart).TotalDays, 0, MidpointRounding.AwayFromZero);
-                    List<DateTime> dates = new List<DateTime>();
-
-                    for (int i = 0; i < cycles.Count; i++)
-                    {
-                        var equivalentDay = cycles[i].DateStart.AddDays(cycleDay);
-                        if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
-                            dates.Add(equivalentDay);
-
-                        if (i == (cycles.Count - 1))
-                            dates.Add(equivalentDay);
-                    }
-
-                    foreach (var date in dates)
-                    {
-                        dates.Add(date.AddDays(-1));
-                        dates.Add(date.AddDays(1));
-                    }
-
+                {                   
                     var averageEatingTypeSensitivityCollection = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
@@ -1031,7 +1074,7 @@ namespace InsulinSensitivity.Eating
                             x.EatingTypeId == EatingType.Id)
                         .ToList()
                         .Where(x =>
-                            dates.Any(y => y.Date == x.DateCreated.Date))
+                            EquivalentDays.Any(y => y.Date == x.DateCreated.Date))
                         .ToList();
 
                     if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
@@ -1104,11 +1147,15 @@ namespace InsulinSensitivity.Eating
                 Fat * GlobalParameters.User.FatCoefficient;
 
             BolusDoseCarbohydrate = BolusDoseCalculate != null
-                ? Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * Carbohydrate, 2, MidpointRounding.AwayFromZero)
+                ? (proteinAndFat + Carbohydrate) == 0
+                    ? 0
+                    : Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * Carbohydrate, 2, MidpointRounding.AwayFromZero)
                 : (decimal?)null;
 
             BolusDoseFatAndProtein = BolusDoseCalculate != null
-                ? Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * proteinAndFat, 2, MidpointRounding.AwayFromZero)
+                ? (proteinAndFat + Carbohydrate) == 0
+                    ? 0
+                    : Math.Round(BolusDoseCalculate.Value / (proteinAndFat + Carbohydrate) * proteinAndFat, 2, MidpointRounding.AwayFromZero)
                 : (decimal?)null;
         }
 
@@ -1415,6 +1462,34 @@ namespace InsulinSensitivity.Eating
         public ObservableCollection<Models.IntermediateDimension> IntermediateDimensions { get; set; } =
             new ObservableCollection<Models.IntermediateDimension>();
 
+        private List<Models.InsulinType> insulinTypes;
+        /// <summary>
+        /// Типы инсулина
+        /// </summary>
+        public List<Models.InsulinType> InsulinTypes
+        {
+            get => insulinTypes;
+            set
+            {
+                insulinTypes = value;
+                OnPropertyChanged(nameof(InsulinTypes));
+            }
+        }
+
+        private List<Models.InsulinType> bolusInsulinTypes;
+        /// <summary>
+        /// Типы болюсного инсулина
+        /// </summary>
+        public List<Models.InsulinType> BolusInsulinTypes
+        {
+            get => bolusInsulinTypes;
+            set
+            {
+                bolusInsulinTypes = value;
+                OnPropertyChanged(nameof(BolusInsulinTypes));
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -1470,6 +1545,7 @@ namespace InsulinSensitivity.Eating
                         injection.InjectionTime = item.InjectionTime;
                         injection.BolusDose = item.BolusDose;
                         injection.InjectionDate = item.InjectionDate;
+                        injection.BolusTypeId = item.BolusType.Id;
                     }
                 }
 
@@ -1483,7 +1559,8 @@ namespace InsulinSensitivity.Eating
                             EatingId = eating.Id,
                             InjectionTime = injection.InjectionTime,
                             InjectionDate = injection.InjectionDate,
-                            BolusDose = injection.BolusDose
+                            BolusDose = injection.BolusDose,
+                            BolusTypeId = injection.BolusType.Id
                         });
                 }
 
@@ -1553,6 +1630,9 @@ namespace InsulinSensitivity.Eating
                 // eating.IsMenstrualCycleStart = Eating.IsMenstrualCycleStart;
                 eating.Comment = Eating.Comment;
 
+                eating.BasalTypeId = Eating.BasalType.Id;
+                eating.BolusTypeId = Eating.BolusType.Id;
+
                 eating.EatingTypeId = Eating.EatingType.Id;
                 eating.UserId = GlobalParameters.User.Id;
 
@@ -1601,7 +1681,10 @@ namespace InsulinSensitivity.Eating
             (InsulinSensitivityFact == null || InsulinSensitivityFact >= 0) &&
             (InsulinSensitivityUser == null || InsulinSensitivityUser >= 0) &&
             // Пауза
-            Pause >= 0;
+            Pause >= 0 &&
+            // Типы инсулинов
+            BolusType != null &&
+            BasalType != null;
 
         public ICommand OkCommand =>
             new Command(OkExecute);
@@ -1668,7 +1751,8 @@ namespace InsulinSensitivity.Eating
                 {
                     Id = Guid.NewGuid(),
                     InjectionTime = DateTime.Now.TimeOfDay,
-                    InjectionDate = DateTime.Now
+                    InjectionDate = DateTime.Now,
+                    BolusType = GlobalParameters.User.BolusType
                 };
                 IsModalInjection = true;
             });

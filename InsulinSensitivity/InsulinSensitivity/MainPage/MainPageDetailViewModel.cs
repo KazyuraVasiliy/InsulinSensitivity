@@ -156,7 +156,10 @@ namespace InsulinSensitivity
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
                         .Include(x => x.Injections)
+                            .ThenInclude(x => x.BolusType)
                         .Include(x => x.IntermediateDimensions)
+                        .Include(x => x.BasalType)
+                        .Include(x => x.BolusType)
                         .ToList()
                         .GroupBy(x =>
                             x.DateCreated.Date)

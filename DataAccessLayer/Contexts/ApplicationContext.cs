@@ -34,6 +34,14 @@ namespace DataAccessLayer.Contexts
             modelBuilder.Entity<InsulinType>()
                 .HasMany(b => b.BolusUsers)
                 .WithOne(p => p.BolusType);
+
+            modelBuilder.Entity<InsulinType>()
+                .HasMany(b => b.BasalEatings)
+                .WithOne(p => p.BasalType);
+
+            modelBuilder.Entity<InsulinType>()
+                .HasMany(b => b.BolusEatings)
+                .WithOne(p => p.BolusType);
         }
     }
 }

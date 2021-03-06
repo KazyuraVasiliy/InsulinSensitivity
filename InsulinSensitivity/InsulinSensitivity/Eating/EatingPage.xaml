@@ -346,6 +346,13 @@
                                 </StackLayout>
                             </Grid>
 
+                            <Label
+                                Text="Тип инсулина:"/>
+                            <Picker
+                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemsSource="{Binding Path=BolusInsulinTypes}"
+                                SelectedItem="{Binding Path=Eating.BolusType, Mode=TwoWay}"/>
+
                             <StackLayout
                                 BindableLayout.ItemsSource="{Binding Injections}"
                                 Margin="0, 4, 0, 8"
@@ -573,6 +580,13 @@
                                         Date="{Binding Path=BasalInjectionDate}"/>
                                 </Grid>
                             </Grid>
+
+                            <Label
+                                Text="Тип инсулина:"/>
+                            <Picker
+                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemsSource="{Binding Path=InsulinTypes}"
+                                SelectedItem="{Binding Path=Eating.BasalType, Mode=TwoWay}"/>
                         </StackLayout>
                     </Frame>
                     
@@ -825,6 +839,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
 
@@ -858,7 +873,7 @@
                                 Opacity="0"
                                 HeightRequest="0"
                                 Date="{Binding Path=SelectedInjection.InjectionDate}"/>
-                        </Grid>
+                        </Grid>                        
 
                         <StackLayout
                             Grid.Row="0" Grid.Column="1"
@@ -881,13 +896,25 @@
                                 Text="{Binding Path=SelectedInjection.BolusDose, Converter={StaticResource DecimalToStringConverter}}"/>
                         </StackLayout>
 
+                        <StackLayout
+                            Grid.Row="2" Grid.ColumnSpan="2"
+                            Spacing="0">
+
+                            <Label
+                                Text="Тип инсулина:"/>
+                            <Picker
+                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemsSource="{Binding Path=BolusInsulinTypes}"
+                                SelectedItem="{Binding Path=SelectedInjection.BolusType, Mode=TwoWay}"/>
+                        </StackLayout>
+                        
                         <Button
-                            Grid.Row="2" Grid.Column="0"
+                            Grid.Row="3" Grid.Column="0"
                             Text="Отмена"
                             Command="{Binding Path=CancelInjectionCommand}"/>
 
                         <Button
-                            Grid.Row="2" Grid.Column="1"
+                            Grid.Row="3" Grid.Column="1"
                             Text="Сохранить"
                             Command="{Binding Path=SaveInjectionCommand}"/>
                     </Grid>

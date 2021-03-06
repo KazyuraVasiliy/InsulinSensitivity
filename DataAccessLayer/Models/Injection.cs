@@ -25,6 +25,16 @@ namespace DataAccessLayer.Models
         public decimal BolusDose { get; set; }
 
         /// <summary>
+        /// Тип болюсного инсулина
+        /// </summary>
+        public Guid? BolusTypeId { get; set; }
+
+        /// <summary>
+        /// Тип болюсного инсулина (Навигационное свойство)
+        /// </summary>
+        public InsulinType BolusType { get; set; }
+
+        /// <summary>
         /// Приём пищи
         /// </summary>
         public Guid EatingId { get; set; }

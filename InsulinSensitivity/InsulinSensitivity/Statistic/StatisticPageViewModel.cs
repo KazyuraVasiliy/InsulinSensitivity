@@ -164,16 +164,8 @@ namespace InsulinSensitivity.Statistic
         /// </summary>
         /// <param name="value">Число</param>
         /// <returns></returns>
-        private string GetSign(int value)
-        {
-            if (value > 0)
-                return "+";
-
-            if (value < 0)
-                return "-";
-
-            return "";
-        }
+        private string GetSign(int value) =>
+            value > 0 ? "+" : "";
 
         /// <summary>
         /// Инициализирует статистику

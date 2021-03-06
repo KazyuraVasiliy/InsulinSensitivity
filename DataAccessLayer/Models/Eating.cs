@@ -185,6 +185,26 @@ namespace DataAccessLayer.Models
         public User User { get; set; }
 
         /// <summary>
+        /// Тип базального инсулина
+        /// </summary>
+        public Guid? BasalTypeId { get; set; }
+
+        /// <summary>
+        /// Тип базального инсулина (Навигационное свойство)
+        /// </summary>
+        public InsulinType BasalType { get; set; }
+
+        /// <summary>
+        /// Тип болюсного инсулина
+        /// </summary>
+        public Guid? BolusTypeId { get; set; }
+
+        /// <summary>
+        /// Тип болюсного инсулина (Навигационное свойство)
+        /// </summary>
+        public InsulinType BolusType { get; set; }
+
+        /// <summary>
         /// Инъекции (Навигационное свойство)
         /// </summary>
         public List<Injection> Injections { get; set; }

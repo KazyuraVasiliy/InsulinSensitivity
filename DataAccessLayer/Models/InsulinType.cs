@@ -41,13 +41,28 @@ namespace DataAccessLayer.Models
         public List<User> BolusUsers { get; set; }
 
         /// <summary>
+        /// Приёмы пищи с базальным инсулином (Навигационное свойство)
+        /// </summary>
+        public List<Eating> BasalEatings { get; set; }
+
+        /// <summary>
+        /// Приёмы пищи с болюсным инсулином (Навигационное свойство)
+        /// </summary>
+        public List<Eating> BolusEatings { get; set; }
+
+        /// <summary>
+        /// Подколки с болюсным инсулином (Навигационное свойство)
+        /// </summary>
+        public List<Injection> BolusInjections { get; set; }
+
+        /// <summary>
         /// Сравнивает экземпляры
         /// </summary>
         /// <param name="other">Сущность, с которой идёт сравнение</param>
         /// <returns></returns>
         public bool Equals(InsulinType other) =>
             other == null
-            ? false
-            : Id == other.Id;
+                ? false
+                : Id == other.Id;
     }
 }
