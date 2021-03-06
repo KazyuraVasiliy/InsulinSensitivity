@@ -192,11 +192,6 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
-        /// Эквивалентный день предыдущего цикла
-        /// </summary>
-        private DateTime? EquivalentDay { get; set; }
-
-        /// <summary>
         /// Дата последней менструации
         /// </summary>
         private DateTime? LastMenstruationDate { get; set; }
@@ -808,15 +803,6 @@ namespace InsulinSensitivity.Eating
 
                     if ((menstrualCollection?.Count ?? 0) > 0)
                         LastMenstruationDate = menstrualCollection[0].DateStart;
-
-                    if ((menstrualCollection?.Count ?? 0) > 1)
-                    {
-                        var day = (DateTime.Now.Date - menstrualCollection[0].DateStart.Date).TotalDays;
-                        var equivalentDay = menstrualCollection[1].DateStart.AddDays(day);
-
-                        if (equivalentDay.Date < menstrualCollection[0].DateStart.Date)
-                            EquivalentDay = equivalentDay;
-                    }
                 }
             }
         }
@@ -1008,23 +994,44 @@ namespace InsulinSensitivity.Eating
             var check =
                 GlobalParameters.Settings.IsCycleCalculateActive &&
                 !GlobalParameters.User.Gender &&
-                EquivalentDay != null &&
                 EatingType != null;
 
             if (check)
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    var previousDay = EquivalentDay.Value.AddDays(-1);
-                    var nextDay = EquivalentDay.Value.AddDays(1);
+                    var cycles = db.MenstrualCycles
+                        .OrderBy(x =>
+                            x.DateStart)
+                        .ToList();
+
+                    var cycleDay = (int)Math.Round((DateTime.Now - cycles.Last().DateStart).TotalDays, 0, MidpointRounding.AwayFromZero);
+                    List<DateTime> dates = new List<DateTime>();
+
+                    for (int i = 0; i < cycles.Count; i++)
+                    {
+                        var equivalentDay = cycles[i].DateStart.AddDays(cycleDay);
+                        if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
+                            dates.Add(equivalentDay);
+
+                        if (i == (cycles.Count - 1))
+                            dates.Add(equivalentDay);
+                    }
+
+                    foreach (var date in dates)
+                    {
+                        dates.Add(date.AddDays(-1));
+                        dates.Add(date.AddDays(1));
+                    }
 
                     var averageEatingTypeSensitivityCollection = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
                             x.InsulinSensitivityFact != null &&
-                            x.EatingTypeId == EatingType.Id &&
-                            x.DateCreated.Date >= previousDay.Date &&
-                            x.DateCreated.Date <= nextDay.Date)
+                            x.EatingTypeId == EatingType.Id)
+                        .ToList()
+                        .Where(x =>
+                            dates.Any(y => y.Date == x.DateCreated.Date))
                         .ToList();
 
                     if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
