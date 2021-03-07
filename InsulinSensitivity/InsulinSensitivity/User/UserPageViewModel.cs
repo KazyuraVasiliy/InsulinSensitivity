@@ -44,7 +44,15 @@ namespace InsulinSensitivity.User
                 HighSugar = 7.8M,
                 Hyperglycemia = 9M,
 
-                PeriodOfCalculation = 14
+                PeriodOfCalculation = 14,
+
+                AbsorptionRateOfCarbohydrates = 20,
+                AbsorptionRateOfFats = 17,
+                AbsorptionRateOfProteins = 24,
+
+                CarbohydrateCoefficient = 0.25M,
+                ProteinCoefficient = 0.35M,
+                FatCoefficient = 0.3M
             };
 
             // Инициализация коллекций
@@ -352,21 +360,12 @@ namespace InsulinSensitivity.User
                 user.AbsorptionRateOfFats = User.AbsorptionRateOfFats;
 
                 if (User.Id == Guid.Empty)
-                {
                     user.CarbohydrateCoefficient = Math.Round(Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight), 2, MidpointRounding.AwayFromZero);
-                    user.ProteinCoefficient = 0.3M;
-                    user.FatCoefficient = 0.25M;
+                else user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
 
-                    user.PeriodOfCalculation = 14;
-                }
-                else
-                {
-                    user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
-                    user.ProteinCoefficient = User.ProteinCoefficient;
-                    user.FatCoefficient = User.FatCoefficient;
-
-                    user.PeriodOfCalculation = User.PeriodOfCalculation;
-                }
+                user.ProteinCoefficient = User.ProteinCoefficient;
+                user.FatCoefficient = User.FatCoefficient;
+                user.PeriodOfCalculation = User.PeriodOfCalculation;
 
                 if (User.Id == Guid.Empty)
                     db.Users.Add(user);
