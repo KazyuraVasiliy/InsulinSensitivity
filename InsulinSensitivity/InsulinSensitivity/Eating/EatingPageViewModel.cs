@@ -1196,7 +1196,7 @@ namespace InsulinSensitivity.Eating
                 : (decimal?)null;
 
             if (bolusDose != null && Eating.EndEating != null)
-                bolusDose = bolusDose * (decimal)(1 - Calculation.GetActiveInsulinPercent(
+                bolusDose = bolusDose / (decimal)(1 - Calculation.GetActiveInsulinPercent(
                     Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating.Value, (int)GlobalParameters.User.BolusType.Duration));
 
             BolusDoseCalculate = bolusDose != null
