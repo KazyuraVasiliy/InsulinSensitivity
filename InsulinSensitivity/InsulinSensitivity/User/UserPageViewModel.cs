@@ -42,7 +42,9 @@ namespace InsulinSensitivity.User
                 LowSugar = 4M,
                 TargetGlucose = 5M,
                 HighSugar = 7.8M,
-                Hyperglycemia = 9M
+                Hyperglycemia = 9M,
+
+                PeriodOfCalculation = 14
             };
 
             // Инициализация коллекций
