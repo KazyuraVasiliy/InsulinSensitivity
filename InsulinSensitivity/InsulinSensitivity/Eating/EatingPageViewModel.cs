@@ -1354,7 +1354,7 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
-        /// Определяет, какую ошибку совершил пользователь
+        /// Определяет, какую ошибку компенсации совершил пользователь
         /// </summary>
         private string GetError()
         {
@@ -1418,6 +1418,38 @@ namespace InsulinSensitivity.Eating
                     }
                 }
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Определяет причину ошибки прогноза
+        /// </summary>
+        /// <returns></returns>
+        private string GetForecastError()
+        {
+            if (Eating.InsulinSensitivityFact == null || Eating.AccuracyAuto == null || Eating.AccuracyAuto > 85)
+                return null;
+
+            if (Eating.InsulinSensitivityAutoTwo == null && GlobalParameters.Settings.IsExerciseCalculateActive)
+                return "Новая активность";
+
+            var values = new List<decimal>()
+            {
+                Math.Abs(Eating.InsulinSensitivityFact.Value - (Eating.InsulinSensitivityAutoOne ?? Eating.InsulinSensitivityFact.Value)),
+                Math.Abs(Eating.InsulinSensitivityFact.Value - (Eating.InsulinSensitivityAutoTwo ?? Eating.InsulinSensitivityFact.Value)),
+                Math.Abs(Eating.InsulinSensitivityFact.Value - (Eating.InsulinSensitivityAutoThree ?? Eating.InsulinSensitivityFact.Value))
+            };
+
+            var max = values.Max();
+            var index = values.IndexOf(max);
+
+            if (index == 0 && Eating.InsulinSensitivityAutoOne != null)
+                return $"Резкая смена потребности\n(ФЧИ по средним {Math.Round(Eating.InsulinSensitivityAutoOne.Value, 3, MidpointRounding.AwayFromZero)})";
+            if (index == 1 && Eating.InsulinSensitivityAutoTwo != null)
+                return $"Нетипичная активность\n(ФЧИ по нагрузке {Math.Round(Eating.InsulinSensitivityAutoTwo.Value, 3, MidpointRounding.AwayFromZero)})";
+            if (index == 2 && Eating.InsulinSensitivityAutoThree != null)
+                return $"Чувствительность в текущий день цикла отличается от предыдущих\n(ФЧИ по дню цикла {Math.Round(Eating.InsulinSensitivityAutoThree.Value, 3, MidpointRounding.AwayFromZero)})";
+
             return null;
         }
 
@@ -1707,6 +1739,7 @@ namespace InsulinSensitivity.Eating
 
                 eating.ExpectedGlucose = Eating.ExpectedGlucose;
                 eating.Error = GetError();
+                eating.ForecastError = GetForecastError();
 
                 // eating.WriteOff = GlobalParameters.User.BasalType.Duration;
                 eating.WorkingTime = Eating.WorkingTime;

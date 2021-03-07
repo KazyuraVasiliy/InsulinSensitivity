@@ -46,6 +46,11 @@ namespace DataAccessLayer.Models
         public string Error { get; set; }
 
         /// <summary>
+        /// Ошибка прогноза
+        /// </summary>
+        public string ForecastError { get; set; }
+
+        /// <summary>
         /// Количество активного инсулина в крови перед поставновкой инъекции
         /// </summary>
         [Obsolete("This property is obsolete.", false)]

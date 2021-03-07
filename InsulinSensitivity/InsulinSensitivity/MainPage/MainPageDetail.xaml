@@ -362,10 +362,21 @@
                                                     Orientation="Horizontal"
                                                     IsVisible="{Binding Path=Error, Converter={StaticResource CommentToVisibilityConverter}}">
                                                     
-                                                    <Label Text="Ошибка: "/>
+                                                    <Label Text="Ошибка компенсации: "/>
                                                     <Label 
                                                         TextColor="Red"
                                                         Text="{Binding Path=Error, StringFormat='{}{0}', TargetNullValue='отсутствует'}"/>
+                                                </StackLayout>
+
+                                                <StackLayout
+                                                    Spacing="0"
+                                                    Orientation="Horizontal"
+                                                    IsVisible="{Binding Path=ForecastError, Converter={StaticResource CommentToVisibilityConverter}}">
+
+                                                    <Label Text="Ошибка прогноза: "/>
+                                                    <Label 
+                                                        TextColor="DarkOrange"
+                                                        Text="{Binding Path=ForecastError, StringFormat='{}{0}', TargetNullValue='отсутствует'}"/>
                                                 </StackLayout>
                                             </StackLayout>
 
