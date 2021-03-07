@@ -876,25 +876,28 @@ namespace InsulinSensitivity.Eating
                             x.DateStart)
                         .ToList();
 
-                    var cycleDay = (int)Math.Round((Eating.DateCreated.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
-
-                    for (int i = 0; i < cycles.Count; i++)
+                    if ((cycles?.Count ?? 0) > 0)
                     {
-                        var equivalentDay = cycles[i].DateStart.AddDays(cycleDay);
-                        if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
-                            EquivalentDays.Add(equivalentDay);
+                        var cycleDay = (int)Math.Round((Eating.DateCreated.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
 
-                        if (i == (cycles.Count - 1))
-                            EquivalentDays.Add(equivalentDay);
-                    }
+                        for (int i = 0; i < cycles.Count; i++)
+                        {
+                            var equivalentDay = cycles[i].DateStart.AddDays(cycleDay);
+                            if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
+                                EquivalentDays.Add(equivalentDay);
 
-                    var tDates = new List<DateTime>();
-                    foreach (var date in EquivalentDays)
-                    {
-                        tDates.Add(date.AddDays(-1));
-                        tDates.Add(date.AddDays(1));
+                            if (i == (cycles.Count - 1))
+                                EquivalentDays.Add(equivalentDay);
+                        }
+
+                        var tDates = new List<DateTime>();
+                        foreach (var date in EquivalentDays)
+                        {
+                            tDates.Add(date.AddDays(-1));
+                            tDates.Add(date.AddDays(1));
+                        }
+                        EquivalentDays.AddRange(tDates);
                     }
-                    EquivalentDays.AddRange(tDates);
 
                     if ((cycles?.Count ?? 0) > 0)
                         LastMenstruationDate = cycles.Last().DateStart;

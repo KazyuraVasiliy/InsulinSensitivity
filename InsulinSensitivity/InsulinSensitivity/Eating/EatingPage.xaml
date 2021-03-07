@@ -395,10 +395,11 @@
                                                     Grid.Column="0">
 
                                                     <Label.Text>
-                                                        <MultiBinding StringFormat="{}Время: {0:00}:{1:00} - Доза: {2}">
+                                                        <MultiBinding StringFormat="{}Время: {0:00}:{1:00} - Доза: {2} - Исулин: {3}">
                                                             <Binding Path="InjectionTime.Hours"/>
                                                             <Binding Path="InjectionTime.Minutes"/>
                                                             <Binding Path="BolusDose"/>
+                                                            <Binding Path="BolusType.Name"/>
                                                         </MultiBinding>
                                                     </Label.Text>
                                                 </Label>
