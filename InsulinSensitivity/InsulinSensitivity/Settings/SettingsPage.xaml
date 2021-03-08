@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:global="clr-namespace:InsulinSensitivity"
              x:Class="InsulinSensitivity.Settings.SettingsPage"
+             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
              Title="Настройки"
              IsEnabled="{Binding Path=AsyncBase.Inactive}">
     
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout            
-                Margin="5">
+            <StackLayout
+                Spacing="0">
 
                 <Frame
                     Style="{StaticResource Frame}">
@@ -121,6 +122,29 @@
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=IsCycleCalculateActive}"/>
                         </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Приём пищи"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Продолжительность приёма пищи по умолчанию:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="EatingDuration"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=EatingDuration}"/>
                     </StackLayout>
                 </Frame>
             </StackLayout>

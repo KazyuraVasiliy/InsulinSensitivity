@@ -77,7 +77,7 @@ namespace InsulinSensitivity.Eating
             if (eating == null)
             {
                 Eating.InjectionTime = Calculation.TimeSpanWithoutSeconds(DateTime.Now.TimeOfDay);
-                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(5));
+                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(GlobalParameters.Settings.EatingDuration));
             }
 
             // Инициализация инъекций

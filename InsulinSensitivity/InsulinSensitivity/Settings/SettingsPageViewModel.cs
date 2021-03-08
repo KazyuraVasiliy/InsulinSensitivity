@@ -82,6 +82,22 @@ namespace InsulinSensitivity.Settings
             }
         }
 
+        /// <summary>
+        /// Длительность приёма пищи
+        /// </summary>
+        public int EatingDuration
+        {
+            get => GlobalParameters.Settings.EatingDuration;
+            set
+            {
+                if (GlobalParameters.Settings.EatingDuration != value && value > 0)
+                {
+                    GlobalParameters.Settings.EatingDuration = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods

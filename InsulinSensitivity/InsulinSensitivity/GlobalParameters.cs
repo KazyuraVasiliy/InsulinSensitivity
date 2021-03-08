@@ -104,6 +104,25 @@ namespace InsulinSensitivity
                     isCycleCalculateActive = value;
                 }
             }
+
+            private static int? eatingDuration;
+            /// <summary>
+            /// Длительность приёма пищи
+            /// </summary>
+            public static int EatingDuration
+            {
+                get
+                {
+                    if (eatingDuration == null)
+                        eatingDuration = Preferences.Get("eatingDuration", 5);
+                    return eatingDuration.Value;
+                }
+                set
+                {
+                    Preferences.Set("eatingDuration", value);
+                    eatingDuration = value;
+                }
+            }
         }
     }
 }
