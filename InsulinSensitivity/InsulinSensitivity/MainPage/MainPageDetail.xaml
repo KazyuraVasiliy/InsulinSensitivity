@@ -389,7 +389,7 @@
                                                     Margin="0, 4, 0, 0"
                                                     VerticalTextAlignment="Start"
                                                     FontFamily="Typicons"
-                                                    Text="&#xe0c2;"/>
+                                                    Text="&#xe062;"/>
                                                 <Label Text="{Binding Path=Comment, StringFormat='{}{0}', TargetNullValue='отсутствует'}"/>
                                             </StackLayout>
                                         </StackLayout>
