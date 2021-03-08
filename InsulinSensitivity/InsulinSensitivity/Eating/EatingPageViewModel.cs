@@ -345,6 +345,47 @@ namespace InsulinSensitivity.Eating
 
         #endregion
 
+        #region --Insulin Sensitivity Auto
+
+        /// <summary>
+        /// ФЧИ рассчитанный по средним
+        /// </summary>
+        public decimal? InsulinSensitivityAutoOne
+        {
+            get => Eating.InsulinSensitivityAutoOne;
+            set
+            {
+                Eating.InsulinSensitivityAutoOne = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// ФЧИ рассчитанный по нагрузкам
+        /// </summary>
+        public decimal? InsulinSensitivityAutoTwo
+        {
+            get => Eating.InsulinSensitivityAutoTwo;
+            set
+            {
+                Eating.InsulinSensitivityAutoTwo = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// ФЧИ рассчитанный по дню цикла
+        /// </summary>
+        public decimal? InsulinSensitivityAutoThree
+        {
+            get => Eating.InsulinSensitivityAutoThree;
+            set
+            {
+                Eating.InsulinSensitivityAutoThree = value;
+                OnPropertyChanged();
+            }
+        }
+
         private decimal? insulinSensitivityAuto;
         /// <summary>
         /// ФЧИ рассчитанный (средний)
@@ -358,6 +399,8 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
             }
         }
+
+        #endregion
 
         #region --Nutritional
 
@@ -911,7 +954,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityOne()
         {
             // Рассчёт ФЧИ по первой формуле
-            Eating.InsulinSensitivityAutoOne = null;
+            InsulinSensitivityAutoOne = null;
             bool check =
                 GlobalParameters.Settings.IsAverageCalculateActive &&
                 (PreviousEatings?.Count ?? 0) > 0 &&
@@ -954,7 +997,7 @@ namespace InsulinSensitivity.Eating
                     }
 
                     if (averageEatingTypeSensitivity != null)
-                        Eating.InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
+                        InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
                 }
             }
         }
@@ -965,7 +1008,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityTwo()
         {
             // Расчёт ФЧИ по второй формуле
-            Eating.InsulinSensitivityAutoTwo = null;
+            InsulinSensitivityAutoTwo = null;
             var check =
                 GlobalParameters.Settings.IsExerciseCalculateActive &&
                 (PreviousEatings?.Count ?? 0) == 3 &&
@@ -1094,7 +1137,7 @@ namespace InsulinSensitivity.Eating
                             }
                         }
 
-                        Eating.InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
+                        InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
                     }
                 }
             }
@@ -1106,7 +1149,7 @@ namespace InsulinSensitivity.Eating
         private void CalculateInsulinSensitivityThree()
         {
             // Рассчёт ФЧИ по третьей формуле
-            Eating.InsulinSensitivityAutoThree = null;
+            InsulinSensitivityAutoThree = null;
             var check =
                 GlobalParameters.Settings.IsCycleCalculateActive &&
                 !GlobalParameters.User.Gender &&
@@ -1140,7 +1183,7 @@ namespace InsulinSensitivity.Eating
                         AverageEatingTypeCycleSensitivityDictionary.Add(EatingType.Id, averageEatingTypeCycleSensitivity);
                     }
 
-                    Eating.InsulinSensitivityAutoThree = averageEatingTypeCycleSensitivity;
+                    InsulinSensitivityAutoThree = averageEatingTypeCycleSensitivity;
                 }
             }
         }

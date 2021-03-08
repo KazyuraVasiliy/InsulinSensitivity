@@ -682,8 +682,16 @@
 
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
-                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше"/>
+                                                Command="{x:Static global:GlobalMethods.ToolTipCommand}">
+
+                                                <TapGestureRecognizer.CommandParameter>
+                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;{0}&#10;{1}&#10;{2}">
+                                                        <Binding Path="InsulinSensitivityAutoOne" StringFormat="{}ФЧИ по средним значениям: {0}"/>
+                                                        <Binding Path="InsulinSensitivityAutoTwo" StringFormat="{}ФЧИ по нагрузкам: {0}"/>
+                                                        <Binding Path="InsulinSensitivityAutoThree" StringFormat="{}ФЧИ по дню цикла: {0}"/>
+                                                    </MultiBinding>
+                                                </TapGestureRecognizer.CommandParameter>
+                                            </TapGestureRecognizer>
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
@@ -703,7 +711,8 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля):&#10;&#10;Углеводы: {0}&#10;Белки и жиры: {1}">
+                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0}&#10;На углеводы: {1}&#10;На белки и жиры: {2}">
+                                                        <Binding Path="BolusDoseCalculate"/>
                                                         <Binding Path="BolusDoseCarbohydrate"/>
                                                         <Binding Path="BolusDoseFatAndProtein"/>
                                                     </MultiBinding>
