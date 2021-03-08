@@ -685,10 +685,10 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;{0}&#10;{1}&#10;{2}">
-                                                        <Binding Path="InsulinSensitivityAutoOne" StringFormat="{}ФЧИ по средним значениям: {0}"/>
-                                                        <Binding Path="InsulinSensitivityAutoTwo" StringFormat="{}ФЧИ по нагрузкам: {0}"/>
-                                                        <Binding Path="InsulinSensitivityAutoThree" StringFormat="{}ФЧИ по дню цикла: {0}"/>
+                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0}&#10;ФЧИ по нагрузкам: {1}&#10;ФЧИ по дню цикла: {2}">
+                                                        <Binding Path="InsulinSensitivityAutoOne" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
+                                                        <Binding Path="InsulinSensitivityAutoTwo" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
+                                                        <Binding Path="InsulinSensitivityAutoThree" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
                                                     </MultiBinding>
                                                 </TapGestureRecognizer.CommandParameter>
                                             </TapGestureRecognizer>
@@ -711,7 +711,7 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0}&#10;На углеводы: {1}&#10;На белки и жиры: {2}">
+                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0} ед.&#10;На углеводы: {1} ед.&#10;На белки и жиры: {2} ед.">
                                                         <Binding Path="BolusDoseCalculate"/>
                                                         <Binding Path="BolusDoseCarbohydrate"/>
                                                         <Binding Path="BolusDoseFatAndProtein"/>
