@@ -74,7 +74,7 @@
                                         x:Name="glucoseStart"
                                         Margin="0"
                                         view:Tag.Tag="GlucoseStart"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=GlucoseStart, Converter={StaticResource DecimalToStringConverter}}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -95,7 +95,7 @@
                                     <Entry
                                         Margin="0"
                                         view:Tag.Tag="GlucoseEnd"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=GlucoseEnd, Converter={StaticResource DecimalToStringConverter}}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -115,6 +115,8 @@
                                         Text="Время отработки:"/>
                                     <TimePicker
                                         HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
+                                        view:Tag.Tag="EndEatingTime"
+                                        Unfocused="Element_Unfocused"
                                         Time="{Binding Path=EndEatingTime}"/>
                                 </StackLayout>
 
@@ -143,6 +145,8 @@
                                         Visual="Material"
                                         Opacity="0"
                                         HeightRequest="0"
+                                        view:Tag.Tag="EndEatingDate"
+                                        Unfocused="Element_Unfocused"
                                         Date="{Binding Path=EndEatingDate}"/>
                                 </Grid>
                             </Grid>
@@ -162,7 +166,7 @@
                                         Text="Белки:"/>
                                     <Entry
                                         view:Tag.Tag="Protein"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Protein}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -175,7 +179,7 @@
                                         Text="Жиры:"/>
                                     <Entry
                                         view:Tag.Tag="Fat"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Fat}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -188,7 +192,7 @@
                                         Text="Углеводы:"/>
                                     <Entry
                                         view:Tag.Tag="Carbohydrate"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Carbohydrate}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -327,7 +331,7 @@
                                     <Entry
                                         x:Name="entryDose"
                                         view:Tag.Tag="BolusDoseFact"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=BolusDoseFact, Converter={StaticResource DecimalToStringConverter}}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -340,7 +344,7 @@
                                         Text="Пауза:"/>
                                     <Entry
                                         view:Tag.Tag="Pause"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Pause}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -486,7 +490,7 @@
                                         Text="Продолжительность:"/>
                                     <Entry
                                         view:Tag.Tag="Duration"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Duration}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -499,7 +503,7 @@
                                         Text="Часов после инъекции:"/>
                                     <Entry
                                         view:Tag.Tag="HoursAfterInjection"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=HoursAfterInjection}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>
@@ -538,7 +542,7 @@
                                         x:Name="basalDose"
                                         Keyboard="Numeric"
                                         view:Tag.Tag="BasalDose"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
                                 </StackLayout>
 
@@ -609,7 +613,7 @@
                             <Entry
                                 Keyboard="Numeric"
                                 view:Tag.Tag="ActiveInsulinStart"
-                                Unfocused="Entry_Unfocused"
+                                Unfocused="Element_Unfocused"
                                 Text="{Binding Path=ActiveInsulinStart, Converter={StaticResource DecimalToStringConverter}}"/>
 
                             <Label
@@ -712,7 +716,7 @@
 
                                                 <TapGestureRecognizer.CommandParameter>
                                                     <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0} ед.&#10;На углеводы: {1} ед.&#10;На белки и жиры: {2} ед.">
-                                                        <Binding Path="BolusDoseCalculate"/>
+                                                        <Binding Path="BolusDoseCalculate" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="2"/>
                                                         <Binding Path="BolusDoseCarbohydrate"/>
                                                         <Binding Path="BolusDoseFatAndProtein"/>
                                                     </MultiBinding>
@@ -747,7 +751,7 @@
                                     </Label>
                                     <Entry
                                         view:Tag.Tag="InsulinSensitivityUser"
-                                        Unfocused="Entry_Unfocused"
+                                        Unfocused="Element_Unfocused"
                                         Text="{Binding Path=InsulinSensitivityUser, Converter={StaticResource DecimalToStringConverter}}"
                                         Keyboard="Numeric"/>
                                 </StackLayout>

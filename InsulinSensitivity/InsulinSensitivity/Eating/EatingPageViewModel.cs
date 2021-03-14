@@ -78,6 +78,7 @@ namespace InsulinSensitivity.Eating
             {
                 Eating.InjectionTime = Calculation.TimeSpanWithoutSeconds(DateTime.Now.TimeOfDay);
                 Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(GlobalParameters.Settings.EatingDuration));
+                Eating.BasalInjectionTime = Calculation.DateTimeWithoutSeconds(DateTime.Now);
             }
 
             // Инициализация инъекций
@@ -117,6 +118,7 @@ namespace InsulinSensitivity.Eating
 
             // Инициализация данных для расчёта
             InitPrevious();
+            CalculateTotal();
         }
 
         #endregion
@@ -303,7 +305,7 @@ namespace InsulinSensitivity.Eating
             get => Eating.Exercise.ExerciseType;
             set
             {
-                if (Eating.Exercise.ExerciseType != value)
+                if (Eating.Exercise.ExerciseType?.Id != value?.Id)
                 {
                     Eating.Exercise.ExerciseType = value;
                     CalculateTotal();
@@ -494,7 +496,7 @@ namespace InsulinSensitivity.Eating
             get => Eating.BasalInjectionTime?.TimeOfDay ?? DateTime.Now.TimeOfDay;
             set
             {
-                if (Eating.BasalInjectionTime == null || Calculation.TimeSpanWithoutSeconds(Eating.BasalInjectionTime.Value.TimeOfDay) != value)
+                if (Eating.BasalInjectionTime == null || Calculation.TimeSpanWithoutSeconds(Eating.BasalInjectionTime.Value.TimeOfDay) != Calculation.TimeSpanWithoutSeconds(value))
                 {
                     Eating.BasalInjectionTime = Calculation.DateTimeUnionTimeSpan(BasalInjectionDate, value);
                     CalculateTotal();
@@ -526,7 +528,7 @@ namespace InsulinSensitivity.Eating
             get => Eating.BasalType;
             set
             {
-                if (Eating.BasalType != value)
+                if (Eating.BasalType?.Id != value?.Id)
                 {
                     Eating.BasalType = value;
                     CalculateTotal();
@@ -562,11 +564,11 @@ namespace InsulinSensitivity.Eating
             get => Eating.InjectionTime;
             set
             {
-                if (Calculation.TimeSpanWithoutSeconds(Eating.InjectionTime) != value)
+                if (Calculation.TimeSpanWithoutSeconds(Eating.InjectionTime) != Calculation.TimeSpanWithoutSeconds(value))
                 {
                     Eating.InjectionTime = value;
 
-                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(5);
+                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(GlobalParameters.Settings.EatingDuration);
                     OnPropertyChanged(nameof(EndEatingTime));
                     OnPropertyChanged(nameof(EndEatingDate));
 
@@ -583,10 +585,16 @@ namespace InsulinSensitivity.Eating
             get => Eating.EndEating ?? DateTime.Now;
             set
             {
-                if (Eating.EndEating?.Date != value)
+                if (Eating.EndEating?.Date != value.Date)
                 {
-                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
-                    CalculateTotal();
+                    var begin = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+                    var end = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
+
+                    if (begin < end)
+                    {
+                        Eating.EndEating = end;
+                        CalculateTotal();
+                    }
                 }
             }
         }
@@ -599,10 +607,16 @@ namespace InsulinSensitivity.Eating
             get => Eating.EndEating?.TimeOfDay ?? DateTime.Now.TimeOfDay;
             set
             {
-                if (Eating.EndEating == null || Calculation.TimeSpanWithoutSeconds(Eating.EndEating.Value.TimeOfDay) != value)
+                if (Eating.EndEating == null || Calculation.TimeSpanWithoutSeconds(Eating.EndEating.Value.TimeOfDay) != Calculation.TimeSpanWithoutSeconds(value))
                 {
-                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
-                    CalculateTotal();
+                    var begin = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+                    var end = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
+
+                    if (begin < end)
+                    {
+                        Eating.EndEating = end;
+                        CalculateTotal();
+                    }
                 }
             }
         }
@@ -747,7 +761,7 @@ namespace InsulinSensitivity.Eating
             get => Eating.BolusType;
             set
             {
-                if (Eating.BolusType != value)
+                if (Eating.BolusType?.Id != value?.Id)
                 {
                     Eating.BolusType = value;
                     CalculateTotal();
@@ -826,7 +840,7 @@ namespace InsulinSensitivity.Eating
 
                 // Исходный сахар
                 if (previousEating?.GlucoseEnd != null && Eating.Id == Guid.Empty)
-                    GlucoseStart = previousEating.GlucoseEnd.Value;
+                    Eating.GlucoseStart = previousEating.GlucoseEnd.Value;
 
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)

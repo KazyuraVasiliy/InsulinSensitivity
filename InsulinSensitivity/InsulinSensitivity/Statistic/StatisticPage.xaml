@@ -82,7 +82,7 @@
                             Spacing="0">
 
                             <Label
-                                Text="{Binding Path=CycleDay, StringFormat='{}Цикл: {0}-й день'}"
+                                Text="{Binding Path=IncCycleDay, StringFormat='{}Цикл: {0}-й день'}"
                                 FontAttributes="Bold"
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>

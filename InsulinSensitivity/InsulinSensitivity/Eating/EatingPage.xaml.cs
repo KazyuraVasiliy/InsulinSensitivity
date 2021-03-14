@@ -42,12 +42,12 @@ namespace InsulinSensitivity.Eating
             return base.OnBackButtonPressed();
         }
 
-        private void Entry_Unfocused(object sender, FocusEventArgs e)
+        private void Element_Unfocused(object sender, FocusEventArgs e)
         {
-            if (sender is Entry entry)
+            if (sender is BindableObject bindable)
             {
-                var tag = Tag.GetTag(entry);
-                if (entry.BindingContext is ObservableBase observable && tag is string property)
+                var tag = Tag.GetTag(bindable);
+                if (bindable.BindingContext is ObservableBase observable && tag is string property)
                     observable.OnPropertyChanged(property);
             }
         }

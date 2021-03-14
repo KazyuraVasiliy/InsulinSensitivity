@@ -105,9 +105,15 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 cycleDay = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(IncCycleDay));
             }
         }
+
+        /// <summary>
+        /// День цикла в расчёте от 1
+        /// </summary>
+        public int IncCycleDay =>
+            CycleDay + 1;
 
         private string exercise;
         /// <summary>
@@ -262,7 +268,7 @@ namespace InsulinSensitivity.Statistic
                 // Цикл
                 if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
                 {
-                    CycleDay = (int)Math.Round((DateTime.Now - cycles.Last().DateStart).TotalDays, 0, MidpointRounding.AwayFromZero);
+                    CycleDay = (int)Math.Round((DateTime.Now.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
                     List<DateTime> dates = new List<DateTime>();
 
                     for (int i = 0; i < cycles.Count; i++)
