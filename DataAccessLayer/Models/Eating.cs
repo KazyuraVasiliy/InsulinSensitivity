@@ -190,6 +190,11 @@ namespace DataAccessLayer.Models
         public User User { get; set; }
 
         /// <summary>
+        /// Игнорируется ли приём пищи
+        /// </summary>
+        public bool IsIgnored { get; set; } 
+
+        /// <summary>
         /// Тип базального инсулина
         /// </summary>
         public Guid? BasalTypeId { get; set; }

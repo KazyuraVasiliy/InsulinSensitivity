@@ -17,6 +17,7 @@
         <converters:ExpectedGlucoseBoolConverter x:Key="ExpectedGlucoseBoolConverter"/>
         <converters:GlucoseToStringConverter x:Key="GlucoseToStringConverter"/>
         <converters:InjectionsToStringConverter x:Key="InjectionsToStringConverter"/>
+        <converters:IsIgnoredToOpacityConverter x:Key="IsIgnoredToOpacityConverter"/>
 
         <s:Boolean x:Key="True">True</s:Boolean>
 
@@ -111,7 +112,8 @@
                     <ViewCell>
                         <ViewCell.View>
                             <Frame
-                                Style="{StaticResource Frame}">
+                                Style="{StaticResource Frame}"
+                                Opacity="{Binding Path=IsIgnored, Converter={StaticResource IsIgnoredToOpacityConverter}}">
 
                                 <StackLayout>
                                     <xct:Expander>
@@ -403,6 +405,10 @@
                                 Command="{Binding Path=BindingContext.RemoveCommand, Source={x:Reference page}}"
                                 CommandParameter="{Binding .}"
                                 IsDestructive="True" />
+                            <MenuItem
+                                Text="Состояние"
+                                Command="{Binding Path=BindingContext.IgnoreCommand, Source={x:Reference page}}"
+                                CommandParameter="{Binding .}"/>
                         </ViewCell.ContextActions>
                     </ViewCell>
                 </DataTemplate>

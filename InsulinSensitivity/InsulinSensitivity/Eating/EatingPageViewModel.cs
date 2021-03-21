@@ -824,7 +824,8 @@ namespace InsulinSensitivity.Eating
                 // Предыдущие приёмы пищи
                 PreviousEatings = db.Eatings
                     .Where(x =>
-                        x.Id != Eating.Id)
+                        x.Id != Eating.Id &&
+                        !x.IsIgnored)
                     .OrderByDescending(x =>
                         x.DateCreated)
                     .Include(x => x.Exercise)
@@ -848,6 +849,7 @@ namespace InsulinSensitivity.Eating
                     var previousAverageEatingTypeSensitivityQuery = db.Eatings
                         .Where(x =>
                             x.Id != Eating.Id &&
+                            !x.IsIgnored &&
                             x.EatingTypeId == previousEating.EatingTypeId);
 
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
@@ -875,6 +877,7 @@ namespace InsulinSensitivity.Eating
                         var exercisesQuery = db.Eatings
                             .Where(x =>
                                 x.Id != Eating.Id &&
+                                !x.IsIgnored &&
                                 x.Exercise.ExerciseTypeId == previous.Exercise.ExerciseTypeId &&
                                 x.Exercise.HoursAfterInjection == previous.Exercise.HoursAfterInjection);
 
@@ -989,6 +992,7 @@ namespace InsulinSensitivity.Eating
                         var averageEatingTypeSensitivityCollectionQuery = db.Eatings
                             .Where(x =>
                                 x.Id != Eating.Id &&
+                                !x.IsIgnored &&
                                 x.EatingTypeId == EatingType.Id &&
                                 x.InsulinSensitivityFact != null);
 
@@ -1044,6 +1048,7 @@ namespace InsulinSensitivity.Eating
                         var averageExerciseTypeSensitivityCollectionQuery = db.Eatings
                             .Where(x =>
                                 x.Id != Eating.Id &&
+                                !x.IsIgnored &&
                                 x.Exercise.ExerciseTypeId == ExerciseType.Id &&
                                 x.Exercise.HoursAfterInjection == HoursAfterInjection);
 
@@ -1182,6 +1187,7 @@ namespace InsulinSensitivity.Eating
                         var averageEatingTypeSensitivityCollection = db.Eatings
                             .Where(x =>
                                 x.Id != Eating.Id &&
+                                !x.IsIgnored &&
                                 x.InsulinSensitivityFact != null &&
                                 x.EatingTypeId == EatingType.Id)
                             .ToList()
@@ -1368,6 +1374,7 @@ namespace InsulinSensitivity.Eating
                         var ratioCollectionQuery = db.Eatings
                             .Where(x =>
                                 x.DateCreated.Date <= yesterday.Date &&
+                                !x.IsIgnored &&
                                 x.InsulinSensitivityFact != null);
 
                         if (GlobalParameters.User.PeriodOfCalculation > 0)

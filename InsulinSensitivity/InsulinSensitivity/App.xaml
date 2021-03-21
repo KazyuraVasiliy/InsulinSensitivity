@@ -6,7 +6,7 @@
         <Style
             TargetType="Frame" x:Key="FrameBackgroundBase">
 
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark='#1d1d1d', Light='#ffffff'}"/>
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Dark='#1d1d1d', Light='Transparent'}"/>
         </Style>
         
         <Style

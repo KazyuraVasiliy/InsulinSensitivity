@@ -180,7 +180,7 @@ namespace InsulinSensitivity.Statistic
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
-                if (!db.Eatings.Any(x => x.GlucoseEnd != null))
+                if (!db.Eatings.Any(x => x.InsulinSensitivityFact != null && !x.IsIgnored))
                     return;
 
                 var cycles = db.MenstrualCycles
@@ -197,6 +197,7 @@ namespace InsulinSensitivity.Statistic
 
                 var eatings = db.Eatings
                     .Where(x =>
+                        !x.IsIgnored &&
                         x.InsulinSensitivityFact != null)
                     .Include(x => x.EatingType)
                     .Include(x => x.Exercise)

@@ -285,6 +285,49 @@ namespace InsulinSensitivity
 
         #endregion
 
+        #region --Ignore
+
+        private async void IgnoreExecute(object obj)
+        {
+            IsEnabled = false;
+            try
+            {               
+                var eatingObj = (Models.Eating)obj;
+
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Запрос",
+                    $"Вы уверены, что хотите {(!eatingObj.IsIgnored ? "не " : "")}учитывать запись?",
+                    "Да",
+                    "Нет");
+
+                if (!question)
+                    return;
+
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    var eating = db.Eatings.Find(eatingObj.Id);
+                    if (eating != null)
+                        eating.IsIgnored = !eating.IsIgnored;
+
+                    db.SaveChanges();
+                    InitEatings();
+                }
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+            IsEnabled = true;
+        }
+
+        public ICommand IgnoreCommand =>
+            new Command(IgnoreExecute);
+
+        #endregion
+
         #region --Refresh
 
         private void RefreshExecute()
