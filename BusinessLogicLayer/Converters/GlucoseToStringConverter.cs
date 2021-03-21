@@ -26,7 +26,13 @@ namespace BusinessLogicLayer.Converters
                     Offset = 0
                 });
 
-                foreach (var dimension in eating.IntermediateDimensions ?? new List<Models.IntermediateDimension>())
+                var dimensions = (eating.IntermediateDimensions ?? new List<Models.IntermediateDimension>())
+                    .OrderBy(x =>
+                        x.DimensionDate.Date)
+                    .ThenBy(x =>
+                        x.DimensionTime);
+
+                foreach (var dimension in dimensions)
                 {
                     glucose.Add(new GlucoseToString()
                     {

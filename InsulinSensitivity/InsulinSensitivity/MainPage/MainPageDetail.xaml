@@ -113,6 +113,7 @@
                         <ViewCell.View>
                             <Frame
                                 Style="{StaticResource Frame}"
+                                BackgroundColor="{AppThemeBinding Dark='#1d1d1d', Light='Transparent'}"
                                 Opacity="{Binding Path=IsIgnored, Converter={StaticResource IsIgnoredToOpacityConverter}}">
 
                                 <StackLayout>
