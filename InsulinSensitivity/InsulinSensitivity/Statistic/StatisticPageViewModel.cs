@@ -197,7 +197,6 @@ namespace InsulinSensitivity.Statistic
 
                 var eatings = db.Eatings
                     .Where(x =>
-                        !x.IsIgnored &&
                         x.InsulinSensitivityFact != null)
                     .Include(x => x.EatingType)
                     .Include(x => x.Exercise)
@@ -206,7 +205,13 @@ namespace InsulinSensitivity.Statistic
 
                 var basals = eatings
                     .GroupBy(x =>
-                        x.DateCreated.Date);
+                        x.DateCreated.Date)
+                    .ToList();
+
+                eatings = eatings
+                    .Where(x =>
+                        !x.IsIgnored)
+                    .ToList();
 
                 var entries = eatings
                     .OrderBy(x =>
