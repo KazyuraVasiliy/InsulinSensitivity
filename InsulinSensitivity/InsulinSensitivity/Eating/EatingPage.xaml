@@ -530,11 +530,22 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
+                                </Grid.ColumnDefinitions>                                
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="0">
+
+                                    <Label                                
+                                        Text="Время:"/>
+                                    <TimePicker
+                                        HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
+                                        Time="{Binding Path=BasalInjectionTime}"/>
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="1">
 
                                     <Label                                
                                         Text="Доза:"/>
@@ -544,17 +555,6 @@
                                         view:Tag.Tag="BasalDose"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
-                                </StackLayout>
-
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="1">
-
-                                    <Label                                
-                                        Text="Время:"/>
-                                    <TimePicker
-                                        HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
-                                        Time="{Binding Path=BasalInjectionTime}"/>
                                 </StackLayout>
 
                                 <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->

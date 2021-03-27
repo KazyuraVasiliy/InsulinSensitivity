@@ -1259,8 +1259,14 @@ namespace InsulinSensitivity.Eating
                 : (decimal?)null;
 
             if (bolusDose != null && Eating.EndEating != null)
-                bolusDose = bolusDose / (decimal)(1 - Calculation.GetActiveInsulinPercent(
-                    Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating.Value, (int)GlobalParameters.User.BolusType.Duration));
+            {
+                var begin = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+                bolusDose = begin == Eating.EndEating.Value
+                    ? null 
+                    : bolusDose / (decimal)(1 - Calculation.GetActiveInsulinPercent(
+                        begin, Eating.EndEating.Value, (int)GlobalParameters.User.BolusType.Duration));
+            }
+                
 
             BolusDoseCalculate = bolusDose != null
                 ? bolusDose
@@ -1329,9 +1335,15 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateAccuracyAuto()
         {
-            Eating.AccuracyAuto = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityAuto != null
-                ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
-                : (int?)null;
+            if ((InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityAuto != null)
+            {
+                var divider = InsulinSensitivityFact.Value > InsulinSensitivityAuto.Value
+                    ? InsulinSensitivityFact.Value
+                    : InsulinSensitivityAuto.Value;
+
+                Eating.AccuracyAuto = (int)Math.Round((100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value)) / divider * 100, 0, MidpointRounding.AwayFromZero);
+            }
+            else Eating.AccuracyAuto = null;
         }
 
         /// <summary>
@@ -1339,9 +1351,15 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateAccuracyUser()
         {
-            Eating.AccuracyUser = (InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null
-                ? (int)Math.Round((InsulinSensitivityFact.Value - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / InsulinSensitivityFact.Value * 100, 0, MidpointRounding.AwayFromZero)
-                : (int?)null;
+            if ((InsulinSensitivityFact ?? 0) != 0 && InsulinSensitivityUser != null)
+            {
+                var divider = InsulinSensitivityFact.Value > InsulinSensitivityUser.Value
+                    ? InsulinSensitivityFact.Value
+                    : InsulinSensitivityUser.Value;
+
+                Eating.AccuracyAuto = (int)Math.Round((100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / divider * 100, 0, MidpointRounding.AwayFromZero);
+            }
+            else Eating.AccuracyAuto = null;
         }
 
         /// <summary>

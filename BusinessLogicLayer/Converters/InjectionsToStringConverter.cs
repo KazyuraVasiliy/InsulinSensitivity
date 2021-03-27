@@ -27,6 +27,15 @@ namespace BusinessLogicLayer.Converters
                     Name = eating.BolusType?.Name ?? "Инъекции"
                 });
 
+                injections.Add(new InjectionToString()
+                {
+                    Dose = eating.BasalDose,
+                    Offset = eating.BasalInjectionTime != null
+                        ? (int)Math.Round((eating.BasalInjectionTime.Value - dateTime).TotalMinutes, 0, MidpointRounding.AwayFromZero)
+                        : 0,
+                    Name = eating.BasalType?.Name ?? "База"
+                });
+
                 foreach (var injection in eating.Injections ?? new List<Models.Injection>())
                 {
                     injections.Add(new InjectionToString()
