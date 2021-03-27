@@ -223,6 +223,39 @@ namespace InsulinSensitivity
 
         #endregion
 
+        #region --Edit
+
+        //private async void EditExecute(object obj)
+        //{
+        //    IsEnabled = false;
+        //    try
+        //    {
+        //        var eatingObj = (Models.Eating)obj;
+        //        using (var db = new ApplicationContext(GlobalParameters.DbPath))
+        //        {
+        //            var eatingPage = new Eating.EatingPage()
+        //            {
+        //                BindingContext = new Eating.EatingPageViewModel(eatingObj)
+        //            };
+
+        //            await GlobalParameters.Navigation.PushAsync(eatingPage, true);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+        //            "Ошибка",
+        //            ex.Message + ex?.InnerException?.Message,
+        //            "Ok");
+        //    }
+        //    IsEnabled = true;
+        //}
+
+        //public ICommand EditCommand =>
+        //    new Command(EditExecute);
+
+        #endregion
+
         #region --Remove
 
         private async void RemoveExecute(object obj)

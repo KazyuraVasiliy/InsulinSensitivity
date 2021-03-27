@@ -406,6 +406,10 @@
                                 Command="{Binding Path=BindingContext.RemoveCommand, Source={x:Reference page}}"
                                 CommandParameter="{Binding .}"
                                 IsDestructive="True" />
+                            <!--<MenuItem
+                                Text="Изменить"
+                                Command="{Binding Path=BindingContext.EditCommand, Source={x:Reference page}}"
+                                CommandParameter="{Binding .}"/>-->
                             <MenuItem
                                 Text="Состояние"
                                 Command="{Binding Path=BindingContext.IgnoreCommand, Source={x:Reference page}}"
