@@ -1341,7 +1341,7 @@ namespace InsulinSensitivity.Eating
                     ? InsulinSensitivityFact.Value
                     : InsulinSensitivityAuto.Value;
 
-                Eating.AccuracyAuto = (int)Math.Round((100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value)) / divider * 100, 0, MidpointRounding.AwayFromZero);
+                Eating.AccuracyAuto = (int)Math.Round(100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityAuto.Value) / divider * 100, 0, MidpointRounding.AwayFromZero);
             }
             else Eating.AccuracyAuto = null;
         }
@@ -1357,9 +1357,9 @@ namespace InsulinSensitivity.Eating
                     ? InsulinSensitivityFact.Value
                     : InsulinSensitivityUser.Value;
 
-                Eating.AccuracyAuto = (int)Math.Round((100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value)) / divider * 100, 0, MidpointRounding.AwayFromZero);
+                Eating.AccuracyUser = (int)Math.Round(100 - Math.Abs(InsulinSensitivityFact.Value - InsulinSensitivityUser.Value) / divider * 100, 0, MidpointRounding.AwayFromZero);
             }
-            else Eating.AccuracyAuto = null;
+            else Eating.AccuracyUser = null;
         }
 
         /// <summary>
