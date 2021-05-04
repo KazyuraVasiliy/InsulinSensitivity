@@ -15,7 +15,7 @@
         <Grid>
             <ScrollView>
                 <StackLayout
-                    Margin="5">
+                    Spacing="0">
 
                     <!--<Frame 
                         BackgroundColor="#2196F3" 
@@ -766,7 +766,7 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="{Binding Path=ActiveInformation, StringFormat='{}Складывается из всех инъекций введённых в период активности данного приёма пищи:\&#10;\&#10;{0}'}"/>
+                                                CommandParameter="{Binding Path=ActiveInformation, StringFormat='{}Складывается из всех инъекций действующих в период активности данного приёма пищи:\&#10;\&#10;{0}'}"/>
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
@@ -815,13 +815,13 @@
 
                     <Button
                         Text="Сохранить"
-                        Margin="0, 0, 0, 5"
+                        Margin="5"
                         BackgroundColor="LightSeaGreen"
                         Command="{Binding Path=OkCommand}"/>
 
                     <Button
                         Text="Удалить"
-                        Margin="0, 0, 0, 5"
+                        Margin="5, 0, 5, 5"
                         BackgroundColor="OrangeRed"
                         IsVisible="{Binding Path=IsRemoveVisibility, Mode=OneWay}"
                         Command="{Binding Path=RemoveCommand}"/>

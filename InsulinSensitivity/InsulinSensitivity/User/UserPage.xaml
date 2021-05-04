@@ -19,7 +19,7 @@
     <ContentPage.Content>
         <ScrollView>
             <StackLayout            
-                Margin="5">
+                Spacing="0">
 
                 <!--<Frame 
                     BackgroundColor="#2196F3" 
@@ -429,7 +429,7 @@
 
                 <Button
                     Text="Сохранить"
-                    Margin="0, 0, 0, 5"
+                    Margin="5"
                     BackgroundColor="LightSeaGreen"
                     Command="{Binding Path=OkCommand}"/>
 
