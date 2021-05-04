@@ -320,6 +320,7 @@ namespace InsulinSensitivity.User
 
         private async void OkExecute()
         {
+            AsyncBase.Open();
             if (!OkCanExecute())
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
@@ -379,6 +380,7 @@ namespace InsulinSensitivity.User
                 MessagingCenter.Send(this, "User");
                 await GlobalParameters.Navigation.PopAsync();
             }
+            AsyncBase.Close();
         }
 
         private bool OkCanExecute() =>

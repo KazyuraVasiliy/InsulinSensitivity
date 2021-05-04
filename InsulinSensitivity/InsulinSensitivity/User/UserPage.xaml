@@ -6,7 +6,8 @@
              xmlns:s="clr-namespace:System;assembly=mscorlib"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
-             Title="Пользователь">
+             Title="Пользователь"
+             IsEnabled="{Binding Path=AsyncBase.Inactive}">
 
     <ContentPage.Resources>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>

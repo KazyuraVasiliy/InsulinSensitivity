@@ -1679,6 +1679,7 @@ namespace InsulinSensitivity.Eating
 
         private async void OkExecute()
         {
+            AsyncBase.Open();
             if (!OkCanExecute())
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
@@ -1843,6 +1844,7 @@ namespace InsulinSensitivity.Eating
                 MessagingCenter.Send(this, "Eating");
                 await GlobalParameters.Navigation.PopAsync();
             }
+            AsyncBase.Close();
         }
 
         private bool OkCanExecute() =>
@@ -1877,6 +1879,7 @@ namespace InsulinSensitivity.Eating
 
         private async void RemoveExecute()
         {
+            AsyncBase.Open();
             bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                 "Удалить?",
                 "Вы уверены, что хотите удалить запись?",
@@ -1917,6 +1920,7 @@ namespace InsulinSensitivity.Eating
                 MessagingCenter.Send(this, "Eating");
                 await GlobalParameters.Navigation.PopAsync();
             }
+            AsyncBase.Close();
         }
 
         public ICommand RemoveCommand =>

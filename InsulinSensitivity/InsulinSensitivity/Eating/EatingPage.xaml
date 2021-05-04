@@ -5,7 +5,8 @@
              xmlns:global="clr-namespace:InsulinSensitivity"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
-             Title="Приём пищи">
+             Title="Приём пищи"
+             IsEnabled="{Binding Path=AsyncBase.Inactive}">
 
     <ContentPage.Resources>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
