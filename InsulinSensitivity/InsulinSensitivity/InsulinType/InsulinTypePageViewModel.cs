@@ -48,6 +48,40 @@ namespace InsulinSensitivity.InsulinType
         public Guid UserBolusTypeId =>
             GlobalParameters.User?.BolusTypeId ?? Guid.Empty;
 
+        /// <summary>
+        /// Id типа базального инсулина, используемого пользователем
+        /// </summary>
+        public Guid UserBasalTypeId =>
+            GlobalParameters.User?.BasalTypeId ?? Guid.Empty;
+
+        private Models.InsulinType selectedInsulin;
+        /// <summary>
+        /// Выбранный инсулин
+        /// </summary>
+        public Models.InsulinType SelectedInsulin
+        {
+            get => selectedInsulin;
+            set
+            {
+                selectedInsulin = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool isModal;
+        /// <summary>
+        /// Отображается ли модальное окно
+        /// </summary>
+        public bool IsModal
+        {
+            get => isModal;
+            set
+            {
+                isModal = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Collections
@@ -83,51 +117,74 @@ namespace InsulinSensitivity.InsulinType
 
         #region Commands
 
-        #region --Edit
+        #region --Refresh
 
-        private async void EditExecute(object obj)
+        private void RefreshExecute()
+        {
+            InitInsulinTypes();
+            IsRefreshing = false;
+        }
+
+        public ICommand RefreshCommand =>
+            new Command(RefreshExecute);
+
+        #endregion
+
+        public ICommand EditCommand =>
+            new Command((object obj) =>
+            {
+                SelectedInsulin = (Models.InsulinType)obj;
+                IsModal = true;
+            });
+
+        #region --Save
+
+        private async void SaveExecute()
         {
             try
             {
-                var typeObj = (Models.InsulinType)obj;
-                if (typeObj.IsBasal)
+                bool isError =
+                    !int.TryParse(SelectedInsulin.Duration.ToString(), System.Globalization.NumberStyles.AllowDecimalPoint, null, out int duration) ||
+                    (!SelectedInsulin.IsBasal && (duration < 3 || duration > 11)) ||
+                    (SelectedInsulin.IsBasal && (duration < 12 || duration > 48)) ||
+                    SelectedInsulin.Offset <= 0;
+
+                if (isError)
                 {
                     await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                         "Ошибка",
-                        "Редактировать продолжительность действия базального инсулина запрещено",
-                        "Ok");
-                    return;
-                }
-
-                string result = await GlobalParameters.Navigation.NavigationStack.Last().DisplayPromptAsync(
-                    "Изменение",
-                    "Введите новую продолжительность",
-                    accept: "Ok",
-                    cancel: "Отмена",
-                    initialValue: ((int)typeObj.Duration).ToString(),
-                    keyboard: Keyboard.Numeric);
-
-                if (string.IsNullOrWhiteSpace(result))
-                    return;
-
-                if (!int.TryParse(result, out int duration) || duration < 3 || duration > 9)
-                {
-                    await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
-                        "Ошибка",
-                        "Продолжительность действия инсулина должна быть целым числом в диапазоне от 3 до 9",
+                        "Продолжительность действия болюсного инсулина должна быть целым числом в диапазоне от 3 до 11, базального - целым числом в диапазоне от 12 до 48.\n\nНачало действия должно быть положительным числом",
                         "Ok");
                     return;
                 }
 
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    var type = db.InsulinTypes.Find(typeObj.Id);
-                    type.Duration = duration;
+                    var entity = SelectedInsulin.Id != Guid.Empty
+                        ? db.InsulinTypes.Find(SelectedInsulin.Id)
+                        : null;
+
+                    if (SelectedInsulin.Id == Guid.Empty)
+                    {
+                        IsModal = false;
+                        return;
+                    }
+
+                    //if (SelectedInsulin.Id == Guid.Empty)
+                    //    entity = db.InsulinTypes.Add(
+                    //        new Models.InsulinType()
+                    //        {
+                    //            Id = Guid.NewGuid(),
+                    //            UserId = GlobalParameters.User.Id
+                    //        }).Entity;
+
+                    entity.Duration = SelectedInsulin.Duration;
+                    entity.Offset = SelectedInsulin.Offset;
 
                     db.SaveChanges();
                     InitInsulinTypes();
 
-                    if (type.Id == GlobalParameters.User.BolusTypeId)
+                    if (SelectedInsulin.Id == GlobalParameters.User.BolusTypeId || SelectedInsulin.Id == GlobalParameters.User.BasalTypeId)
                     {
                         GlobalParameters.User = db.Users
                             .Include(x => x.BasalType)
@@ -145,25 +202,17 @@ namespace InsulinSensitivity.InsulinType
                     ex.Message + ex?.InnerException?.Message,
                     "Ok");
             }
+
+            IsModal = false;
         }
 
-        public ICommand EditCommand =>
-            new Command(EditExecute);
+        public ICommand SaveCommand =>
+            new Command(SaveExecute);
 
         #endregion
 
-        #region --Refresh
-
-        private void RefreshExecute()
-        {
-            InitInsulinTypes();
-            IsRefreshing = false;
-        }
-
-        public ICommand RefreshCommand =>
-            new Command(RefreshExecute);
-
-        #endregion
+        public ICommand CancelCommand =>
+            new Command(() => IsModal = false);
 
         #endregion
     }

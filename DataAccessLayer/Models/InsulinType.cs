@@ -21,7 +21,7 @@ namespace DataAccessLayer.Models
         public bool IsBasal { get; set; }
 
         /// <summary>
-        /// Время работы инусулина в часах
+        /// Время работы инсулина в часах
         /// </summary>
         public decimal Duration { get; set; }
 
