@@ -30,10 +30,12 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
-                new MainPageMasterItemModel("\xe125", "Экспорт", ExportCommand),
+                new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),                
                 new MainPageMasterItemModel("\xe043", "Статистика", StatisticCommand),
                 new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand, true),
                 new MainPageMasterItemModel("\xe04f", "Настройки", SettingsCommand),
+                new MainPageMasterItemModel("\xe125", "Создать резервную копию", CreateBackupCommand),
+                new MainPageMasterItemModel("\xe064", "Восстановить из копии", RestoreBackupCommand),
             };
         }
 
@@ -298,6 +300,122 @@ namespace InsulinSensitivity
 
         public ICommand ExportCommand =>
              new Command(ExportExecute);
+
+        #endregion
+
+        #region --Create Backup
+
+        private async void CreateBackupExecute()
+        {
+            try
+            {
+                if (GlobalParameters.User == null)
+                    return;
+
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Создать резервную копию?",
+                    "Вы уверены, что хотите создать резервную копию?",
+                    "Да",
+                    "Нет");
+
+                if (!question)
+                    return;
+
+                if (await Permission.CheckAndRequestStorageWritePermission() != PermissionStatus.Granted)
+                    return;
+
+                string directoryName = "InsulinSensitivity";
+                string fileName = Path.Combine(directoryName, $"{DateTime.Now:dd.MM.yy.HH.mm.ss}.backup.isdb");
+
+                var fileWorker = DependencyService.Get<IFileWorker>();
+                await fileWorker.CreateDirectoryAsync(directoryName);
+
+                if (await fileWorker.ExistsAsync(fileName))
+                {
+                    bool isRewrited = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                        "Подтверждение",
+                        "Файл уже существует, перезаписать его?",
+                        "Да",
+                        "Нет");
+
+                    if (isRewrited == false)
+                        return;
+                }
+
+                var destinationPath = DependencyService.Get<IFileWorker>().GetPath(fileName);
+                await DependencyService.Get<IFileWorker>().CopyAsync(GlobalParameters.DbPath, destinationPath);
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Информация",
+                    $"Резервная копия успешно создана: {DependencyService.Get<IFileWorker>().GetPath(fileName)}",
+                    "Ok");
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+        }
+
+        public ICommand CreateBackupCommand =>
+             new Command(CreateBackupExecute);
+
+        #endregion
+
+        #region --Restore Backup
+
+        private async void RestoreBackupExecute()
+        {
+            try
+            {
+                if (GlobalParameters.User == null)
+                    return;
+
+                bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Восстановить из резервной копии?",
+                    "Вы уверены, что хотите восстановить данные из резервной копии?",
+                    "Да",
+                    "Нет");
+
+                if (!question)
+                    return;
+
+                if (await Permission.CheckAndRequestStorageWritePermission() != PermissionStatus.Granted)
+                    return;
+
+                var result = await FilePicker.PickAsync();
+                if (result.FullPath == null)
+                    return;
+
+                var ext = Path.GetExtension(result.FullPath);
+                if (Path.GetExtension(result.FullPath) != ".isdb")
+                {
+                    await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                        "Ошибка",
+                        "Выбранный файл не является резервной копией",
+                        "Ok");
+                    return;
+                }
+
+                await DependencyService.Get<IFileWorker>().CopyAsync(result.FullPath, GlobalParameters.DbPath);
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Информация",
+                    "Восстановление из резервной копии завершено",
+                    "Ok");
+                MessagingCenter.Send(this, "RestoreBackup");
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+        }
+
+        public ICommand RestoreBackupCommand =>
+             new Command(RestoreBackupExecute);
 
         #endregion
 

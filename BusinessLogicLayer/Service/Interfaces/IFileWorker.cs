@@ -23,6 +23,14 @@ namespace BusinessLogicLayer.Service.Interfaces
         Task SaveTextAsync(string fileName, string text);
 
         /// <summary>
+        /// Копирует файл
+        /// </summary>
+        /// <param name="sourcePath">Исходное расположение файла</param>
+        /// <param name="destinationPath">Целевое расположение копии</param>
+        /// <returns></returns>
+        Task CopyAsync(string sourcePath, string destinationPath);
+
+        /// <summary>
         /// Создаёт новую директорию
         /// </summary>
         /// <param name="directoryName">Имя директории</param>
@@ -50,7 +58,7 @@ namespace BusinessLogicLayer.Service.Interfaces
         Task DeleteAsync(string fileName);
 
         /// <summary>
-        /// Получает путь до файла
+        /// Получает путь до файла во внешнем хранилище
         /// </summary>
         /// <param name="fileName">Имя файла</param>
         /// <returns></returns>

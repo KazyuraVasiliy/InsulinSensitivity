@@ -24,6 +24,12 @@ namespace InsulinSensitivity.Droid
             return Task.FromResult(exists);
         }
 
+        public Task CopyAsync(string sourcePath, string destinationPath)
+        {
+            File.Copy(sourcePath, destinationPath, true);
+            return Task.FromResult(true);
+        }
+
         public Task<IEnumerable<string>> GetFilesAsync()
         {
             IEnumerable<string> fileNames = Directory.EnumerateFiles(GetExternalStoragePath())

@@ -139,6 +139,9 @@ namespace InsulinSensitivity
 
                 MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
                     (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
+
+                MessagingCenter.Subscribe<MainPageMasterViewModel>(this, "RestoreBackup",
+                    (sender) => Init());
             }, "Инициализация\nПожалуйста, подождите");
 
 
