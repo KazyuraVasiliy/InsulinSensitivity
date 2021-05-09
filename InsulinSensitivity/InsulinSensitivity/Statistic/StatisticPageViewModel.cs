@@ -243,7 +243,7 @@ namespace InsulinSensitivity.Statistic
                 Chart = new LineChart()
                 {
                     LineMode = LineMode.Spline,
-                    LabelTextSize = 40,
+                    LabelTextSize = 24,
                     Entries = entries,
 
                     LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
