@@ -124,18 +124,11 @@ namespace InsulinSensitivity
                     (sender) =>
                     {
                         InitEatings();
-                        OnPropertyChanged(nameof(LastEating));
                         OnPropertyChanged(nameof(TargetGlucose));
-                        ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
                     });
 
                 MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
-                    (sender) =>
-                    {
-                        InitEatings();
-                        OnPropertyChanged(nameof(LastEating));
-                        ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
-                    });
+                    (sender) => InitEatings());
 
                 MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
                     (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);

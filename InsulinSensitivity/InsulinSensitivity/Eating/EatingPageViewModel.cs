@@ -233,6 +233,18 @@ namespace InsulinSensitivity.Eating
         #region --Cache
 
         /// <summary>
+        /// Приёмы пищи
+        /// </summary>
+        private List<Models.Eating> Eatings =
+            new List<Models.Eating>();
+
+        /// <summary>
+        /// Приёмы пищи исключая не учитываемые
+        /// </summary>
+        private List<Models.Eating> EatingsWithoutIgnored =
+            new List<Models.Eating>();
+
+        /// <summary>
         /// Средние ФЧИ по приёму пищи
         /// </summary>
         private Dictionary<Guid, decimal?> AverageEatingTypeSensitivityDictionary { get; set; } =
@@ -823,16 +835,27 @@ namespace InsulinSensitivity.Eating
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
-                // Предыдущие приёмы пищи
-                PreviousEatings = db.Eatings
+                Eatings = db.Eatings
                     .Where(x =>
-                        x.Id != Eating.Id &&
-                        !x.IsIgnored)
+                        x.Id != Eating.Id)
                     .OrderByDescending(x =>
                         x.DateCreated)
                     .Include(x => x.Exercise)
                     .Include(x => x.Injections)
                     .Include(x => x.IntermediateDimensions)
+                    .Include(x => x.Injections)
+                        .ThenInclude(x => x.BolusType)
+                    .Include(x => x.BolusType)
+                    .Include(x => x.BasalType)
+                    .ToList();
+
+                EatingsWithoutIgnored = Eatings
+                    .Where(x =>
+                        !x.IsIgnored)
+                    .ToList();
+
+                // Предыдущие приёмы пищи
+                PreviousEatings = EatingsWithoutIgnored
                     .Take(3)
                     .ToList();
 
@@ -848,10 +871,8 @@ namespace InsulinSensitivity.Eating
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)
                 {
-                    var previousAverageEatingTypeSensitivityQuery = db.Eatings
+                    var previousAverageEatingTypeSensitivityQuery = EatingsWithoutIgnored
                         .Where(x =>
-                            x.Id != Eating.Id &&
-                            !x.IsIgnored &&
                             x.EatingTypeId == previousEating.EatingTypeId);
 
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
@@ -876,10 +897,8 @@ namespace InsulinSensitivity.Eating
                     if (previous.Exercise != null)
                     {
                         // ... Приёмы пищи с нагрузкой равной по типу и количеству часов после инъекции
-                        var exercisesQuery = db.Eatings
+                        var exercisesQuery = EatingsWithoutIgnored
                             .Where(x =>
-                                x.Id != Eating.Id &&
-                                !x.IsIgnored &&
                                 x.Exercise.ExerciseTypeId == previous.Exercise.ExerciseTypeId &&
                                 x.Exercise.HoursAfterInjection == previous.Exercise.HoursAfterInjection);
 
@@ -889,7 +908,6 @@ namespace InsulinSensitivity.Eating
                                     x.DateCreated.Date >= Period.Date);
                         
                         var exercises = exercisesQuery
-                            .Include(x => x.Exercise)
                             .ToList();
 
                         // ... Приёмы пищи с нагрузкой по продолжительности +- 5
@@ -921,12 +939,9 @@ namespace InsulinSensitivity.Eating
                 }
 
                 // Предыдущие приёмы пищи в которых выставлены дозы Базального инсулина
-                Basals = db.Eatings
+                Basals = Eatings
                     .Where(x =>
-                        x.Id != Eating.Id &&
                         x.BasalDose != 0M)
-                    .OrderByDescending(x =>
-                        x.DateCreated)
                     .Take(4)
                     .ToList();
 
@@ -983,42 +998,37 @@ namespace InsulinSensitivity.Eating
 
             if (check)
             {
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                decimal? averageEatingTypeSensitivity = null;
+
+                if (AverageEatingTypeSensitivityDictionary.ContainsKey(EatingType.Id))
+                    averageEatingTypeSensitivity = AverageEatingTypeSensitivityDictionary[EatingType.Id];
+                else
                 {
-                    decimal? averageEatingTypeSensitivity = null;
+                    var averageEatingTypeSensitivityCollectionQuery = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.EatingTypeId == EatingType.Id &&
+                            x.InsulinSensitivityFact != null);
 
-                    if (AverageEatingTypeSensitivityDictionary.ContainsKey(EatingType.Id))
-                        averageEatingTypeSensitivity = AverageEatingTypeSensitivityDictionary[EatingType.Id];
-                    else
-                    {
-                        var averageEatingTypeSensitivityCollectionQuery = db.Eatings
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        averageEatingTypeSensitivityCollectionQuery = averageEatingTypeSensitivityCollectionQuery
                             .Where(x =>
-                                x.Id != Eating.Id &&
-                                !x.IsIgnored &&
-                                x.EatingTypeId == EatingType.Id &&
-                                x.InsulinSensitivityFact != null);
+                                x.DateCreated.Date >= Period.Date);
 
-                        if (GlobalParameters.User.PeriodOfCalculation > 0)
-                            averageEatingTypeSensitivityCollectionQuery = averageEatingTypeSensitivityCollectionQuery
-                                .Where(x =>
-                                    x.DateCreated.Date >= Period.Date);
+                    // Средний ФЧИ текущего типа приёма пищи
+                    var averageEatingTypeSensitivityCollection = averageEatingTypeSensitivityCollectionQuery
+                        .ToList();
 
-                        // Средний ФЧИ текущего типа приёма пищи
-                        var averageEatingTypeSensitivityCollection = averageEatingTypeSensitivityCollectionQuery
-                            .ToList();
+                    averageEatingTypeSensitivity = (averageEatingTypeSensitivityCollection?.Count ?? 0) > 0
+                        ? averageEatingTypeSensitivityCollection
+                            .Average(x =>
+                                x.InsulinSensitivityFact)
+                        : null;
 
-                        averageEatingTypeSensitivity = (averageEatingTypeSensitivityCollection?.Count ?? 0) > 0
-                            ? averageEatingTypeSensitivityCollection
-                                .Average(x =>
-                                    x.InsulinSensitivityFact)
-                            : null;
-
-                        AverageEatingTypeSensitivityDictionary.Add(EatingType.Id, averageEatingTypeSensitivity);
-                    }
-
-                    if (averageEatingTypeSensitivity != null)
-                        InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
+                    AverageEatingTypeSensitivityDictionary.Add(EatingType.Id, averageEatingTypeSensitivity);
                 }
+
+                if (averageEatingTypeSensitivity != null)
+                    InsulinSensitivityAutoOne = PreviousEatings[0].InsulinSensitivityFact * (averageEatingTypeSensitivity / PreviousAverageEatingTypeSensitivity);
             }
         }
 
@@ -1039,127 +1049,121 @@ namespace InsulinSensitivity.Eating
 
             if (check)
             {
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                decimal? averageExerciseTypeSensitivity = null;
+
+                if (AverageExerciseTypeSensitivityDictionary.ContainsKey((ExerciseType.Id, HoursAfterInjection, Duration)))
+                    averageExerciseTypeSensitivity = AverageExerciseTypeSensitivityDictionary[(ExerciseType.Id, HoursAfterInjection, Duration)];
+                else
                 {
-                    decimal? averageExerciseTypeSensitivity = null;
+                    var averageExerciseTypeSensitivityCollectionQuery = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.Exercise.ExerciseTypeId == ExerciseType.Id &&
+                            x.Exercise.HoursAfterInjection == HoursAfterInjection);
 
-                    if (AverageExerciseTypeSensitivityDictionary.ContainsKey((ExerciseType.Id, HoursAfterInjection, Duration)))
-                        averageExerciseTypeSensitivity = AverageExerciseTypeSensitivityDictionary[(ExerciseType.Id, HoursAfterInjection, Duration)];
-                    else
-                    {
-                        var averageExerciseTypeSensitivityCollectionQuery = db.Eatings
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        averageExerciseTypeSensitivityCollectionQuery = averageExerciseTypeSensitivityCollectionQuery
                             .Where(x =>
-                                x.Id != Eating.Id &&
-                                !x.IsIgnored &&
-                                x.Exercise.ExerciseTypeId == ExerciseType.Id &&
-                                x.Exercise.HoursAfterInjection == HoursAfterInjection);
+                                x.DateCreated.Date >= Period.Date);
 
-                        if (GlobalParameters.User.PeriodOfCalculation > 0)
-                            averageExerciseTypeSensitivityCollectionQuery = averageExerciseTypeSensitivityCollectionQuery
-                                .Where(x =>
-                                    x.DateCreated.Date >= Period.Date);
+                    // Средний ФЧИ текущего типа нагрузки
+                    var averageExerciseTypeSensitivityCollection = averageExerciseTypeSensitivityCollectionQuery
+                        .ToList();
 
-                        // Средний ФЧИ текущего типа нагрузки
-                        var averageExerciseTypeSensitivityCollection = averageExerciseTypeSensitivityCollectionQuery
-                            .Include(x => x.Exercise)
-                            .ToList();
+                    if ((averageExerciseTypeSensitivityCollection?.Count ?? 0) > 0)
+                    {
+                        // ... Приёмы пищи с нагрузкой по продолжительности +- 5
+                        var exercisesOne = averageExerciseTypeSensitivityCollection
+                            .Where(x =>
+                                x.Exercise.Duration <= (Duration + 5) &&
+                                x.Exercise.Duration >= (Duration - 5));
 
-                        if ((averageExerciseTypeSensitivityCollection?.Count ?? 0) > 0)
+                        if ((exercisesOne?.Count() ?? 0) > 0)
+                            averageExerciseTypeSensitivity = exercisesOne
+                                .Average(x =>
+                                    x.InsulinSensitivityFact);
+
+                        if (averageExerciseTypeSensitivity == null)
                         {
-                            // ... Приёмы пищи с нагрузкой по продолжительности +- 5
-                            var exercisesOne = averageExerciseTypeSensitivityCollection
+                            // ... Приёмы пищи с нагрузкой по продолжительности +- 10
+                            var exercisesTwo = averageExerciseTypeSensitivityCollection
                                 .Where(x =>
-                                    x.Exercise.Duration <= (Duration + 5) &&
-                                    x.Exercise.Duration >= (Duration - 5));
+                                    x.Exercise.Duration <= (Duration + 10) &&
+                                    x.Exercise.Duration >= (Duration - 10));
 
-                            if ((exercisesOne?.Count() ?? 0) > 0)
-                                averageExerciseTypeSensitivity = exercisesOne
+                            if ((exercisesTwo?.Count() ?? 0) > 0)
+                                averageExerciseTypeSensitivity = exercisesTwo
                                     .Average(x =>
                                         x.InsulinSensitivityFact);
-
-                            if (averageExerciseTypeSensitivity == null)
-                            {
-                                // ... Приёмы пищи с нагрузкой по продолжительности +- 10
-                                var exercisesTwo = averageExerciseTypeSensitivityCollection
-                                    .Where(x =>
-                                        x.Exercise.Duration <= (Duration + 10) &&
-                                        x.Exercise.Duration >= (Duration - 10));
-
-                                if ((exercisesTwo?.Count() ?? 0) > 0)
-                                    averageExerciseTypeSensitivity = exercisesTwo
-                                        .Average(x =>
-                                            x.InsulinSensitivityFact);
-                            }
                         }
-
-                        AverageExerciseTypeSensitivityDictionary.Add((ExerciseType.Id, HoursAfterInjection, Duration), averageExerciseTypeSensitivity);
                     }
 
-                    if (averageExerciseTypeSensitivity != null)
+                    AverageExerciseTypeSensitivityDictionary.Add((ExerciseType.Id, HoursAfterInjection, Duration), averageExerciseTypeSensitivity);
+                }
+
+                if (averageExerciseTypeSensitivity != null)
+                {
+                    // Средние по предыдущим приёмам пищи
+                    decimal average = 0;
+                    for (int i = 0; i < 3; i++)
+                        average += PreviousEatings[i].InsulinSensitivityFact.Value / PreviousAverageExerciseTypeSensitivitys[i].Value;
+                    average /= 3;
+
+                    // Учёт базы
+                    decimal basal = 1;
+                    if (!GlobalParameters.User.IsPump && !GlobalParameters.Settings.IsActiveBasal)
                     {
-                        // Средние по предыдущим приёмам пищи
-                        decimal average = 0;
-                        for (int i = 0; i < 3; i++)
-                            average += PreviousEatings[i].InsulinSensitivityFact.Value / PreviousAverageExerciseTypeSensitivitys[i].Value;
-                        average /= 3;
-
-                        // Учёт базы
-                        decimal basal = 1;
-                        if (!GlobalParameters.User.IsPump && !GlobalParameters.Settings.IsActiveBasal)
+                        if (GlobalParameters.User.BasalType.Duration > 12)
                         {
-                            if (GlobalParameters.User.BasalType.Duration > 12)
-                            {
-                                if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
-                                    basal = BasalDose / Basals[0].BasalDose;
-                                else if ((Basals?.Count ?? 0) >= 2)
-                                    basal = Basals[0].BasalDose / Basals[1].BasalDose;
+                            if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
+                                basal = BasalDose / Basals[0].BasalDose;
+                            else if ((Basals?.Count ?? 0) >= 2)
+                                basal = Basals[0].BasalDose / Basals[1].BasalDose;
 
-                                // ... 24 часовые инсулины
-                                if (GlobalParameters.User.BasalType.Duration > 12 && GlobalParameters.User.BasalType.Duration <= 24)
-                                    basal = (basal + 1) / 2;
+                            // ... 24 часовые инсулины
+                            if (GlobalParameters.User.BasalType.Duration > 12 && GlobalParameters.User.BasalType.Duration <= 24)
+                                basal = (basal + 1) / 2;
 
-                                // ... 48 часовые инсулины
-                                if (GlobalParameters.User.BasalType.Duration > 24)
-                                    basal = (basal + 2) / 3;
-                            }
-                            else
-                            {
-                                List<decimal?> doses = new List<decimal?>();
-                                var date = DateTime.Now;
-
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    date = date.AddDays(-i);
-                                    doses.Add(Basals
-                                        ?.Where(x =>
-                                            x.DateCreated.Day == date.Day &&
-                                            x.DateCreated.Month == date.Month &&
-                                            x.DateCreated.Year == date.Year)
-                                        .OrderBy(x =>
-                                            x.InjectionTime)
-                                        .Take(1)
-                                        .FirstOrDefault()?.BasalDose);
-                                }
-
-                                // ... Если сегодня не было инъекций
-                                // ... Вчерашняя утренняя доза / Позавчерашняя утренняя доза
-                                if (BasalDose == 0 && doses[0] == null && doses[1] != null && doses[2] != null)
-                                    basal = doses[1].Value / doses[2].Value;
-
-                                // ... Если сегодня первая инъекция
-                                // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
-                                else if (BasalDose != 0 && doses[0] == null && doses[1] != null)
-                                    basal = BasalDose / doses[1].Value;
-
-                                // ... Если сегодня уже была доза, то
-                                // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
-                                else if (doses[0] != null && doses[1] != null)
-                                    basal = doses[0].Value / doses[1].Value;
-                            }
+                            // ... 48 часовые инсулины
+                            if (GlobalParameters.User.BasalType.Duration > 24)
+                                basal = (basal + 2) / 3;
                         }
+                        else
+                        {
+                            List<decimal?> doses = new List<decimal?>();
+                            var date = DateTime.Now;
 
-                        InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
+                            for (int i = 0; i < 3; i++)
+                            {
+                                date = date.AddDays(-i);
+                                doses.Add(Basals
+                                    ?.Where(x =>
+                                        x.DateCreated.Day == date.Day &&
+                                        x.DateCreated.Month == date.Month &&
+                                        x.DateCreated.Year == date.Year)
+                                    .OrderBy(x =>
+                                        x.InjectionTime)
+                                    .Take(1)
+                                    .FirstOrDefault()?.BasalDose);
+                            }
+
+                            // ... Если сегодня не было инъекций
+                            // ... Вчерашняя утренняя доза / Позавчерашняя утренняя доза
+                            if (BasalDose == 0 && doses[0] == null && doses[1] != null && doses[2] != null)
+                                basal = doses[1].Value / doses[2].Value;
+
+                            // ... Если сегодня первая инъекция
+                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                            else if (BasalDose != 0 && doses[0] == null && doses[1] != null)
+                                basal = BasalDose / doses[1].Value;
+
+                            // ... Если сегодня уже была доза, то
+                            // ... Сегодняшняя утренняя доза / Вчерашняя утренняя доза
+                            else if (doses[0] != null && doses[1] != null)
+                                basal = doses[0].Value / doses[1].Value;
+                        }
                     }
+
+                    InsulinSensitivityAutoTwo = average * averageExerciseTypeSensitivity * basal;
                 }
             }
         }
@@ -1178,35 +1182,30 @@ namespace InsulinSensitivity.Eating
 
             if (check)
             {
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                decimal? averageEatingTypeCycleSensitivity = null;
+
+                if (AverageEatingTypeCycleSensitivityDictionary.ContainsKey(EatingType.Id))
+                    averageEatingTypeCycleSensitivity = AverageEatingTypeCycleSensitivityDictionary[EatingType.Id];
+                else
                 {
-                    decimal? averageEatingTypeCycleSensitivity = null;
+                    var averageEatingTypeSensitivityCollection = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.EatingTypeId == EatingType.Id &&
+                            EquivalentDays
+                                .Any(y =>
+                                    y.Date == x.DateCreated.Date))
+                        .ToList();
 
-                    if (AverageEatingTypeCycleSensitivityDictionary.ContainsKey(EatingType.Id))
-                        averageEatingTypeCycleSensitivity = AverageEatingTypeCycleSensitivityDictionary[EatingType.Id];
-                    else
-                    {
-                        var averageEatingTypeSensitivityCollection = db.Eatings
-                            .Where(x =>
-                                x.Id != Eating.Id &&
-                                !x.IsIgnored &&
-                                x.InsulinSensitivityFact != null &&
-                                x.EatingTypeId == EatingType.Id)
-                            .ToList()
-                            .Where(x =>
-                                EquivalentDays.Any(y => y.Date == x.DateCreated.Date))
-                            .ToList();
+                    if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
+                        averageEatingTypeCycleSensitivity = averageEatingTypeSensitivityCollection
+                            .Average(x =>
+                                x.InsulinSensitivityFact);
 
-                        if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
-                            averageEatingTypeCycleSensitivity = averageEatingTypeSensitivityCollection
-                                .Average(x =>
-                                    x.InsulinSensitivityFact);
-
-                        AverageEatingTypeCycleSensitivityDictionary.Add(EatingType.Id, averageEatingTypeCycleSensitivity);
-                    }
-
-                    InsulinSensitivityAutoThree = averageEatingTypeCycleSensitivity;
+                    AverageEatingTypeCycleSensitivityDictionary.Add(EatingType.Id, averageEatingTypeCycleSensitivity);
                 }
+
+                InsulinSensitivityAutoThree = averageEatingTypeCycleSensitivity;
             }
         }
 
@@ -1257,7 +1256,7 @@ namespace InsulinSensitivity.Eating
                         ? InsulinSensitivityUser.Value
                         : InsulinSensitivityAuto.Value) - GlobalMethods.GetActiveInsulin(Eating, Injections,
                             Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime), Eating.EndEating, Eating.Id, true,
-                            Eating.Carbohydrate, Eating.Pause).insulin
+                            Eating.Carbohydrate, Eating.Pause, Eatings).insulin
                 : (decimal?)null;
 
             if (bolusDose != null && Eating.EndEating != null)
@@ -1388,54 +1387,50 @@ namespace InsulinSensitivity.Eating
                 }
                 else
                 {
-                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                    {
-                        var yesterday = DateTime.Now.AddDays(-1);
-                        var ratioCollectionQuery = db.Eatings
+                    var yesterday = DateTime.Now.AddDays(-1);
+                    var ratioCollectionQuery = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.DateCreated.Date <= yesterday.Date &&
+                            x.InsulinSensitivityFact != null);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        ratioCollectionQuery = ratioCollectionQuery
                             .Where(x =>
-                                x.DateCreated.Date <= yesterday.Date &&
-                                !x.IsIgnored &&
-                                x.InsulinSensitivityFact != null);
+                                x.DateCreated >= Period);
 
-                        if (GlobalParameters.User.PeriodOfCalculation > 0)
-                            ratioCollectionQuery = ratioCollectionQuery
-                                .Where(x =>
-                                    x.DateCreated >= Period);
+                    var ratioCollection = ratioCollectionQuery
+                        .ToList()
+                        .OrderByDescending(x =>
+                            x.DateCreated.Date)
+                        .ThenByDescending(x =>
+                            x.InjectionTime)
+                        .ToList();
 
-                        var ratioCollection = ratioCollectionQuery
-                            .ToList()
-                            .OrderByDescending(x =>
-                                x.DateCreated.Date)
-                            .ThenByDescending(x =>
-                                x.InjectionTime)
-                            .ToList();
+                    var ratios = new List<decimal>();
+                    for (int i = 0; i < (ratioCollection?.Count ?? 0); i++)
+                    {
+                        check =
+                            ratioCollection[i].EatingTypeId == EatingType.Id &&
+                            i != 0 &&
+                            ratioCollection[i - 1].InsulinSensitivityFact != 0;
 
-                        var ratios = new List<decimal>();
-                        for (int i = 0; i < (ratioCollection?.Count ?? 0); i++)
-                        {
-                            check =
-                                ratioCollection[i].EatingTypeId == EatingType.Id &&
-                                i != 0 &&
-                                ratioCollection[i - 1].InsulinSensitivityFact != 0;
-
-                            if (check)
-                                ratios.Add(ratioCollection[i].InsulinSensitivityFact.Value / ratioCollection[i - 1].InsulinSensitivityFact.Value);
-                        }
-
-                        if ((ratios?.Count ?? 0) > 0)
-                        {
-                            var infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
-                            var extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
-
-                            if (infinum < 0.95M)
-                                Infinum = infinum;
-
-                            if (extremum > 1.05M)
-                                Extremum = extremum;
-                        }
-
-                        InfinumExtremumDictionary.Add(EatingType.Id, (Infinum, Extremum));
+                        if (check)
+                            ratios.Add(ratioCollection[i].InsulinSensitivityFact.Value / ratioCollection[i - 1].InsulinSensitivityFact.Value);
                     }
+
+                    if ((ratios?.Count ?? 0) > 0)
+                    {
+                        var infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
+                        var extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
+
+                        if (infinum < 0.95M)
+                            Infinum = infinum;
+
+                        if (extremum > 1.05M)
+                            Extremum = extremum;
+                    }
+
+                    InfinumExtremumDictionary.Add(EatingType.Id, (Infinum, Extremum));
                 }
             }
         }
@@ -1581,7 +1576,7 @@ namespace InsulinSensitivity.Eating
 
             var active = GlobalMethods.GetActiveInsulin(Eating, Injections,
                 startEating, Eating.EndEating, Eating.Id, false,
-                Eating.Carbohydrate, Eating.Pause);
+                Eating.Carbohydrate, Eating.Pause, Eatings);
 
             BolusDoseTotal = active.insulin;
             ActiveInformation = string.Join("\n", active.informations);
