@@ -622,7 +622,14 @@ namespace InsulinSensitivity.Eating
         public int Pause
         {
             get => Eating.Pause;
-            set => Eating.Pause = value;
+            set
+            {
+                if (Eating.Pause != value)
+                {
+                    Eating.Pause = value;
+                    CalculateTotal();
+                }
+            }
         }
 
         /// <summary>
