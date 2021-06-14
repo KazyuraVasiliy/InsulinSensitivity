@@ -824,6 +824,20 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private string additionallyInjection;
+        /// <summary>
+        /// Дробление инъекции
+        /// </summary>
+        public string AdditionallyInjection
+        {
+            get => additionallyInjection;
+            set
+            {
+                additionallyInjection = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -1540,7 +1554,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void SetWorkingTime()
         {
-            var workingTime = Math.Round(-30 + ((Carbohydrate / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates) + 
+            var workingTime = Math.Round(-30 + Eating.Pause + ((Carbohydrate / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates) + 
                 (Protein / (double)GlobalParameters.User.AbsorptionRateOfProteins) + 
                 (Fat / (double)GlobalParameters.User.AbsorptionRateOfFats)) * 60, 0, MidpointRounding.AwayFromZero);
 
@@ -1548,6 +1562,18 @@ namespace InsulinSensitivity.Eating
                 workingTime = 180;
 
             Eating.WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
+        }
+
+        /// <summary>
+        /// Вычисляет, необходимо ли раздробить дозу
+        /// </summary>
+        /// <returns></returns>
+        private string GetIsAdditionallyInjection()
+        {
+            var time = Eating.WorkingTime - TimeSpan.FromHours((double)BolusType.Duration) - TimeSpan.FromMinutes(BolusType.Offset);
+            if ((time - Eating.InjectionTime).TotalMinutes >= 30)
+                return $"Внимание! Доза на эту еду должна вводиться дробно!\nПоследняя инъекция: {time.Hours:00}:{time.Minutes:00}";
+            return "";
         }
 
         /// <summary>
@@ -1589,6 +1615,9 @@ namespace InsulinSensitivity.Eating
 
             // Время отработки пищи
             SetWorkingTime();
+
+            // Дробление инъекции
+            AdditionallyInjection = GetIsAdditionallyInjection();
 
             // Фактический ФЧИ
             CalculateInsulinSensitivityFact();

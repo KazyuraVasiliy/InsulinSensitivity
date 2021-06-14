@@ -9,6 +9,7 @@
              IsEnabled="{Binding Path=AsyncBase.Inactive}">
 
     <ContentPage.Resources>
+        <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
     </ContentPage.Resources>
 
@@ -672,6 +673,12 @@
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
 
+                            <Label
+                                Text="{Binding Path=AdditionallyInjection}"
+                                TextColor="Red"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=AdditionallyInjection, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                            
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
