@@ -1589,7 +1589,7 @@ namespace InsulinSensitivity.Eating
         private string GetIsAdditionallyInjection()
         {
             var time = Eating.WorkingTime - TimeSpan.FromHours((double)BolusType.Duration) - TimeSpan.FromMinutes(BolusType.Offset);
-            if ((time - Eating.InjectionTime).TotalMinutes >= 30)
+            if ((time - Eating.InjectionTime).TotalMinutes >= 15)
                 return $"Внимание! Доза на эту еду должна вводиться дробно!\nПоследняя инъекция: {time.Hours:00}:{time.Minutes:00}";
             return "";
         }

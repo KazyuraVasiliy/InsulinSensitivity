@@ -200,7 +200,7 @@ namespace InsulinSensitivity
         }
 
         private bool StatisticCanExecute() =>
-            GlobalParameters.User == null;
+            GlobalParameters.User != null;
 
         public ICommand StatisticCommand =>
             new Command(StatisticExecute);
@@ -451,7 +451,7 @@ namespace InsulinSensitivity
         }
 
         private bool SettingsCanExecute() =>
-            GlobalParameters.User == null;
+            GlobalParameters.User != null;
 
         public ICommand SettingsCommand =>
             new Command(SettingsExecute);
