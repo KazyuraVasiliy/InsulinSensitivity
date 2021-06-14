@@ -200,6 +200,12 @@
                                 </StackLayout>
                             </Grid>
 
+                            <Label
+                                Text="{Binding Path=AssimilatedNutritional}"
+                                TextColor="Green"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                            
                             <StackLayout
                                 BindableLayout.ItemsSource="{Binding IntermediateDimensions}"
                                 Margin="0, 4, 0, 8"

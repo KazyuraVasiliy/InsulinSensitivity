@@ -838,6 +838,23 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        // Дата и время отработки (по БЖУ)
+        public DateTime DateTimeWorkingTime { get; set; }
+
+        private string assimilatedNutritional;
+        /// <summary>
+        /// Кол-во усвоенных БЖУ
+        /// </summary>
+        public string AssimilatedNutritional
+        {
+            get => assimilatedNutritional;
+            set
+            {
+                assimilatedNutritional = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -1561,6 +1578,7 @@ namespace InsulinSensitivity.Eating
             if (workingTime < 180)
                 workingTime = 180;
 
+            DateTimeWorkingTime = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime).AddMinutes(workingTime);
             Eating.WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
         }
 
@@ -1574,6 +1592,58 @@ namespace InsulinSensitivity.Eating
             if ((time - Eating.InjectionTime).TotalMinutes >= 30)
                 return $"Внимание! Доза на эту еду должна вводиться дробно!\nПоследняя инъекция: {time.Hours:00}:{time.Minutes:00}";
             return "";
+        }
+
+        /// <summary>
+        /// Вычисляет кол-во усвоенных БЖУ
+        /// </summary>
+        /// <returns></returns>
+        private string GetAssimilatedNutritional()
+        {
+            if (Eating.GlucoseEnd != null || (InsulinSensitivityAuto != null && InsulinSensitivityUser != null) || (IntermediateDimensions?.Count ?? 0) == 0)
+                return "";
+            
+            var insulinSensitivity = InsulinSensitivityUser != null
+                ? InsulinSensitivityUser.Value
+                : InsulinSensitivityAuto.Value;
+
+            var lastDimension = IntermediateDimensions
+                .OrderByDescending(x =>
+                    x.DimensionDate)
+                .ThenByDescending(x =>
+                    x.DimensionTime)
+                .FirstOrDefault();
+
+            var dateTimeLastDimension = Calculation.DateTimeUnionTimeSpan(lastDimension.DimensionDate, lastDimension.DimensionTime);
+            var active = GlobalMethods.GetActiveInsulin(endPeriod: dateTimeLastDimension);
+
+            var delta = (BolusDoseTotal - active.insulin) * insulinSensitivity +
+                lastDimension.Glucose - Eating.GlucoseStart;
+
+            // Углеводы
+            var carbohydrateCondition = Eating.Carbohydrate * GlobalParameters.User.CarbohydrateCoefficient - delta;
+            var carbohydrate = carbohydrateCondition > 0
+                ? delta / GlobalParameters.User.CarbohydrateCoefficient
+                : Eating.Carbohydrate;
+
+            // Белки
+            var proteinCondition = Eating.Protein * GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient - 
+                (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient);
+            var protein = carbohydrateCondition > 0
+                ? 0
+                : proteinCondition > 0
+                    ? (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient) / (GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient)
+                    : Eating.Protein;
+
+            // Жиры            
+            var fat = dateTimeLastDimension >= DateTimeWorkingTime
+                ? Eating.Fat
+                : (dateTimeLastDimension - DateTimeWorkingTime).TotalHours * (double)GlobalParameters.User.AbsorptionRateOfFats + Eating.Fat;
+
+            if (fat < 0)
+                fat = 0;
+
+            return $"Усвоилось: {Math.Round(carbohydrate, 0)} углеводов; {Math.Round(protein, 0)} белков; {Math.Round(fat, 0)} жиров";
         }
 
         /// <summary>
@@ -1624,6 +1694,9 @@ namespace InsulinSensitivity.Eating
 
             // ФЧИ пользователя
             CalculateInsulinSensitivityUser();
+
+            // Кол-во усвоенных БЖУ
+            AssimilatedNutritional = GetAssimilatedNutritional();
 
             // Точность
             CalculateAccuracyUser();
@@ -2065,7 +2138,10 @@ namespace InsulinSensitivity.Eating
                     "Да", "Нет");
 
                 if (question)
+                {
                     IntermediateDimensions.Remove((Models.IntermediateDimension)obj);
+                    CalculateTotal();
+                }
             });
 
         #region ----Save Dimension
@@ -2083,6 +2159,8 @@ namespace InsulinSensitivity.Eating
 
                 SelectedDimension.DimensionTime = Calculation.TimeSpanWithoutSeconds(SelectedDimension.DimensionTime);
                 IntermediateDimensions.Add(SelectedDimension);
+
+                CalculateTotal();
             }
             catch (Exception ex)
             {
