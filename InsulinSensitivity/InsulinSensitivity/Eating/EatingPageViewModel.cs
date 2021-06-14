@@ -1600,7 +1600,7 @@ namespace InsulinSensitivity.Eating
         /// <returns></returns>
         private string GetAssimilatedNutritional()
         {
-            if (Eating.GlucoseEnd != null || (InsulinSensitivityAuto != null && InsulinSensitivityUser != null) || (IntermediateDimensions?.Count ?? 0) == 0)
+            if (Eating.GlucoseEnd != null || (InsulinSensitivityAuto == null && InsulinSensitivityUser == null) || (IntermediateDimensions?.Count ?? 0) == 0)
                 return "";
             
             var insulinSensitivity = InsulinSensitivityUser != null
