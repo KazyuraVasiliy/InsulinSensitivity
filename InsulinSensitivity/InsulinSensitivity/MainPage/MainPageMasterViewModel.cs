@@ -30,7 +30,7 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
-                new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),                
+                //new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),                
                 new MainPageMasterItemModel("\xe043", "Статистика", StatisticCommand),
                 new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand, true),
                 new MainPageMasterItemModel("\xe04f", "Настройки", SettingsCommand),
@@ -184,11 +184,23 @@ namespace InsulinSensitivity
 
         private async void StatisticExecute()
         {
+            if (!StatisticCanExecute())
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    "Пользователь не создан",
+                    "Ok");
+                return;
+            }
+
             var statisticPage = new Statistic.StatisticPage();
             statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
 
             await GlobalParameters.Navigation.PushAsync(statisticPage, true);
         }
+
+        private bool StatisticCanExecute() =>
+            GlobalParameters.User == null;
 
         public ICommand StatisticCommand =>
             new Command(StatisticExecute);
@@ -423,11 +435,23 @@ namespace InsulinSensitivity
 
         private async void SettingsExecute()
         {
+            if (!SettingsCanExecute())
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    "Пользователь не создан",
+                    "Ok");
+                return;
+            }
+
             var settingsPage = new Settings.SettingsPage();
             settingsPage.BindingContext = new Settings.SettingsPageViewModel();
 
             await GlobalParameters.Navigation.PushAsync(settingsPage, true);
         }
+
+        private bool SettingsCanExecute() =>
+            GlobalParameters.User == null;
 
         public ICommand SettingsCommand =>
             new Command(SettingsExecute);

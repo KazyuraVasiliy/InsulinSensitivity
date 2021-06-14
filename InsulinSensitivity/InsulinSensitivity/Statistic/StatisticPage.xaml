@@ -52,7 +52,7 @@
 
                                 <microcharts:ChartView
                                     WidthRequest="{Binding Path=WidthRequest}"
-                                    Chart="{Binding Path=Chart}" />
+                                    Chart="{Binding Path=Chart}"/>
                             </ScrollView>
                         </StackLayout>
                     </Frame>
