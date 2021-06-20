@@ -1609,13 +1609,13 @@ namespace InsulinSensitivity.Eating
 
             var lastDimension = IntermediateDimensions
                 .OrderByDescending(x =>
-                    x.DimensionDate)
+                    x.DimensionDate.Date)
                 .ThenByDescending(x =>
                     x.DimensionTime)
                 .FirstOrDefault();
 
             var dateTimeLastDimension = Calculation.DateTimeUnionTimeSpan(lastDimension.DimensionDate, lastDimension.DimensionTime);
-            var active = GlobalMethods.GetActiveInsulin(endPeriod: dateTimeLastDimension);
+            var active = GlobalMethods.GetActiveInsulin(beginPeriod: dateTimeLastDimension);
 
             var delta = (BolusDoseTotal - active.insulin) * insulinSensitivity +
                 lastDimension.Glucose - Eating.GlucoseStart;

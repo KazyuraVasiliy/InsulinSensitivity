@@ -48,9 +48,13 @@ namespace InsulinSensitivity
             (decimal insulin, List<string> informations) result =
                 (0, new List<string>());
 
+            // Определение даты от которой будет расчитан активный инсулин
             // Самая большая длительность 48 часов (2 дня) + день для точности
-            var period = DateTime.Now.Date.AddDays(-3);
+            var period = beginPeriod == null
+                ? DateTime.Now.Date.AddDays(-3)
+                : beginPeriod.Value.Date.AddDays(-3);
 
+            // Получение приёмов пищи
             var eatings = new List<Models.Eating>();
             if ((selectedEatings?.Count ?? 0) > 0)
                 eatings.AddRange(selectedEatings);
@@ -60,11 +64,11 @@ namespace InsulinSensitivity
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
                     eatings = db.Eatings
-                    .Include(x => x.Injections)
-                        .ThenInclude(x => x.BolusType)
-                    .Include(x => x.BolusType)
-                    .Include(x => x.BasalType)
-                    .ToList();
+                        .Include(x => x.Injections)
+                            .ThenInclude(x => x.BolusType)
+                        .Include(x => x.BolusType)
+                        .Include(x => x.BasalType)
+                        .ToList();
                 }
             }
 
@@ -89,6 +93,7 @@ namespace InsulinSensitivity
                     Injections = currentInjections?.ToList() ?? new List<Models.Injection>()
                 });                
 
+            // Запись всех инъекций в один массив для упрощения дальнейшего анализа
             List<Injection> injections = new List<Injection>();
             foreach (var eating in eatings)
             {
@@ -167,6 +172,7 @@ namespace InsulinSensitivity
                     result.informations.Add($"— {value:N2} ед. болюса ({injection.Name})\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                 }
             }
+            // Если активный инсулин рассчитывается на заданный промежуток, то необходимо вычислить, какая его часть попадёт в интервал
             else
             {
                 foreach (var injection in injections.OrderBy(x => x.InjectionTime))
