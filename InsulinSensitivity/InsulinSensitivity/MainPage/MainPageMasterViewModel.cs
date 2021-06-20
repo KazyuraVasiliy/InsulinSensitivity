@@ -381,9 +381,6 @@ namespace InsulinSensitivity
         {
             try
             {
-                if (GlobalParameters.User == null)
-                    return;
-
                 bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                     "Восстановить из резервной копии?",
                     "Вы уверены, что хотите восстановить данные из резервной копии?",
