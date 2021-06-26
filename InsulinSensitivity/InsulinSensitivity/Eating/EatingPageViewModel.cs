@@ -1635,13 +1635,14 @@ namespace InsulinSensitivity.Eating
                     ? (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient) / (GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient)
                     : Eating.Protein;
 
-            // Жиры            
-            var fat = dateTimeLastDimension >= DateTimeWorkingTime
-                ? Eating.Fat
-                : (dateTimeLastDimension - DateTimeWorkingTime).TotalHours * (double)GlobalParameters.User.AbsorptionRateOfFats + Eating.Fat;
-
-            if (fat < 0)
-                fat = 0;
+            // Жиры
+            var fatCondition = Eating.Fat * GlobalParameters.User.FatCoefficient * GlobalParameters.User.CarbohydrateCoefficient -
+                (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient - protein * GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient);
+            var fat = proteinCondition > 0
+                ? 0
+                : fatCondition > 0
+                    ? (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient - protein * GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient) / (GlobalParameters.User.FatCoefficient * GlobalParameters.User.CarbohydrateCoefficient)
+                    : Eating.Fat;
 
             return $"Усвоилось: {Math.Round(carbohydrate, 0)} углеводов; {Math.Round(protein, 0)} белков; {Math.Round(fat, 0)} жиров";
         }
