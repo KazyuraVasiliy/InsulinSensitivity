@@ -35,6 +35,19 @@
         </Style>
     </ContentPage.Resources>
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Command="{Binding Path=FilterCommand}">
+            
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    Glyph="&#xe072;"
+                    FontFamily="Typicons"
+                    Size="24"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>

@@ -24,6 +24,18 @@ namespace InsulinSensitivity
         public MainPageDetailViewModel() =>
             Init();
 
+        /// <summary>
+        /// Тип приёма пищи для фильтрации
+        /// </summary>
+        private Guid eatingType =
+            Guid.Empty;
+
+        /// <summary>
+        /// Типы приёмов пищи
+        /// </summary>
+        private List<Models.EatingType> eatingTypes =
+            new List<Models.EatingType>();
+
         #endregion
 
         #region Collections
@@ -109,13 +121,28 @@ namespace InsulinSensitivity
             {
                 // Инициализация БД
                 Initialize.Init(GlobalParameters.DbPath);
-
-                // Инициализация пользователя
+                
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    // Инициализация пользователя
                     GlobalParameters.User = db.Users
                         .Include(x => x.BolusType)
                         .Include(x => x.BasalType)
                         .FirstOrDefault();
+
+                    // Инициализация типов приёмов пищи
+                    eatingTypes = db.EatingTypes
+                        .ToList()
+                        .OrderBy(x =>
+                            x.TimeStart)
+                        .ToList();
+
+                    eatingTypes.Insert(0, new Models.EatingType()
+                    {
+                        Id = Guid.Empty,
+                        Name = "Все"
+                    });
+                }
 
                 InitEatings();
 
@@ -147,7 +174,10 @@ namespace InsulinSensitivity
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                     Eatings = new ObservableCollection<Grouping<DateTime, Models.Eating>>(db.Eatings
                         .Where(x =>
-                            x.UserId == GlobalParameters.User.Id)
+                            x.UserId == GlobalParameters.User.Id &&
+                            (eatingType == Guid.Empty ||
+                                (eatingType == x.EatingTypeId ||
+                                x.GlucoseEnd == null)))
                         .Include(x => x.Exercise)
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
@@ -367,6 +397,32 @@ namespace InsulinSensitivity
 
         public ICommand RefreshCommand =>
             new Command(RefreshExecute);
+
+        #endregion
+
+        #region --Filter
+
+        private async void FilterExecute()
+        {
+            var buttons = eatingTypes
+                .Select(x =>
+                    $"{(x.Id == eatingType ? "* " : "")}{x.Name}")
+                .ToArray();
+
+            string action = await GlobalParameters.Navigation.NavigationStack.Last()
+                .DisplayActionSheet("Фильтр", "Отмена", null, buttons);
+
+            if (action != "Отмена")
+            {
+                eatingType = eatingTypes
+                    .FirstOrDefault(x =>
+                        action.Contains(x.Name))?.Id ?? Guid.Empty;
+                InitEatings();
+            }
+        }
+
+        public ICommand FilterCommand =>
+            new Command(FilterExecute);
 
         #endregion
 
