@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string name="nutritionalIcon">\ue04e</string>
+  <string name="timeIcon">\ue120</string>
+  <string name="settingsIcon">\ue103</string>
+</resources>

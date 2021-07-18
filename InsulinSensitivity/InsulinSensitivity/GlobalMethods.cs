@@ -251,5 +251,99 @@ namespace InsulinSensitivity
                     $"{(string)obj}",
                     "Ok");
             });
+
+        /// <summary>
+        /// Расчёт активного инсулина для виджета
+        /// </summary>
+        /// <param name="selectedEatings">Приёмы пищи</param>
+        /// <param name="user">Текущий пользователь</param>
+        /// <returns>Активный инсулин</returns>
+        public static decimal GetActiveInsulinForWidget(List<Models.Eating> selectedEatings, Models.User user)
+        {
+            decimal insulin = 0;
+
+            // Определение даты от которой будет расчитан активный инсулин
+            // Самая большая длительность 48 часов (2 дня) + день для точности
+            var period = DateTime.Now.Date.AddDays(-3);
+
+            // Получение приёмов пищи
+            var eatings = new List<DataAccessLayer.Models.Eating>();
+            if ((selectedEatings?.Count ?? 0) > 0)
+                eatings.AddRange(selectedEatings);
+
+            eatings = eatings
+                .Where(x =>
+                    x.DateCreated.Date >= period.Date)
+                .ToList();
+
+            // Запись всех инъекций в один массив для упрощения дальнейшего анализа
+            var injections = new List<BusinessLogicLayer.Service.Models.Injection>();
+            foreach (var eating in eatings)
+            {
+                var basalDuration = (int)(eating.BasalType?.Duration ?? user.BasalType.Duration);
+                var bolusDuration = (int)(eating.BolusType?.Duration ?? user.BolusType.Duration);
+
+                var basalOffset = eating.BasalType?.Offset ?? user.BasalType.Offset;
+                var bolusOffset = eating.BolusType?.Offset ?? user.BolusType.Offset;
+
+                // ... Базальный
+                if (eating.BasalInjectionTime != null && eating.BasalDose != 0)
+                    injections.Add(new BusinessLogicLayer.Service.Models.Injection()
+                    {
+                        InjectionTime = eating.BasalInjectionTime.Value,
+                        IsBasal = true,
+                        Start = eating.BasalInjectionTime.Value.AddMinutes(basalOffset),
+                        End = eating.BasalInjectionTime.Value.AddMinutes(basalOffset + basalDuration * 60),
+                        Dose = eating.BasalDose,
+                        Duration = basalDuration,
+                        Name = eating.BasalType?.Name ?? ""
+                    });
+
+                // ... Основная инъекция
+                var startInjection = BusinessLogicLayer.Service.Calculation.DateTimeUnionTimeSpan(eating.DateCreated, eating.InjectionTime);
+                injections.Add(new BusinessLogicLayer.Service.Models.Injection()
+                {
+                    InjectionTime = startInjection,
+                    Start = startInjection.AddMinutes(bolusOffset),
+                    End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
+                    Dose = eating.BolusDoseFact,
+                    Duration = bolusDuration,
+                    Name = eating.BolusType?.Name ?? ""
+                });
+
+                // ... Подколки
+                foreach (var injection in eating?.Injections ?? new List<DataAccessLayer.Models.Injection>())
+                {
+                    bolusDuration = (int)(injection.BolusType?.Duration ?? user.BolusType.Duration);
+                    bolusOffset = injection.BolusType?.Offset ?? user.BolusType.Offset;
+
+                    startInjection = BusinessLogicLayer.Service.Calculation.DateTimeUnionTimeSpan(injection.InjectionDate, injection.InjectionTime);
+                    injections.Add(new BusinessLogicLayer.Service.Models.Injection()
+                    {
+                        InjectionTime = startInjection,
+                        Start = startInjection.AddMinutes(bolusOffset),
+                        End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
+                        Dose = injection.BolusDose,
+                        Duration = bolusDuration,
+                        Name = injection.BolusType?.Name ?? ""
+                    });
+                }
+            }
+
+            var beginPeriod = DateTime.Now;
+
+            foreach (var injection in injections.OrderBy(x => x.InjectionTime))
+            {
+                if (injection.End <= beginPeriod || injection.Dose <= 0 || injection.Start >= beginPeriod || injection.IsBasal)
+                    continue;
+
+                decimal value = Math.Round(injection.Dose * (decimal)BusinessLogicLayer.Service.Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod, injection.Duration),
+                    2, MidpointRounding.AwayFromZero);
+
+                insulin += value;
+            }
+
+            return Math.Round(insulin, 2);
+        }
     }
 }

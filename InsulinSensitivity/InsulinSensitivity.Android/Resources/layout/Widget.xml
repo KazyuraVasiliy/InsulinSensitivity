@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="72dip">
+
+    <LinearLayout        
+        android:id="@+id/widgetBackground"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/widgetTextActiveInsulin"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="4.6"
+            android:textSize="40dip"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"/>
+
+        <ProgressBar
+            android:id="@+id/widgetProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/widgetTextSeparator"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="|"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="10dp"
+            android:textSize="50dip"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center"
+            android:gravity="fill_vertical"/>
+
+        <LinearLayout
+            android:id="@+id/widgetLastEating"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widgetTextLastEatingType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eating Type"
+                android:textFontWeight="700"
+                android:textColor="@android:color/white"/> 
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/widgetTextLastEatingTimeIcon"
+                    style="@style/TextIcon"
+                    android:text="@string/timeIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"/>
+
+                <TextView
+                    android:layout_marginLeft="4dp"
+                    android:id="@+id/widgetTextLastEatingTime"
+                    android:text="12:00 (10 min)"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"/>
+            </LinearLayout>
+                
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/widgetTextLastEatingNutritionalIcon"
+                    style="@style/TextIcon"
+                    android:text="@string/nutritionalIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"/>
+
+                <TextView
+                    android:layout_marginLeft="4dp"
+                    android:id="@+id/widgetTextLastEatingNutritional"
+                    android:text="10 / 10 / 20"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"/>
+
+                <TextView
+                    android:layout_marginLeft="4dp"
+                    android:textStyle="italic"
+                    android:id="@+id/widgetTextLastEatingWorkingTime"
+                    android:text="(18:00)"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/widgetTextSettings"
+        style="@style/TextIcon"
+        android:text="@string/settingsIcon"
+        android:layout_gravity="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"/>
+</FrameLayout>
