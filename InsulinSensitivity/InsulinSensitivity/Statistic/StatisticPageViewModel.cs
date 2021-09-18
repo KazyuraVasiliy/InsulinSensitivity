@@ -368,11 +368,13 @@ namespace InsulinSensitivity.Statistic
                                 Math.Round(data
                                     .Average(x =>
                                         x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
-                                Math.Round(data
-                                    .Where(x =>
-                                        x.BasalDose != 0)
-                                    .Average(x =>
-                                        x.BasalDose), 1, MidpointRounding.AwayFromZero)));
+                                data.Count(x => x.BasalDose != 0) > 0
+                                    ? Math.Round(data
+                                        .Where(x =>
+                                            x.BasalDose != 0)
+                                        .Average(x =>
+                                            x.BasalDose), 1, MidpointRounding.AwayFromZero)
+                                    : 0));
                     }
 
 
