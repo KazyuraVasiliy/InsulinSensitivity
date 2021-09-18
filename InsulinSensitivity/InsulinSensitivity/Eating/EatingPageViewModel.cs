@@ -1903,6 +1903,7 @@ namespace InsulinSensitivity.Eating
 
                 eating.BolusDoseCalculate = Eating.BolusDoseCalculate;
                 eating.BolusDoseFact = Eating.BolusDoseFact;
+                eating.BolusDoseTotal = BolusDoseTotal;
 
                 eating.InsulinSensitivityAutoOne = Eating.InsulinSensitivityAutoOne;
                 eating.InsulinSensitivityAutoTwo = Eating.InsulinSensitivityAutoTwo;

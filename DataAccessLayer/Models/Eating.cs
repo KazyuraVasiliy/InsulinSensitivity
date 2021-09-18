@@ -195,6 +195,11 @@ namespace DataAccessLayer.Models
         public bool IsIgnored { get; set; } 
 
         /// <summary>
+        /// Итоговая доза инсулина
+        /// </summary>
+        public decimal? BolusDoseTotal { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина
         /// </summary>
         public Guid? BasalTypeId { get; set; }
