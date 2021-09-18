@@ -346,7 +346,7 @@
                                                             Text="&#xe01b;"
                                                             IsVisible="{Binding Path=BolusDoseTotal, Converter={StaticResource NullToVisibilityConverter}}"/>
                                                         <Label
-                                                            Text="{Binding Path=BolusDoseTotal}"
+                                                            Text="{Binding Path=BolusDoseTotal, StringFormat='{}{0} ед.'}"
                                                             IsVisible="{Binding Path=BolusDoseTotal, Converter={StaticResource NullToVisibilityConverter}}"/>
                                                     </StackLayout>
                                                 </StackLayout>

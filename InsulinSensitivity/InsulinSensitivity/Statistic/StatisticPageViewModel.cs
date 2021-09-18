@@ -393,11 +393,15 @@ namespace InsulinSensitivity.Statistic
                                         ? SkiaSharp.SKColors.White
                                         : SkiaSharp.SKColors.Black,
 
-                                    Color = x.day >= 1 && x.day <= 3
-                                        ? SkiaSharp.SKColors.Red
-                                        : App.Current.RequestedTheme == OSAppTheme.Dark
-                                            ? SkiaSharp.SKColors.LightSkyBlue
-                                            : SkiaSharp.SKColors.Blue
+                                    Color = x.day == CycleDay + 1
+                                        ? SkiaSharp.SKColors.Green
+                                        : x.day >= 1 && x.day <= 3
+                                            ? SkiaSharp.SKColors.Red
+                                            : x.day == 15
+                                                ? SkiaSharp.SKColors.Pink
+                                                :App.Current.RequestedTheme == OSAppTheme.Dark
+                                                    ? SkiaSharp.SKColors.LightSkyBlue
+                                                    : SkiaSharp.SKColors.Blue
                                 }),
 
                         LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
