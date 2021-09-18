@@ -147,6 +147,30 @@
                             Text="{Binding Path=EatingDuration}"/>
                     </StackLayout>
                 </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=IsCycleVisibility}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Статистика"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Размерность графика ФЧИ по дням цикла:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="LengthGraph"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=LengthGraph}"/>
+                    </StackLayout>
+                </Frame>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

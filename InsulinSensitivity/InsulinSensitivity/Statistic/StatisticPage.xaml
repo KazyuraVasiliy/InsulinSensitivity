@@ -87,6 +87,17 @@
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
 
+                            <ScrollView
+                                HeightRequest="400"
+                                HorizontalOptions="FillAndExpand"
+                                HorizontalScrollBarVisibility="Always"
+                                Orientation="Horizontal">
+
+                                <microcharts:ChartView
+                                    WidthRequest="{Binding Path=CycleWidthRequest}"
+                                    Chart="{Binding Path=CycleChart}"/>
+                            </ScrollView>
+
                             <Label
                                 Text="{Binding Path=Cycle}"/>
                         </StackLayout>

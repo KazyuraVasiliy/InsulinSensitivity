@@ -123,6 +123,25 @@ namespace InsulinSensitivity
                     eatingDuration = value;
                 }
             }
+
+            private static int? lengthGraph;
+            /// <summary>
+            /// Размерность графика ФЧИ по циклу
+            /// </summary>
+            public static int LengthGraph
+            {
+                get
+                {
+                    if (lengthGraph == null)
+                        lengthGraph = Preferences.Get("lengthGraph", 45);
+                    return lengthGraph.Value;
+                }
+                set
+                {
+                    Preferences.Set("lengthGraph", value);
+                    lengthGraph = value;
+                }
+            }
         }
     }
 }

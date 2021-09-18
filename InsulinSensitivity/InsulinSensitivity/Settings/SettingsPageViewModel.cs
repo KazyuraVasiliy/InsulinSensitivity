@@ -98,6 +98,22 @@ namespace InsulinSensitivity.Settings
             }
         }
 
+        /// <summary>
+        /// Размерность графика ФЧИ по циклу
+        /// </summary>
+        public int LengthGraph
+        {
+            get => GlobalParameters.Settings.LengthGraph;
+            set
+            {
+                if (GlobalParameters.Settings.LengthGraph != value && value > 0)
+                {
+                    GlobalParameters.Settings.LengthGraph = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods

@@ -65,6 +65,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private double cycleWidthRequest;
+        /// <summary>
+        /// Ширина графика ФЧИ по циклу
+        /// </summary>
+        public double CycleWidthRequest
+        {
+            get => cycleWidthRequest;
+            set
+            {
+                cycleWidthRequest = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string insulinSensitivity;
         /// <summary>
         /// ФЧИ
@@ -157,6 +171,20 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 chart = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LineChart cycleChart;
+        /// <summary>
+        /// График ФЧИ по дням цикла
+        /// </summary>
+        public LineChart CycleChart
+        {
+            get => cycleChart;
+            set
+            {
+                cycleChart = value;
                 OnPropertyChanged();
             }
         }
@@ -298,7 +326,89 @@ namespace InsulinSensitivity.Statistic
                             $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
 
                     Cycle = string.Join("\n", eatingTypeCycleAverages);
-                }                
+                }
+
+                // График ФЧИ по циклу
+                if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
+                {
+                    var values = new List<(int day, decimal value, decimal baseDose)>();
+
+                    for (int i = -10; i < GlobalParameters.Settings.LengthGraph; i++)
+                    {
+                        List<DateTime> dates = new List<DateTime>();
+
+                        for (int j = 0; j < cycles.Count; j++)
+                        {
+                            var equivalentDay = cycles[j].DateStart.AddDays(i);
+                            if (i >= 0)
+                            {                                
+                                if ((j != (cycles.Count - 1)) && equivalentDay.Date < cycles[j + 1].DateStart.Date)
+                                    dates.Add(equivalentDay);
+
+                                if (j == (cycles.Count - 1))
+                                    dates.Add(equivalentDay);
+                            }
+                            else
+                            {
+                                if (j == 0)
+                                    dates.Add(equivalentDay);
+
+                                if (j != 0 && equivalentDay.Date >= cycles[j - 1].DateStart.Date)
+                                    dates.Add(equivalentDay);
+                            }
+                        }
+
+                        var data = eatings
+                            .Where(x =>
+                                dates.Any(y => y.Date == x.DateCreated.Date));
+
+                        if (data.Count() > 0)
+                            values.Add((
+                                i >= 0 ? i + 1 : i,
+                                Math.Round(data
+                                    .Average(x =>
+                                        x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
+                                Math.Round(data
+                                    .Where(x =>
+                                        x.BasalDose != 0)
+                                    .Average(x =>
+                                        x.BasalDose), 1, MidpointRounding.AwayFromZero)));
+                    }
+
+
+                    CycleWidthRequest = (values?.Count() ?? 0) * 15;
+
+                    CycleChart = new LineChart()
+                    {
+                        LineMode = LineMode.Spline,
+                        LabelTextSize = 24,
+                        Entries = values
+                            .Select(x =>
+                                new ChartEntry((float)x.value)
+                                {
+                                    Label = x.day.ToString("D2"),
+                                    ValueLabel = $"{x.value} " +
+                                        $"({x.baseDose})",
+                                    ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                        ? SkiaSharp.SKColors.White
+                                        : SkiaSharp.SKColors.Black,
+
+                                    Color = x.day >= 1 && x.day <= 3
+                                        ? SkiaSharp.SKColors.Red
+                                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                                            ? SkiaSharp.SKColors.LightSkyBlue
+                                            : SkiaSharp.SKColors.Blue
+                                }),
+
+                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? SkiaSharp.SKColors.White
+                            : SkiaSharp.SKColors.Black,
+                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? new SkiaSharp.SKColor(29, 29, 29)
+                            : SkiaSharp.SKColors.White,
+                        MinValue = (float)values.Min(x => x.value) - 0.5f
+                    };
+                }
 
                 // Активность
                 var exercises = eatings
