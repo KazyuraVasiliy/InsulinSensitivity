@@ -154,8 +154,8 @@ namespace InsulinSensitivity
                         OnPropertyChanged(nameof(TargetGlucose));
                     });
 
-                MessagingCenter.Subscribe<Eating.EatingPageViewModel>(this, "Eating",
-                    (sender) => InitEatings());
+                MessagingCenter.Subscribe<Eating.EatingPageViewModel, Guid>(this, "Eating",
+                    (sender, args) => InitEatings(args));
 
                 MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
                     (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
@@ -168,16 +168,25 @@ namespace InsulinSensitivity
         /// <summary>
         /// Инициализация приёмов пищи
         /// </summary>
-        private void InitEatings()
+        private void InitEatings(Guid? args = null)
         {
             if (GlobalParameters.User != null)
+            {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                    Eatings = new ObservableCollection<Grouping<DateTime, Models.Eating>>(db.Eatings
+                {
+                    var query = db.Eatings
                         .Where(x =>
                             x.UserId == GlobalParameters.User.Id &&
                             (eatingType == Guid.Empty ||
                                 (eatingType == x.EatingTypeId ||
-                                x.GlucoseEnd == null)))
+                                x.GlucoseEnd == null)));
+
+                    if (args != null)
+                        query = query
+                            .Where(x =>
+                                x.Id == args.Value);
+
+                    var queryResult = query
                         .Include(x => x.Exercise)
                             .ThenInclude(x => x.ExerciseType)
                         .Include(x => x.EatingType)
@@ -192,9 +201,38 @@ namespace InsulinSensitivity
                         .OrderByDescending(x =>
                             x.Key)
                         .Select(x =>
-                            new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime))));
+                            new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime)));
 
-            OnPropertyChanged(nameof(Eatings));
+                    if (args == null || Eatings == null)
+                    {
+                        Eatings = queryResult.ToObservable();
+                        OnPropertyChanged(nameof(Eatings));
+                    }
+                    else
+                    {
+                        foreach (var el in queryResult)
+                        {
+                            var find = Eatings.FirstOrDefault(x =>
+                                x.Name.Date == el.Name.Date);
+
+                            if (find != null)
+                            {
+                                foreach (var subEl in el)
+                                {
+                                    var subFind = find.FirstOrDefault(x =>
+                                        x.Id == subEl.Id);
+
+                                    if (subFind != null)
+                                        find.Remove(subFind);
+                                    find.Insert(0, subEl);
+                                }
+                            }
+                            else Eatings.Insert(0, el);
+                        }
+                    }
+                }
+            }
+            
             OnPropertyChanged(nameof(LastEating));
             ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
         }

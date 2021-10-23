@@ -1947,7 +1947,7 @@ namespace InsulinSensitivity.Eating
 
                 db.SaveChanges();
 
-                MessagingCenter.Send(this, "Eating");
+                MessagingCenter.Send(this, "Eating", eating.Id);
                 await GlobalParameters.Navigation.PopAsync();
             }
             AsyncBase.Close();
