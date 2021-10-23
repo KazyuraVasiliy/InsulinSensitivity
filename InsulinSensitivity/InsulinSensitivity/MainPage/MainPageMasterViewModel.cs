@@ -94,11 +94,8 @@ namespace InsulinSensitivity
 
         private async void EditUserExecute()
         {
-            if (GlobalParameters.User == null)
-                return;
-
             var userPage = new User.UserPage();
-            userPage.BindingContext = new User.UserPageViewModel(GlobalParameters.User.Id);
+            userPage.BindingContext = new User.UserPageViewModel(GlobalParameters.User?.Id);
 
             await GlobalParameters.Navigation.PushAsync(userPage, true);
         }
