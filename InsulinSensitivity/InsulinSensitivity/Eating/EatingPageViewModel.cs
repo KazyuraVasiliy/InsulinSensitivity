@@ -39,7 +39,8 @@ namespace InsulinSensitivity.Eating
             }
             else Eating = new Models.Eating()
             {
-                DateCreated = DateTime.Now
+                DateCreated = DateTime.Now,
+                BasalRateCoefficient = 100
             };
 
             // Инициализация коллекций
@@ -132,6 +133,19 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         public bool IsBasalDoseVisibility =>
             !GlobalParameters.User.IsPump;
+
+        /// <summary>
+        /// Видно ли поле для ввода базальной скорости
+        /// </summary>
+        public bool IsBasalRateVisibility =>
+            GlobalParameters.User.IsPump &&
+            GlobalParameters.Settings.IsActiveBasal;
+
+        /// <summary>
+        /// Видно ли поля замены расходных материалов
+        /// </summary>
+        public bool IsExpendableMaterialsVisibility =>
+            GlobalParameters.User.IsPump;
 
         /// <summary>
         /// Видно ли поле для ввода начала менструального цикла
@@ -528,6 +542,38 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Базальная скорость
+        /// </summary>
+        public decimal BasalRate
+        {
+            get => Eating.BasalRate;
+            set
+            {
+                if (Eating.BasalRate != value)
+                {
+                    Eating.BasalRate = value;
+                    CalculateTotal();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Временная базальная скорость
+        /// </summary>
+        public int BasalRateCoefficient
+        {
+            get => (int)Eating.BasalRateCoefficient;
+            set
+            {
+                if (Eating.BasalRateCoefficient != value)
+                {
+                    Eating.BasalRateCoefficient = value;
+                    CalculateTotal();
+                }
+            }
+        }
+
+        /// <summary>
         /// Тип базального инсулина
         /// </summary>
         public Models.InsulinType BasalType
@@ -542,6 +588,15 @@ namespace InsulinSensitivity.Eating
                 }
             }
         }
+
+        #endregion
+
+        #region --Pump
+
+        /// <summary>
+        /// Сообщение связанные с использованием помпы
+        /// </summary>
+        public string PumpMessages { get; set; } = "";
 
         #endregion
 
@@ -895,9 +950,54 @@ namespace InsulinSensitivity.Eating
                     ? PreviousEatings[0]
                     : null;
 
+                if (GlobalParameters.User.IsPump)
+                {
+                    var messages = new List<string>(4);
+                    for (int i = 0; i < messages.Capacity; i++)
+                        messages.Add(null);
+
+                    foreach (var eating in Eatings)
+                    {
+                        var days = (DateTime.Now.Date - eating.DateCreated.Date).TotalDays;
+
+                        if (eating.IsCannulaReplacement && messages[0] == null)
+                            messages[0] = days >= GlobalParameters.Settings.CannulaLifespan
+                                ? $"Канюля используется уже {days} дней."
+                                : "";
+
+                        if (eating.IsCatheterReplacement && messages[1] == null)
+                            messages[1] = days >= GlobalParameters.Settings.CatheterLifespan
+                                ? $"Катетер используется уже {days} дней."
+                                : "";
+
+                        if (eating.IsCartridgeReplacement && messages[2] == null)
+                            messages[2] = days >= GlobalParameters.Settings.CartridgeLifespan
+                                ? $"Картридж используется уже {days} дней."
+                                : "";
+
+                        if (eating.IsBatteryReplacement && messages[3] == null)
+                             messages[3] = days >= GlobalParameters.Settings.BatteryLifespan
+                                ? $"Батарейка используется уже {days} дней."
+                                : "";
+                    }
+
+                    messages = messages
+                        .Where(x =>
+                            !string.IsNullOrWhiteSpace(x))
+                        .ToList();
+                    PumpMessages = string.Join("\n", messages);
+
+                    if (!string.IsNullOrWhiteSpace(PumpMessages))
+                        PumpMessages += $"\nЗамените издели{(messages.Count == 1 ? "e" : "я")} на нов{(messages.Count == 1 ? "ое" : "ые")}";
+                }
+
                 // Исходный сахар
                 if (previousEating?.GlucoseEnd != null && Eating.Id == Guid.Empty)
                     Eating.GlucoseStart = previousEating.GlucoseEnd.Value;
+
+                // Базальная скорость
+                if (IsBasalRateVisibility && Eating.Id == Guid.Empty)
+                    Eating.BasalRate = previousEating?.BasalRate ?? 0;
 
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)
@@ -1900,6 +2000,8 @@ namespace InsulinSensitivity.Eating
 
                 eating.BasalDose = Eating.BasalDose;
                 eating.BasalInjectionTime = Eating.BasalInjectionTime;
+                eating.BasalRate = Eating.BasalRate;
+                eating.BasalRateCoefficient = Eating.BasalRateCoefficient;
 
                 eating.BolusDoseCalculate = Eating.BolusDoseCalculate;
                 eating.BolusDoseFact = Eating.BolusDoseFact;
@@ -1933,6 +2035,11 @@ namespace InsulinSensitivity.Eating
                 eating.Pause = Eating.Pause;
                 eating.ExerciseId = exercise.Id;
                 eating.EndEating = Eating.EndEating;
+
+                eating.IsCannulaReplacement = Eating.IsCannulaReplacement;
+                eating.IsCatheterReplacement = Eating.IsCatheterReplacement;
+                eating.IsCartridgeReplacement = Eating.IsCartridgeReplacement;
+                eating.IsBatteryReplacement = Eating.IsBatteryReplacement;
 
                 if (Eating.Id == Guid.Empty)
                     db.Eatings.Add(eating);

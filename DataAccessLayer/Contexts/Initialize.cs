@@ -234,6 +234,21 @@ namespace DataAccessLayer.Contexts
                     db.SaveChanges();
                 }
 
+                if (db.InsulinTypes.Count() == 17)
+                {
+                    db.InsulinTypes.AddRange(new List<Models.InsulinType>()
+                    {
+                        new Models.InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "РинФаст",
+                            IsBasal = false,
+                            Duration = 5
+                        },
+                    });
+                    db.SaveChanges();
+                }
+
                 // Инициализация смещений
                 if (db.InsulinTypes.Any(x => x.Offset == 0))
                 {
@@ -248,7 +263,7 @@ namespace DataAccessLayer.Contexts
                         if (type.Name == "Апидра")
                             type.Offset = 10;
 
-                        if (type.Name == "Хумалог" || type.Name == "Новорапид" || type.Name == "РинЛиз")
+                        if (type.Name == "Хумалог" || type.Name == "Новорапид" || type.Name == "РинЛиз" || type.Name == "РинФаст")
                             type.Offset = 15;
 
                         if (type.Name == "Актрапид" || type.Name == "Инсуман Рапид" || type.Name == "Росинсулин")

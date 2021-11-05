@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InsulinSensitivity.Eating.EatingPage"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
              xmlns:global="clr-namespace:InsulinSensitivity"
              xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
              xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
@@ -602,7 +603,58 @@
                                 SelectedItem="{Binding Path=Eating.BasalType, Mode=TwoWay}"/>
                         </StackLayout>
                     </Frame>
-                    
+
+                    <!-- Базальная скорость -->
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        IsVisible="{Binding Path=IsBasalRateVisibility, Mode=OneWay}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Базальная скорость"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="0">
+
+                                    <Label                                
+                                        Text="БС:"/>
+                                    <Entry
+                                        x:Name="basalRate"
+                                        Keyboard="Numeric"
+                                        view:Tag.Tag="BasalRate"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=BasalRate, Converter={StaticResource DecimalToStringConverter}}"/>
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="1">
+
+                                    <Label                                
+                                        Text="ВБС:"/>
+                                    <Entry
+                                        x:Name="basalRateCoefficient"
+                                        Keyboard="Numeric"
+                                        view:Tag.Tag="BasalRateCoefficient"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=BasalRateCoefficient}"/>
+                                </StackLayout>
+                            </Grid>                            
+                        </StackLayout>
+                    </Frame>
+
                     <!-- Дополнительно -->
                     <Frame
                         Style="{StaticResource Frame}">
@@ -615,29 +667,21 @@
                                 FontAttributes="Bold"
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
-                            
-                            <!--<Label
-                                Text="Активного инсулина в крови до инъекции:"/>
-                            <Entry
-                                Keyboard="Numeric"
-                                view:Tag.Tag="ActiveInsulinStart"
-                                Unfocused="Element_Unfocused"
-                                Text="{Binding Path=ActiveInsulinStart, Converter={StaticResource DecimalToStringConverter}}"/>
 
                             <Label
-                                Text="Активного инсулина в крови на отработке:"/>
-                            <Entry
-                                IsReadOnly="True"
-                                Text="{Binding Path=ActiveInsulinEnd, Converter={StaticResource DecimalToStringConverter}}"/>-->
+                                Text="{Binding Path=PumpMessages}"
+                                TextColor="Red"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=PumpMessages, Converter={StaticResource CommentToVisibilityConverter}}"/>
 
                             <Grid
                                 IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}">
-                                
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <Label
                                     Grid.Column="0"
                                     Margin="0, 0, 0, 5"
@@ -664,6 +708,123 @@
                                 IsReadOnly="True"
                                 Text="{Binding Path=ActiveInformation}"/>-->
                         </StackLayout>
+                    </Frame>
+
+                    <!-- Расходные материалы -->
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        IsVisible="{Binding Path=IsExpendableMaterialsVisibility, Mode=OneWay}">
+
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Замена расходных материалов"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand"/>
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger 
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter Property="Text" Value="&#xe01e;"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                                
+                            </xct:Expander.Header>
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.Column="0"
+                                        Margin="0, 0, 0, 5"
+                                        VerticalOptions="Center"
+                                        Text="Замена канюли:"/>
+                                    <Switch
+                                        Grid.Column="1"
+                                        VerticalOptions="Center"
+                                        IsToggled="{Binding Path=Eating.IsCannulaReplacement}"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.Column="0"
+                                        Margin="0, 0, 0, 5"
+                                        VerticalOptions="Center"
+                                        Text="Замена катетера:"/>
+                                    <Switch
+                                        Grid.Column="1"
+                                        VerticalOptions="Center"
+                                        IsToggled="{Binding Path=Eating.IsCatheterReplacement}"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.Column="0"
+                                        Margin="0, 0, 0, 5"
+                                        VerticalOptions="Center"
+                                        Text="Замена резервуара:"/>
+                                    <Switch
+                                        Grid.Column="1"
+                                        VerticalOptions="Center"
+                                        IsToggled="{Binding Path=Eating.IsCartridgeReplacement}"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.Column="0"
+                                        Margin="0, 0, 0, 5"
+                                        VerticalOptions="Center"
+                                        Text="Замена батарейки:"/>
+                                    <Switch
+                                        Grid.Column="1"
+                                        VerticalOptions="Center"
+                                        IsToggled="{Binding Path=Eating.IsBatteryReplacement}"/>
+                                </Grid>
+                            </StackLayout>
+                        </xct:Expander>
                     </Frame>
 
                     <!-- Расчёт -->

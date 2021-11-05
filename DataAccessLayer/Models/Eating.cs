@@ -83,6 +83,16 @@ namespace DataAccessLayer.Models
         public decimal BasalDose { get; set; }
 
         /// <summary>
+        /// Базальная скорость
+        /// </summary>
+        public decimal BasalRate { get; set; }
+
+        /// <summary>
+        /// Временная базальная скорость
+        /// </summary>
+        public decimal BasalRateCoefficient { get; set; }
+
+        /// <summary>
         /// Время инъекции базального инсулина
         /// </summary>
         public DateTime? BasalInjectionTime { get; set; }
@@ -193,6 +203,26 @@ namespace DataAccessLayer.Models
         /// Игнорируется ли приём пищи
         /// </summary>
         public bool IsIgnored { get; set; } 
+
+        /// <summary>
+        /// Замена канюли
+        /// </summary>
+        public bool IsCannulaReplacement { get; set; }
+
+        /// <summary>
+        /// Замена катетера
+        /// </summary>
+        public bool IsCatheterReplacement { get; set; }
+
+        /// <summary>
+        /// Замена резервуара
+        /// </summary>
+        public bool IsCartridgeReplacement { get; set; }
+
+        /// <summary>
+        /// Замена батарейки
+        /// </summary>
+        public bool IsBatteryReplacement { get; set; }
 
         /// <summary>
         /// Итоговая доза инсулина

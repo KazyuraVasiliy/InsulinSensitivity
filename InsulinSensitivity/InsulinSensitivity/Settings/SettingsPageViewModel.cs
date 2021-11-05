@@ -26,6 +26,12 @@ namespace InsulinSensitivity.Settings
             !GlobalParameters.User.Gender;
 
         /// <summary>
+        /// Видна ли настройка по помпе
+        /// </summary>
+        public bool IsPumpVisibility =>
+            GlobalParameters.User.IsPump;
+
+        /// <summary>
         /// Учитывается ли активный базальный
         /// </summary>
         public bool IsActiveBasal
@@ -109,6 +115,70 @@ namespace InsulinSensitivity.Settings
                 if (GlobalParameters.Settings.LengthGraph != value && value > 0)
                 {
                     GlobalParameters.Settings.LengthGraph = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Продолжительность жизни канюли
+        /// </summary>
+        public int CannulaLifespan
+        {
+            get => GlobalParameters.Settings.CannulaLifespan;
+            set
+            {
+                if (GlobalParameters.Settings.CannulaLifespan != value && value > 0)
+                {
+                    GlobalParameters.Settings.CannulaLifespan = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Продолжительность жизни катетера
+        /// </summary>
+        public int CatheterLifespan
+        {
+            get => GlobalParameters.Settings.CatheterLifespan;
+            set
+            {
+                if (GlobalParameters.Settings.CatheterLifespan != value && value > 0)
+                {
+                    GlobalParameters.Settings.CatheterLifespan = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Продолжительность жизни резервуара
+        /// </summary>
+        public int CartridgeLifespan
+        {
+            get => GlobalParameters.Settings.CartridgeLifespan;
+            set
+            {
+                if (GlobalParameters.Settings.CartridgeLifespan != value && value > 0)
+                {
+                    GlobalParameters.Settings.CartridgeLifespan = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Продолжительность жизни батарейки
+        /// </summary>
+        public int BatteryLifespan
+        {
+            get => GlobalParameters.Settings.BatteryLifespan;
+            set
+            {
+                if (GlobalParameters.Settings.BatteryLifespan != value && value > 0)
+                {
+                    GlobalParameters.Settings.BatteryLifespan = value;
                     OnPropertyChanged();
                 }
             }

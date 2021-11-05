@@ -236,6 +236,20 @@ namespace InsulinSensitivity.Statistic
                         x.DateCreated.Date)
                     .ToList();
 
+                var basalsCalculate = new List<(DateTime date, decimal dose)>();
+                foreach (var el in basals)
+                {
+                    var value = el.Sum(x => x.BasalDose);
+
+                    var rateCollection = el.Where(x =>
+                        x.BasalRate != 0);
+
+                    if (rateCollection.Count() != 0)
+                        value += Math.Round(rateCollection.Average(x => x.BasalRate) * 24, 1, MidpointRounding.AwayFromZero);
+
+                    basalsCalculate.Add((el.Key, value));
+                }
+
                 eatings = eatings
                     .Where(x =>
                         !x.IsIgnored)
@@ -251,7 +265,7 @@ namespace InsulinSensitivity.Statistic
                         {
                             Label = x.Key.ToString("dd.MM.yy"),
                             ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
-                                $"({basals.FirstOrDefault(y => y.Key == x.Key).Sum(y => y.BasalDose)})",
+                                $"({basalsCalculate.FirstOrDefault(y => y.date == x.Key).dose})",
                             ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                                 ? SkiaSharp.SKColors.White
                                 : SkiaSharp.SKColors.Black,
@@ -362,18 +376,20 @@ namespace InsulinSensitivity.Statistic
                             .Where(x =>
                                 dates.Any(y => y.Date == x.DateCreated.Date));
 
+                        var basalsCycle = basalsCalculate
+                            .Where(x =>
+                                dates.Any(y => y.Date == x.date));
+
                         if (data.Count() > 0)
                             values.Add((
                                 i >= 0 ? i + 1 : i,
                                 Math.Round(data
                                     .Average(x =>
                                         x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
-                                data.Count(x => x.BasalDose != 0) > 0
-                                    ? Math.Round(data
-                                        .Where(x =>
-                                            x.BasalDose != 0)
+                                basalsCycle.Count() > 0
+                                    ? Math.Round(basalsCycle
                                         .Average(x =>
-                                            x.BasalDose), 1, MidpointRounding.AwayFromZero)
+                                            x.dose), 1, MidpointRounding.AwayFromZero)
                                     : 0));
                     }
 

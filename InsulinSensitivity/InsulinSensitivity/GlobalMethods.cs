@@ -235,6 +235,14 @@ namespace InsulinSensitivity
                     result.insulin += value;
                     result.informations.Add($"— {value:N2} ед. {(injection.IsBasal ? "базы" : "болюса")} ({injection.Name})\n\tот {injection.InjectionTime:dd.MM HH:mm} ({injection.Dose:N2} ед.)");
                 }
+
+                if (currentEating.BasalRate != 0 && basalEndPeriod != null && beginPeriod != null)
+                {
+                    var value = (decimal)(basalEndPeriod.Value - beginPeriod.Value).TotalHours * currentEating.BasalRate / 100 * currentEating.BasalRateCoefficient;
+
+                    result.insulin += Math.Round(value, 2, MidpointRounding.AwayFromZero);
+                    result.informations.Add($"— {value:N2} ед. базы (БС на приём пищи)");
+                }
             }
 
             return result;

@@ -171,6 +171,57 @@
                             Text="{Binding Path=LengthGraph}"/>
                     </StackLayout>
                 </Frame>
+
+                <Frame
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=IsPumpVisibility}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Продолжительность использования в днях"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Label
+                            Text="Канюля:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="CannulaLifespan"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=CannulaLifespan}"/>
+
+                        <Label
+                            Text="Катетер:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="CatheterLifespan"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=CatheterLifespan}"/>
+
+                        <Label
+                            Text="Резервуар:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="CartridgeLifespan"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=CartridgeLifespan}"/>
+
+                        <Label
+                            Text="Батарейка:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="BatteryLifespan"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=BatteryLifespan}"/>
+                    </StackLayout>
+                </Frame>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

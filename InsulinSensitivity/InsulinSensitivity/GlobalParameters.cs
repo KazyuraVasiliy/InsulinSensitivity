@@ -142,6 +142,82 @@ namespace InsulinSensitivity
                     lengthGraph = value;
                 }
             }
+
+            private static int? cannulaLifespan;
+            /// <summary>
+            /// Продолжительность жизни канюли
+            /// </summary>
+            public static int CannulaLifespan
+            {
+                get
+                {
+                    if (cannulaLifespan == null)
+                        cannulaLifespan = Preferences.Get("cannulaLifespan", 3);
+                    return cannulaLifespan.Value;
+                }
+                set
+                {
+                    Preferences.Set("cannulaLifespan", value);
+                    cannulaLifespan = value;
+                }
+            }
+
+            private static int? catheterLifespan;
+            /// <summary>
+            /// Продолжительность жизни катетера
+            /// </summary>
+            public static int CatheterLifespan
+            {
+                get
+                {
+                    if (catheterLifespan == null)
+                        catheterLifespan = Preferences.Get("catheterLifespan", 3);
+                    return catheterLifespan.Value;
+                }
+                set
+                {
+                    Preferences.Set("catheterLifespan", value);
+                    catheterLifespan = value;
+                }
+            }
+
+            private static int? cartridgeLifespan;
+            /// <summary>
+            /// Продолжительность жизни картриджа
+            /// </summary>
+            public static int CartridgeLifespan
+            {
+                get
+                {
+                    if (cartridgeLifespan == null)
+                        cartridgeLifespan = Preferences.Get("cartridgeLifespan", 6);
+                    return cartridgeLifespan.Value;
+                }
+                set
+                {
+                    Preferences.Set("cartridgeLifespan", value);
+                    cartridgeLifespan = value;
+                }
+            }
+
+            private static int? batteryLifespan;
+            /// <summary>
+            /// Продолжительность жизни батарейки
+            /// </summary>
+            public static int BatteryLifespan
+            {
+                get
+                {
+                    if (batteryLifespan == null)
+                        batteryLifespan = Preferences.Get("batteryLifespan", 30);
+                    return batteryLifespan.Value;
+                }
+                set
+                {
+                    Preferences.Set("batteryLifespan", value);
+                    batteryLifespan = value;
+                }
+            }
         }
     }
 }
