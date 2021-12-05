@@ -51,8 +51,7 @@
                 </Frame>
 
                 <Frame
-                    Style="{StaticResource Frame}"
-                    IsVisible="{Binding Path=IsCycleVisibility}">
+                    Style="{StaticResource Frame}">
 
                     <StackLayout
                         Spacing="0">
@@ -122,6 +121,24 @@
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=IsCycleCalculateActive}"/>
                         </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="По дню использования канюли:"/>
+
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsCannulaCalculateActive}"/>
+                        </Grid>
                     </StackLayout>
                 </Frame>
 
@@ -172,6 +189,7 @@
                     </StackLayout>
                 </Frame>
 
+                <!-- Продолжительность использования -->
                 <Frame
                     Style="{StaticResource Frame}"
                     IsVisible="{Binding Path=IsPumpVisibility}">

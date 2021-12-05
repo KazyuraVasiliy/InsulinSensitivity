@@ -877,10 +877,11 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0}&#10;ФЧИ по нагрузкам: {1}&#10;ФЧИ по дню цикла: {2}">
+                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0}&#10;ФЧИ по нагрузкам: {1}&#10;ФЧИ по дню цикла: {2}&#10;ФЧИ по дню использования канюли: {3}">
                                                         <Binding Path="InsulinSensitivityAutoOne" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
                                                         <Binding Path="InsulinSensitivityAutoTwo" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
                                                         <Binding Path="InsulinSensitivityAutoThree" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
+                                                        <Binding Path="InsulinSensitivityAutoFour" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
                                                     </MultiBinding>
                                                 </TapGestureRecognizer.CommandParameter>
                                             </TapGestureRecognizer>

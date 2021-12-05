@@ -409,6 +409,19 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// ФЧИ рассчитанный по дню использования канюли
+        /// </summary>
+        public decimal? InsulinSensitivityAutoFour
+        {
+            get => Eating.InsulinSensitivityAutoFour;
+            set
+            {
+                Eating.InsulinSensitivityAutoFour = value;
+                OnPropertyChanged();
+            }
+        }
+
         private decimal? insulinSensitivityAuto;
         /// <summary>
         /// ФЧИ рассчитанный (средний)
@@ -1043,6 +1056,8 @@ namespace InsulinSensitivity.Eating
 
                     if (!string.IsNullOrWhiteSpace(PumpMessages))
                         PumpMessages += $"\nЗамените издели{(messages.Count == 1 ? "e" : "я")} на нов{(messages.Count == 1 ? "ое" : "ые")}";
+
+                    CalculateInsulinSensitivityFour();
                 }
 
                 // Исходный сахар
@@ -1168,7 +1183,7 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
-        /// Рассчитывает автоматический ФЧИ по первой формуле и дозу болюсного инсулина
+        /// Рассчитывает автоматический ФЧИ по первой формуле
         /// </summary>
         private void CalculateInsulinSensitivityOne()
         {
@@ -1218,7 +1233,7 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
-        /// Рассчитывает автоматический ФЧИ по второй формуле и дозу болюсного инсулина
+        /// Рассчитывает автоматический ФЧИ по второй формуле
         /// </summary>
         private void CalculateInsulinSensitivityTwo()
         {
@@ -1354,7 +1369,7 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
-        /// Рассчитывает автоматический ФЧИ по третьей формуле и дозу болюсного инсулина
+        /// Рассчитывает автоматический ФЧИ по третьей формуле
         /// </summary>
         private void CalculateInsulinSensitivityThree()
         {
@@ -1395,6 +1410,143 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Рассчитывает автоматический ФЧИ по четвёртой формуле
+        /// </summary>
+        private void CalculateInsulinSensitivityFour()
+        {
+            InsulinSensitivityAutoFour = null;
+
+            if (GlobalParameters.Settings.IsCannulaCalculateActive && GlobalParameters.User.IsPump)
+            {
+                var days = EatingsWithoutIgnored
+                    .GroupBy(x =>
+                        x.DateCreated.Date)
+                    .OrderByDescending(x =>
+                        x.Key)
+                    .Take(30)
+                    .ToList();
+
+                // Средний ФЧИ за вчерашний день
+                var yesterday = days
+                    .FirstOrDefault(x =>
+                        x.Key.Date == Eating.DateCreated.Date);
+
+                decimal? yesterdayInsulinSensitivity = null;
+                if (yesterday.Count() > 0)
+                    yesterdayInsulinSensitivity = yesterday
+                        .Average(x =>
+                            x.InsulinSensitivityFact.Value);
+
+                if (yesterdayInsulinSensitivity == null)
+                    return;
+
+                // Вычисления дня использования канюли вчера и сегодня
+                double? todayCannula = null;
+                double? yesterdayCannula = null;
+
+                foreach (var eating in Eatings)
+                {
+                    if (eating.IsCannulaReplacement)
+                    {
+                        if (todayCannula == null)
+                            todayCannula = (Eating.DateCreated.Date - eating.DateCreated.Date).TotalDays;
+
+                        if ((yesterdayCannula ?? -1) < 0)
+                            yesterdayCannula = (Eating.DateCreated.Date.AddDays(-1) - eating.DateCreated.Date).TotalDays;
+                    }
+
+                    if (todayCannula != null && (yesterdayCannula ?? -1) > 0)
+                        break;
+                }
+
+                if (todayCannula == null || yesterdayCannula == null)
+                    return;
+
+                // Вычисление эквивалентных дней
+                var daysCannulaReplacement = new List<DateTime>();
+                foreach (var day in days)
+                {
+                    var isCannulaReplacement = day
+                        .Any(x =>
+                            x.IsCannulaReplacement);
+
+                    if (isCannulaReplacement)
+                        daysCannulaReplacement.Add(day.Key.Date);
+                }
+
+                daysCannulaReplacement = daysCannulaReplacement
+                    .OrderBy(x => x)
+                    .ToList();
+
+                var todayEquivalent = new List<DateTime>();
+                var yesterdayEquivalent = new List<DateTime>();
+
+                if ((daysCannulaReplacement?.Count ?? 0) > 0)
+                {
+                    for (int i = 0; i < daysCannulaReplacement.Count; i++)
+                    {
+                        var equivalentDay = daysCannulaReplacement[i].AddDays(todayCannula.Value);
+
+                        if ((i != (daysCannulaReplacement.Count - 1)) && equivalentDay.Date < daysCannulaReplacement[i + 1].Date)
+                            todayEquivalent.Add(equivalentDay);
+
+                        if (i == (daysCannulaReplacement.Count - 1))
+                            todayEquivalent.Add(equivalentDay);
+
+                        equivalentDay = daysCannulaReplacement[i].AddDays(yesterdayCannula.Value);
+
+                        if ((i != (daysCannulaReplacement.Count - 1)) && equivalentDay.Date < daysCannulaReplacement[i + 1].Date)
+                            yesterdayEquivalent.Add(equivalentDay);
+
+                        if (i == (daysCannulaReplacement.Count - 1))
+                            yesterdayEquivalent.Add(equivalentDay);
+                    }
+                }
+
+                if (todayEquivalent.Count == 0 || yesterdayEquivalent.Count == 0)
+                    return;
+
+                // Средний ФЧИ за последние 30 дней с днём канюли, как сегодня
+                var averageTodayCollection = EatingsWithoutIgnored
+                    .Where(x =>
+                        x.InsulinSensitivityFact != null &&
+                        todayEquivalent
+                            .Any(y =>
+                                y.Date == x.DateCreated.Date))
+                    .ToList();
+
+                decimal? averageToday = null;
+                if ((averageTodayCollection?.Count ?? 0) > 0)
+                    averageToday = averageTodayCollection
+                        .Average(x =>
+                            x.InsulinSensitivityFact);
+
+                if (averageToday == null)
+                    return;
+
+                // Средний ФЧИ за последние 30 дней с днём канюли, как вчера
+                var averageYesterdayCollection = EatingsWithoutIgnored
+                    .Where(x =>
+                        x.InsulinSensitivityFact != null &&
+                        yesterdayEquivalent
+                            .Any(y =>
+                                y.Date == x.DateCreated.Date))
+                    .ToList();
+
+                decimal? averageYesterday = null;
+                if ((averageYesterdayCollection?.Count ?? 0) > 0)
+                    averageYesterday = averageYesterdayCollection
+                        .Average(x =>
+                            x.InsulinSensitivityFact);
+
+                if (averageYesterday == null)
+                    return;
+
+                InsulinSensitivityAutoFour = yesterdayInsulinSensitivity * averageToday / averageYesterday;
+            }
+        }
+
+        /// <summary>
         /// Рассчитывает автоматический ФЧИ (средний)
         /// </summary>
         private void CalculateInsulinSensitivityAuto()
@@ -1403,7 +1555,8 @@ namespace InsulinSensitivity.Eating
             {
                 Eating.InsulinSensitivityAutoOne,
                 Eating.InsulinSensitivityAutoTwo,
-                Eating.InsulinSensitivityAutoThree
+                Eating.InsulinSensitivityAutoThree,
+                Eating.InsulinSensitivityAutoFour
             };
 
             values = values
@@ -2064,6 +2217,7 @@ namespace InsulinSensitivity.Eating
                 eating.InsulinSensitivityAutoOne = Eating.InsulinSensitivityAutoOne;
                 eating.InsulinSensitivityAutoTwo = Eating.InsulinSensitivityAutoTwo;
                 eating.InsulinSensitivityAutoThree = Eating.InsulinSensitivityAutoThree;
+                eating.InsulinSensitivityAutoFour = Eating.InsulinSensitivityAutoFour;
 
                 eating.InsulinSensitivityUser = Eating.InsulinSensitivityUser;
                 eating.InsulinSensitivityFact = Eating.InsulinSensitivityFact;

@@ -105,6 +105,25 @@ namespace InsulinSensitivity
                 }
             }
 
+            private static bool? isCannulaCalculateActive;
+            /// <summary>
+            /// Активен ли расчёт ФЧИ по дню использования канюли
+            /// </summary>
+            public static bool IsCannulaCalculateActive
+            {
+                get
+                {
+                    if (isCannulaCalculateActive == null)
+                        isCannulaCalculateActive = Preferences.Get("isCannulaCalculateActive", true);
+                    return isCannulaCalculateActive.Value;
+                }
+                set
+                {
+                    Preferences.Set("isCannulaCalculateActive", value);
+                    isCannulaCalculateActive = value;
+                }
+            }
+
             private static int? eatingDuration;
             /// <summary>
             /// Длительность приёма пищи
