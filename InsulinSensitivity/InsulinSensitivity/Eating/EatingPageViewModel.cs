@@ -589,6 +589,23 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private decimal? basalRecommended;
+        /// <summary>
+        /// Рекомендуемая доза базального инсулина
+        /// </summary>
+        public decimal? BasalRecommended
+        {
+            get => basalRecommended;
+            set
+            {
+                if (basalRecommended != value)
+                {
+                    basalRecommended = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region --Pump
@@ -923,7 +940,8 @@ namespace InsulinSensitivity.Eating
             {
                 Eatings = db.Eatings
                     .Where(x =>
-                        x.Id != Eating.Id)
+                        x.Id != Eating.Id &&
+                        x.InsulinSensitivityFact != null)
                     .OrderByDescending(x =>
                         x.DateCreated)
                     .Include(x => x.Exercise)
@@ -949,6 +967,42 @@ namespace InsulinSensitivity.Eating
                 var previousEating = (PreviousEatings?.Count ?? 0) > 0
                     ? PreviousEatings[0]
                     : null;
+
+                // Рекомендации по базальному инсулину
+                var basals = Eatings
+                    .GroupBy(x =>
+                        x.DateCreated.Date)
+                    .OrderByDescending(x =>
+                        x.Key)
+                    .Take(20)
+                    .ToList();
+
+                var basalsCalculate = new List<(decimal dose, decimal insulinSensitivity)>();
+                foreach (var el in basals)
+                {
+                    var value = el.Sum(x => x.BasalDose);
+
+                    var rateCollection = el.Where(x =>
+                        x.BasalRate != 0);
+
+                    if (rateCollection.Count() != 0)
+                        value += Math.Round(rateCollection.Average(x => x.BasalRate) * 24, 1, MidpointRounding.AwayFromZero);
+
+                    var insulinSensitivityCollection = el
+                        .Where(x =>
+                            !x.IsIgnored);
+
+                    var insulinSensitivity = insulinSensitivityCollection.Count() > 0
+                        ? insulinSensitivityCollection.Average(x => x.InsulinSensitivityFact)
+                        : 0;
+
+                    if (insulinSensitivity != 0 && value != 0)
+                        basalsCalculate.Add((value, insulinSensitivity.Value));
+                }
+
+                if (PreviousEatings.Count > 0 && basalsCalculate.Count > 0)
+                    BasalRecommended = Math.Round(basalsCalculate.Average(x => x.dose * x.insulinSensitivity) /
+                        PreviousEatings.Average(x => x.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero);
 
                 if (GlobalParameters.User.IsPump)
                 {

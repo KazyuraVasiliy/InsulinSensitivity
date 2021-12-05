@@ -12,6 +12,7 @@
     <ContentPage.Resources>
         <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
     </ContentPage.Resources>
 
     <ContentPage.Content>
@@ -534,6 +535,12 @@
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
 
+                            <Label
+                                Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
+                                TextColor="Green"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
@@ -618,6 +625,12 @@
                                 FontSize="16"
                                 HorizontalOptions="CenterAndExpand"/>
 
+                            <Label
+                                Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
+                                TextColor="Green"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition/>
