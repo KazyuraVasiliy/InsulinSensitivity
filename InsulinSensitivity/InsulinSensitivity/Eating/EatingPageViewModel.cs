@@ -1429,10 +1429,10 @@ namespace InsulinSensitivity.Eating
                 // Средний ФЧИ за вчерашний день
                 var yesterday = days
                     .FirstOrDefault(x =>
-                        x.Key.Date == Eating.DateCreated.Date);
+                        x.Key.Date == Eating.DateCreated.Date.AddDays(-1));
 
                 decimal? yesterdayInsulinSensitivity = null;
-                if (yesterday.Count() > 0)
+                if (yesterday != null)
                     yesterdayInsulinSensitivity = yesterday
                         .Average(x =>
                             x.InsulinSensitivityFact.Value);
