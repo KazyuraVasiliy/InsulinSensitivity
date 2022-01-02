@@ -992,8 +992,22 @@ namespace InsulinSensitivity.Eating
             }
         }
 
-        // Дата и время отработки (по БЖУ)
-        public DateTime DateTimeWorkingTime { get; set; }
+        private DateTime dateTimeWorkingTime;
+        /// <summary>
+        /// Дата и время отработки (по БЖУ)
+        /// </summary>
+        public DateTime DateTimeWorkingTime
+        {
+            get => dateTimeWorkingTime;
+            set
+            {
+                if (dateTimeWorkingTime != value)
+                {
+                    dateTimeWorkingTime = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private string assimilatedNutritional;
         /// <summary>
@@ -1005,6 +1019,20 @@ namespace InsulinSensitivity.Eating
             set
             {
                 assimilatedNutritional = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string assimilatedNutritionalWithAbsorptionRate;
+        /// <summary>
+        /// Кол-во усвоенных БЖУ по скорости
+        /// </summary>
+        public string AssimilatedNutritionalWithAbsorptionRate
+        {
+            get => assimilatedNutritionalWithAbsorptionRate;
+            set
+            {
+                assimilatedNutritionalWithAbsorptionRate = value;
                 OnPropertyChanged();
             }
         }
@@ -2021,7 +2049,49 @@ namespace InsulinSensitivity.Eating
                     ? (delta - carbohydrate * GlobalParameters.User.CarbohydrateCoefficient - protein * GlobalParameters.User.ProteinCoefficient * GlobalParameters.User.CarbohydrateCoefficient) / (GlobalParameters.User.FatCoefficient * GlobalParameters.User.CarbohydrateCoefficient)
                     : Eating.Fat;
 
-            return $"Усвоилось: {Math.Round(carbohydrate, 0)} углеводов; {Math.Round(protein, 0)} белков; {Math.Round(fat, 0)} жиров";
+            return $"Усвоилось по замеру: {Math.Round(carbohydrate, 0)} У; {Math.Round(protein, 0)} Б; {Math.Round(fat, 0)} Ж";
+        }
+
+        /// <summary>
+        /// Вычисляет кол-во усвоенных БЖУ по скорости абсорбции
+        /// </summary>
+        /// <returns></returns>
+        private string GetAssimilatedNutritionalWithAbsorptionRate()
+        {
+            var beginPeriod = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+            var endPeriod = DateTime.Now;
+
+            var hours = (endPeriod - beginPeriod).TotalHours;
+
+            // Углеводы
+            var carbohydrateTime = (double)(Carbohydrate / GlobalParameters.User.AbsorptionRateOfCarbohydrates);
+            var carbohydrateAssimilated = hours >= carbohydrateTime
+                ? Carbohydrate
+                : hours > 0
+                    ? (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates * hours
+                    : 0;
+
+            hours -= carbohydrateTime;
+
+            // Белки
+            var proteinTime = (double)(Protein / GlobalParameters.User.AbsorptionRateOfProteins);
+            var proteinAssimilated = hours >= proteinTime
+                ? Protein
+                : hours > 0
+                    ? (double)GlobalParameters.User.AbsorptionRateOfProteins * hours
+                    : 0;
+
+            hours -= proteinTime;
+
+            // Жиры
+            var fatTime = (double)(Fat / GlobalParameters.User.AbsorptionRateOfFats);
+            var fatAssimilated = hours >= fatTime
+                ? Fat
+                : hours > 0
+                    ? (double)GlobalParameters.User.AbsorptionRateOfFats * hours
+                    : 0;
+
+            return $"Усвоилось по скорости: {Math.Round(carbohydrateAssimilated, 0)} У; {Math.Round(proteinAssimilated, 0)} Б; {Math.Round(fatAssimilated, 0)} Ж";
         }
 
         /// <summary>
@@ -2075,6 +2145,7 @@ namespace InsulinSensitivity.Eating
 
             // Кол-во усвоенных БЖУ
             AssimilatedNutritional = GetAssimilatedNutritional();
+            AssimilatedNutritionalWithAbsorptionRate = GetAssimilatedNutritionalWithAbsorptionRate();
 
             // Точность
             CalculateAccuracyUser();

@@ -306,9 +306,27 @@
                             </Grid>
 
                             <Label
+                                HorizontalOptions="CenterAndExpand"
+                                TextColor="Orange">
+
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{}Полное усвоение БЖУ в: {0:00}:{1:00}">
+                                        <Binding Path="DateTimeWorkingTime.Hour"/>
+                                        <Binding Path="DateTimeWorkingTime.Minute"/>
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+
+                            <Label
+                                Text="{Binding Path=AssimilatedNutritionalWithAbsorptionRate}"
+                                TextColor="Green"
+                                HorizontalOptions="Start"
+                                IsVisible="{Binding Path=AssimilatAssimilatedNutritionalWithAbsorptionRateedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                            
+                            <Label
                                 Text="{Binding Path=AssimilatedNutritional}"
                                 TextColor="Green"
-                                HorizontalOptions="CenterAndExpand"
+                                HorizontalOptions="Start"
                                 IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
                         </StackLayout>
                     </Frame>
