@@ -33,7 +33,7 @@
                             FontSize="24"/>
                     </Frame>-->
 
-                    <!-- Пища -->
+                    <!-- Сахар -->
                     <Frame
                         Style="{StaticResource Frame}">
 
@@ -48,7 +48,7 @@
 
                                 <Label
                                     Grid.Column="0" Grid.ColumnSpan="2"
-                                    Text="Пища"
+                                    Text="Сахар"
                                     FontAttributes="Bold"
                                     FontSize="16"
                                     HorizontalOptions="CenterAndExpand"/>
@@ -154,60 +154,7 @@
                                         Date="{Binding Path=EndEatingDate}"/>
                                 </Grid>
                             </Grid>
-                            
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
 
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="0">
-
-                                    <Label
-                                        Text="Белки:"/>
-                                    <Entry
-                                        view:Tag.Tag="Protein"
-                                        Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=Protein}"
-                                        Keyboard="Numeric"/>
-                                </StackLayout>
-
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="1">
-
-                                    <Label
-                                        Text="Жиры:"/>
-                                    <Entry
-                                        view:Tag.Tag="Fat"
-                                        Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=Fat}"
-                                        Keyboard="Numeric"/>
-                                </StackLayout>
-
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="2">
-
-                                    <Label
-                                        Text="Углеводы:"/>
-                                    <Entry
-                                        view:Tag.Tag="Carbohydrate"
-                                        Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=Carbohydrate}"
-                                        Keyboard="Numeric"/>
-                                </StackLayout>
-                            </Grid>
-
-                            <Label
-                                Text="{Binding Path=AssimilatedNutritional}"
-                                TextColor="Green"
-                                HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
-                            
                             <StackLayout
                                 BindableLayout.ItemsSource="{Binding IntermediateDimensions}"
                                 Margin="0, 4, 0, 8"
@@ -279,6 +226,90 @@
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </StackLayout>
+                        </StackLayout>
+                    </Frame>
+
+                    <!-- Пища -->
+                    <Frame
+                        Style="{StaticResource Frame}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label
+                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Text="Пища"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand"/>
+
+                                <Button
+                                    Grid.Column="1"
+                                    Padding="0"
+                                    HeightRequest="20"
+                                    WidthRequest="50"
+                                    Text="+"
+                                    Command="{Binding Path=AddSnackCommand}"/>
+                            </Grid>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="0">
+
+                                    <Label
+                                        Text="Белки:"/>
+                                    <Entry
+                                        view:Tag.Tag="Protein"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=Protein}"
+                                        Keyboard="Numeric"/>
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="1">
+
+                                    <Label
+                                        Text="Жиры:"/>
+                                    <Entry
+                                        view:Tag.Tag="Fat"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=Fat}"
+                                        Keyboard="Numeric"/>
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="2">
+
+                                    <Label
+                                        Text="Углеводы:"/>
+                                    <Entry
+                                        view:Tag.Tag="Carbohydrate"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=Carbohydrate}"
+                                        Keyboard="Numeric"/>
+                                </StackLayout>
+                            </Grid>
+
+                            <Label
+                                Text="{Binding Path=AssimilatedNutritional}"
+                                TextColor="Green"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
                         </StackLayout>
                     </Frame>
 
@@ -1214,6 +1245,95 @@
                             Grid.Row="2" Grid.Column="1"
                             Text="Сохранить"
                             Command="{Binding Path=SaveDimensionCommand}"/>
+                    </Grid>
+                </Frame>
+            </Grid>
+
+            <!-- Модальное окно ввода перекуса -->
+            <Grid
+                BackgroundColor="{AppThemeBinding Dark='#80404040', Light='#80808080'}"
+                IsVisible="{Binding Path=IsModalSnack, FallbackValue='False'}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Frame
+                    Style="{StaticResource FrameBackgroundBase}"
+                    Grid.Row="1" Grid.Column="1">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid
+                            Grid.Row="0"
+                            Grid.ColumnSpan="2">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Белки:"/>
+                                <Entry
+                                    Text="{Binding Path=ProteinSnack}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Жиры:"/>
+                                <Entry
+                                    Text="{Binding Path=FatSnack}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="2">
+
+                                <Label
+                                    Text="Углеводы:"/>
+                                <Entry
+                                    Text="{Binding Path=CarbohydrateSnack}"
+                                    Keyboard="Numeric"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Button
+                            Grid.Row="1" Grid.Column="0"
+                            Text="Отмена"
+                            Command="{Binding Path=CancelSnackCommand}"/>
+
+                        <Button
+                            Grid.Row="1" Grid.Column="1"
+                            Text="Сохранить"
+                            Command="{Binding Path=SaveSnackCommand}"/>
                     </Grid>
                 </Frame>
             </Grid>

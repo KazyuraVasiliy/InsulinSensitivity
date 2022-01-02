@@ -188,6 +188,20 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private bool isModalSnack;
+        /// <summary>
+        /// Отображается ли модальное окно ввода перекуса
+        /// </summary>
+        public bool IsModalSnack
+        {
+            get => isModalSnack;
+            set
+            {
+                isModalSnack = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region --Previous
@@ -487,6 +501,61 @@ namespace InsulinSensitivity.Eating
                 }
             }
         }
+
+        #region ----Snack
+
+        private int proteinSnack;
+        /// <summary>
+        /// Белки. Перекус
+        /// </summary>
+        public int ProteinSnack
+        {
+            get => proteinSnack;
+            set
+            {
+                if (proteinSnack != value)
+                {
+                    proteinSnack = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int fatSnack;
+        /// <summary>
+        /// Жиры. Перекус
+        /// </summary>
+        public int FatSnack
+        {
+            get => fatSnack;
+            set
+            {
+                if (fatSnack != value)
+                {
+                    fatSnack = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int сarbohydrateSnack;
+        /// <summary>
+        /// Углеводы. Перекус
+        /// </summary>
+        public int CarbohydrateSnack
+        {
+            get => сarbohydrateSnack;
+            set
+            {
+                if (сarbohydrateSnack != value)
+                {
+                    сarbohydrateSnack = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -1878,12 +1947,13 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void SetWorkingTime()
         {
-            var workingTime = Math.Round(-30 + Eating.Pause + ((Carbohydrate / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates) + 
+            var workingTime = Math.Round(-15 + Eating.Pause + (
+                (Carbohydrate / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates) + 
                 (Protein / (double)GlobalParameters.User.AbsorptionRateOfProteins) + 
                 (Fat / (double)GlobalParameters.User.AbsorptionRateOfFats)) * 60, 0, MidpointRounding.AwayFromZero);
 
-            if (workingTime < 180)
-                workingTime = 180;
+            if (workingTime < 120)
+                workingTime = 120;
 
             DateTimeWorkingTime = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime).AddMinutes(workingTime);
             Eating.WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
@@ -2497,6 +2567,35 @@ namespace InsulinSensitivity.Eating
 
         public ICommand CancelDimensionCommand =>
             new Command(() => IsModalDimension = false);
+
+        #endregion
+
+        #region ~--Snack
+
+        public ICommand AddSnackCommand =>
+            new Command(() =>
+            {
+                ProteinSnack = FatSnack = CarbohydrateSnack = 0;
+                IsModalSnack = true;
+            });
+
+        public ICommand SaveSnackCommand =>
+            new Command(() =>
+            {
+                Eating.Protein += ProteinSnack;
+                Eating.Fat += FatSnack;
+                Eating.Carbohydrate += CarbohydrateSnack;
+
+                OnPropertyChanged(nameof(Protein));
+                OnPropertyChanged(nameof(Fat));
+                OnPropertyChanged(nameof(Carbohydrate));
+
+                CalculateTotal();
+                IsModalSnack = false;
+            });
+
+        public ICommand CancelSnackCommand =>
+            new Command(() => IsModalSnack = false);
 
         #endregion
 
