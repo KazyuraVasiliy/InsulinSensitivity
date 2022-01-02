@@ -142,19 +142,10 @@
                                                         <ColumnDefinition Width="*"/>                                                        
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Label
+                                                    <Label 
                                                         Grid.Column="0"
-                                                        VerticalTextAlignment="End"
-                                                        HorizontalTextAlignment="Start"
-                                                        TextColor="Orange"
-                                                        FontSize="14" FontAttributes="Italic">
-
-                                                        <Label.Text>
-                                                            <MultiBinding StringFormat="{}{0:00}:{1:00}">
-                                                                <Binding Path="WorkingTime.Hours"/>
-                                                                <Binding Path="WorkingTime.Minutes"/>
-                                                            </MultiBinding>
-                                                        </Label.Text>
+                                                        VerticalTextAlignment="Center"
+                                                        Text="{Binding Path=BindingContext.ActiveInsulin, StringFormat='{}акт: {0} ед.', Source={RelativeSource AncestorType={x:Type ContentPage}}}">
 
                                                         <Label.IsVisible>
                                                             <MultiBinding Converter="{StaticResource IsLastProductConverter}">
@@ -181,10 +172,16 @@
                                                         Grid.Column="2"
                                                         VerticalTextAlignment="End"
                                                         HorizontalTextAlignment="Start"
-                                                        FontSize="14" FontAttributes="Bold"
-                                                        TextColor="Red"
-                                                        FontFamily="Typicons"                                                        
-                                                        Text="{Binding Path=ExpectedGlucose, StringFormat='{}отр &#xe01a; {0:N1}'}">
+                                                        TextColor="Orange"
+                                                        FontFamily="Typicons"  
+                                                        FontSize="14" FontAttributes="Italic">
+
+                                                        <Label.Text>
+                                                            <MultiBinding StringFormat="{}до &#xe01a; {0:00}:{1:00}">
+                                                                <Binding Path="WorkingTime.Hours"/>
+                                                                <Binding Path="WorkingTime.Minutes"/>
+                                                            </MultiBinding>
+                                                        </Label.Text>
 
                                                         <Label.IsVisible>
                                                             <MultiBinding Converter="{StaticResource IsLastProductConverter}">
@@ -192,23 +189,6 @@
                                                                 <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
                                                             </MultiBinding>
                                                         </Label.IsVisible>
-
-                                                        <Label.Style>
-                                                            <Style TargetType="Label">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger TargetType="Label" Value="{StaticResource True}">
-                                                                        <DataTrigger.Binding>
-                                                                            <MultiBinding Converter="{StaticResource ExpectedGlucoseBoolConverter}">
-                                                                                <Binding Path="BindingContext.TargetGlucose" Source="{RelativeSource AncestorType={x:Type ContentPage}}"/>
-                                                                                <Binding Path="ExpectedGlucose"/>
-                                                                            </MultiBinding>
-                                                                        </DataTrigger.Binding>
-
-                                                                        <Setter Property="TextColor" Value="Orange"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Label.Style>
                                                     </Label>
 
                                                     <Label
@@ -254,10 +234,14 @@
                                                         </Label.IsVisible>
                                                     </Label>
 
-                                                    <Label 
+                                                    <Label
                                                         Grid.Column="0"
-                                                        VerticalTextAlignment="Center"
-                                                        Text="{Binding Path=BindingContext.ActiveInsulin, StringFormat='{}акт: {0} ед.', Source={RelativeSource AncestorType={x:Type ContentPage}}}">
+                                                        VerticalTextAlignment="End"
+                                                        HorizontalTextAlignment="Start"
+                                                        FontSize="14" FontAttributes="Bold"
+                                                        TextColor="Red"
+                                                        FontFamily="Typicons"                                                        
+                                                        Text="{Binding Path=ExpectedGlucose, StringFormat='{}отр: {0:N1}'}">
 
                                                         <Label.IsVisible>
                                                             <MultiBinding Converter="{StaticResource IsLastProductConverter}">
@@ -265,6 +249,23 @@
                                                                 <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
                                                             </MultiBinding>
                                                         </Label.IsVisible>
+
+                                                        <Label.Style>
+                                                            <Style TargetType="Label">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger TargetType="Label" Value="{StaticResource True}">
+                                                                        <DataTrigger.Binding>
+                                                                            <MultiBinding Converter="{StaticResource ExpectedGlucoseBoolConverter}">
+                                                                                <Binding Path="BindingContext.TargetGlucose" Source="{RelativeSource AncestorType={x:Type ContentPage}}"/>
+                                                                                <Binding Path="ExpectedGlucose"/>
+                                                                            </MultiBinding>
+                                                                        </DataTrigger.Binding>
+
+                                                                        <Setter Property="TextColor" Value="Orange"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Label.Style>
                                                     </Label>
 
                                                     <Label
