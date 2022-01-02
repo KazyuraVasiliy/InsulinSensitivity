@@ -728,11 +728,6 @@ namespace InsulinSensitivity.Eating
                 if (Calculation.TimeSpanWithoutSeconds(Eating.InjectionTime) != Calculation.TimeSpanWithoutSeconds(value))
                 {
                     Eating.InjectionTime = value;
-
-                    Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, value).AddHours(GlobalParameters.Settings.EatingDuration);
-                    OnPropertyChanged(nameof(EndEatingTime));
-                    OnPropertyChanged(nameof(EndEatingDate));
-
                     CalculateTotal();
                 }
             }
@@ -751,7 +746,7 @@ namespace InsulinSensitivity.Eating
                     var begin = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
                     var end = Calculation.DateTimeUnionTimeSpan(value, EndEatingTime);
 
-                    if (begin < end)
+                    if (begin.AddHours(2) <= end)
                     {
                         Eating.EndEating = end;
                         CalculateTotal();
@@ -773,7 +768,7 @@ namespace InsulinSensitivity.Eating
                     var begin = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
                     var end = Calculation.DateTimeUnionTimeSpan(EndEatingDate, value);
 
-                    if (begin < end)
+                    if (begin.AddHours(2) <= end)
                     {
                         Eating.EndEating = end;
                         CalculateTotal();
@@ -1985,6 +1980,10 @@ namespace InsulinSensitivity.Eating
 
             DateTimeWorkingTime = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime).AddMinutes(workingTime);
             Eating.WorkingTime = InjectionTime.Add(new TimeSpan(0, (int)workingTime, 0));
+
+            Eating.EndEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime).AddMinutes(workingTime);
+            OnPropertyChanged(nameof(EndEatingTime));
+            OnPropertyChanged(nameof(EndEatingDate));
         }
 
         /// <summary>

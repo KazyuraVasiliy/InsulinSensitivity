@@ -322,7 +322,7 @@
                                 TextColor="Green"
                                 HorizontalOptions="Start"
                                 IsVisible="{Binding Path=AssimilatAssimilatedNutritionalWithAbsorptionRateedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
-                            
+
                             <Label
                                 Text="{Binding Path=AssimilatedNutritional}"
                                 TextColor="Green"
