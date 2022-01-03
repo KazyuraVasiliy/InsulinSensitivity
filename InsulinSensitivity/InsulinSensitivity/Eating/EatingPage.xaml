@@ -296,7 +296,7 @@
                                     Grid.Column="2">
 
                                     <Label
-                                        Text="{Binding Path=RemainderCarbohydrate, StringFormat='{}Углеводы (+{0}):'}"/>
+                                        Text="{Binding Path=CarbohydrateTitle}"/>
                                     <Entry
                                         view:Tag.Tag="Carbohydrate"
                                         Unfocused="Element_Unfocused"

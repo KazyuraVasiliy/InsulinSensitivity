@@ -570,9 +570,19 @@ namespace InsulinSensitivity.Eating
                 {
                     remainderCarbohydrate = value;
                     OnPropertyChanged();
+
+                    OnPropertyChanged(nameof(CarbohydrateTitle));
                 }
             }
         }
+
+        /// <summary>
+        /// Заголовок строки углеводов
+        /// </summary>
+        public string CarbohydrateTitle =>
+            RemainderCarbohydrate == 0
+                ? $"Углеводы:"
+                : $"Углеводы (+{RemainderCarbohydrate}):";
 
         #endregion
 
