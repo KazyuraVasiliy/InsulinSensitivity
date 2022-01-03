@@ -73,7 +73,24 @@
                                 Text="{Binding Path=InsulinSensitivity}"/>
                         </StackLayout>
                     </Frame>
-                    
+
+                    <Frame
+                        Style="{StaticResource Frame}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Соотношение углеводов к инсулину (г/ед)"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <Label
+                                Text="{Binding Path=CarbohydrateCoefficient}"/>
+                        </StackLayout>
+                    </Frame>
+
                     <Frame
                         Style="{StaticResource Frame}"
                         IsVisible="{Binding Path=IsCycleVisibility}">

@@ -93,6 +93,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private string carbohydrateCoefficient;
+        /// <summary>
+        /// Соотношение углеводов к инсулину
+        /// </summary>
+        public string CarbohydrateCoefficient
+        {
+            get => carbohydrateCoefficient;
+            set
+            {
+                carbohydrateCoefficient = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string cycle;
         /// <summary>
         /// Циклы
@@ -312,7 +326,29 @@ namespace InsulinSensitivity.Statistic
                 string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatings.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
 
                 InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
-                    
+
+                // Соотношение углеводов к инсулину
+                var carbohydrateCoefficientAverages = eatings
+                    .GroupBy(x =>
+                        x.EatingType)
+                    .SelectMany(x =>
+                        x
+                            .Where(y =>
+                                y.BolusDoseFact != 0 &&
+                                (y.Carbohydrate + y.Protein + y.Fat) >= 30)
+                            .OrderByDescending(y =>
+                                y.DateCreated)
+                            .Take(4))
+                    .GroupBy(x =>
+                        x.EatingType)
+                    .OrderBy(x =>
+                        x.Key.TimeStart)
+                    .Select(x =>
+                        $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
+                        $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseFact), 1, MidpointRounding.AwayFromZero)}");
+
+                CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
+
                 // Цикл
                 if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
                 {
