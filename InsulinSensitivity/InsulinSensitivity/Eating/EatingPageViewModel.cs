@@ -2115,7 +2115,7 @@ namespace InsulinSensitivity.Eating
             var startEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
 
             // Кол-во усвоенных БЖУ по скорости абсорбции в текущем приёме пищи на текущий момент
-            var assimilatedCurrent = GetAssimilatedNutritionalWithAbsorptionRate(Carbohydrate, Protein, Fat, startEating, DateTime.Now);
+            var assimilatedCurrent = GetAssimilatedNutritionalWithAbsorptionRate(Carbohydrate, Protein, Fat, startEating.AddMinutes(Pause), DateTime.Now);
 
             // Кол-во усвоенных БЖУ по скорости абсорбции в предыдущем приёме пищи на момент начала текущего
             var previousEating = (PreviousEatings?.Count ?? 0) > 0
@@ -2126,7 +2126,7 @@ namespace InsulinSensitivity.Eating
                 ? (0, 0, 0)
                 : GetAssimilatedNutritionalWithAbsorptionRate(
                     previousEating.Carbohydrate, previousEating.Protein, previousEating.Fat,
-                    Calculation.DateTimeUnionTimeSpan(previousEating.DateCreated, previousEating.InjectionTime), startEating);
+                    Calculation.DateTimeUnionTimeSpan(previousEating.DateCreated, previousEating.InjectionTime).AddMinutes(previousEating.Pause), startEating);
 
             RemainderCarbohydrate = previousEating == null
                 ? 0
