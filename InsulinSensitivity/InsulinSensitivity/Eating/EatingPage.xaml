@@ -328,6 +328,12 @@
                                 TextColor="Green"
                                 HorizontalOptions="Start"
                                 IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
+
+                            <Label
+                                Text="{Binding Path=AssimilatedNutritionalStartTime}"
+                                TextColor="Blue"
+                                HorizontalOptions="Start"
+                                IsVisible="{Binding Path=AssimilatedNutritionalStartTime, Converter={StaticResource CommentToVisibilityConverter}}"/>
                         </StackLayout>
                     </Frame>
 

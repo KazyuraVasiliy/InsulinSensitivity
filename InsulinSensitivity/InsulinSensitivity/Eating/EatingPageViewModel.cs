@@ -1049,6 +1049,20 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        private string assimilatedNutritionalStartTime;
+        /// <summary>
+        /// Время подколок
+        /// </summary>
+        public string AssimilatedNutritionalStartTime
+        {
+            get => assimilatedNutritionalStartTime;
+            set
+            {
+                assimilatedNutritionalStartTime = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -2108,6 +2122,35 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Вычисляет время подколок
+        /// </summary>
+        /// <returns></returns>
+        private string GetAssimilatedNutritionalStartTime(int carbohydate, int protein, int fat, DateTime beginPeriod)
+        {
+            if (carbohydate == 0 && protein == 0 && fat == 0)
+                return "";
+
+            var hours = (double)(carbohydate / GlobalParameters.User.AbsorptionRateOfCarbohydrates);
+            var proteinTime = beginPeriod.AddHours(hours < 0.5 ? 0.5 : hours);
+
+            hours = (double)(protein / GlobalParameters.User.AbsorptionRateOfProteins);
+            var fatTime = proteinTime.AddHours(hours < 1 ? 1 : hours);
+
+            var result = $"Внести в xDrip как:\n";
+
+            if (carbohydate != 0)
+                result += $"  {beginPeriod:dd.MM HH:mm} - {carbohydate} у.\n";
+
+            if (protein != 0)
+                result += $"  {proteinTime:dd.MM HH:mm} - {protein} у.\n";
+
+            if (fat != 0)
+                result += $"  {fatTime:dd.MM HH:mm} - {fat} у.\n";
+
+            return result.Trim('\n');
+        }
+
+        /// <summary>
         /// Расчёт всех значений
         /// </summary>
         private void CalculateTotal()
@@ -2184,6 +2227,8 @@ namespace InsulinSensitivity.Eating
             // Сообщение о кол-ве усвоенных БЖУ
             AssimilatedNutritional = GetAssimilatedNutritional();            
             AssimilatedNutritionalWithAbsorptionRate = $"Усвоилось по скорости: {assimilatedCurrent.carbohydrate} У; {assimilatedCurrent.protein} Б; {assimilatedCurrent.fat} Ж";
+
+            AssimilatedNutritionalStartTime = GetAssimilatedNutritionalStartTime(Carbohydrate, Protein, Fat, startEating.AddMinutes(Pause));
 
             // Точность
             CalculateAccuracyUser();
