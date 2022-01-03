@@ -557,6 +557,23 @@ namespace InsulinSensitivity.Eating
 
         #endregion
 
+        private int remainderCarbohydrate;
+        /// <summary>
+        /// Углеводы с предыдущего приёма пищи
+        /// </summary>
+        public int RemainderCarbohydrate
+        {
+            get => remainderCarbohydrate;
+            set
+            {
+                if (remainderCarbohydrate != value)
+                {
+                    remainderCarbohydrate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region --Basal
@@ -1676,12 +1693,12 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт дозы болюсного инсулина
         /// </summary>
-        private void CalculateBolusDose()
+        private void CalculateBolusDose(int carbohydrate, int protein, int fat)
         {
             var bolusDose = (InsulinSensitivityAuto ?? 0) != 0 || (InsulinSensitivityUser ?? 0) != 0
                 ? Calculation.GetBolusDose(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
-                    Protein, Fat, Carbohydrate,
+                    protein, fat, carbohydrate,
                     (InsulinSensitivityUser ?? 0) != 0
                         ? InsulinSensitivityUser.Value
                         : InsulinSensitivityAuto.Value) - GlobalMethods.GetActiveInsulin(Eating, Injections,
@@ -1696,13 +1713,13 @@ namespace InsulinSensitivity.Eating
                     ? null 
                     : bolusDose / (decimal)(1 - Calculation.GetActiveInsulinPercent(
                         begin, Eating.EndEating.Value, (int)GlobalParameters.User.BolusType.Duration));
-            }
-                
+            }                
 
             BolusDoseCalculate = bolusDose != null
                 ? bolusDose
                 : (decimal?)null;
 
+            // Вычисление соотношения инсулина на У и БЖ
             var proteinAndFat = Protein * GlobalParameters.User.ProteinCoefficient +
                 Fat * GlobalParameters.User.FatCoefficient;
 
@@ -1722,12 +1739,12 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт ожидаемого сахара
         /// </summary>
-        private void CalculateExpectedGlucose()
+        private void CalculateExpectedGlucose(int carbohydrate, int protein, int fat)
         {
             ExpectedGlucose = (InsulinSensitivityAuto != null || InsulinSensitivityUser != null)
                 ? Calculation.GetExpectedGlucose(GlucoseStart, BolusDoseTotal,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
-                    Protein, Fat, Carbohydrate,
+                    protein, fat, carbohydrate,
                     InsulinSensitivityUser != null
                         ? InsulinSensitivityUser.Value
                         : InsulinSensitivityAuto.Value)
@@ -1737,12 +1754,12 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт фактического ФЧИ
         /// </summary>
-        private void CalculateInsulinSensitivityFact()
+        private void CalculateInsulinSensitivityFact(int carbohydrate, int protein, int fat)
         {
             InsulinSensitivityFact = BolusDoseTotal > 0 && GlucoseEnd != null
                 ? Calculation.GetInsulinSensitivityFact(GlucoseStart, GlucoseEnd.Value,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
-                    Protein, Fat, Carbohydrate,
+                    protein, fat, carbohydrate,
                     BolusDoseTotal)
                 : (decimal?)null;
         }
@@ -1750,12 +1767,12 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт ФЧИ пользователя (если он не введён)
         /// </summary>
-        private void CalculateInsulinSensitivityUser()
+        private void CalculateInsulinSensitivityUser(int carbohydrate, int protein, int fat)
         {
             Eating.InsulinSensitivityUser = BolusDoseTotal > 0 && GlucoseEnd != null && InsulinSensitivityUser == null
                 ? Math.Round(Calculation.GetInsulinSensitivityFact(GlucoseStart, GlobalParameters.User.TargetGlucose,
                     GlobalParameters.User.CarbohydrateCoefficient, GlobalParameters.User.ProteinCoefficient, GlobalParameters.User.FatCoefficient,
-                    Protein, Fat, Carbohydrate,
+                    protein, fat, carbohydrate,
                     BolusDoseTotal), 3, MidpointRounding.AwayFromZero)
                 : InsulinSensitivityUser;
             OnPropertyChanged(nameof(InsulinSensitivityUser));
@@ -2055,17 +2072,14 @@ namespace InsulinSensitivity.Eating
         /// Вычисляет кол-во усвоенных БЖУ по скорости абсорбции
         /// </summary>
         /// <returns></returns>
-        private string GetAssimilatedNutritionalWithAbsorptionRate()
+        private (int carbohydrate, int protein, int fat) GetAssimilatedNutritionalWithAbsorptionRate(int carbohydate, int protein, int fat, DateTime beginPeriod, DateTime endPeriod)
         {
-            var beginPeriod = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
-            var endPeriod = DateTime.Now;
-
             var hours = (endPeriod - beginPeriod).TotalHours;
 
             // Углеводы
-            var carbohydrateTime = (double)(Carbohydrate / GlobalParameters.User.AbsorptionRateOfCarbohydrates);
+            var carbohydrateTime = (double)(carbohydate / GlobalParameters.User.AbsorptionRateOfCarbohydrates);
             var carbohydrateAssimilated = hours >= carbohydrateTime
-                ? Carbohydrate
+                ? carbohydate
                 : hours > 0
                     ? (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates * hours
                     : 0;
@@ -2073,9 +2087,9 @@ namespace InsulinSensitivity.Eating
             hours -= carbohydrateTime;
 
             // Белки
-            var proteinTime = (double)(Protein / GlobalParameters.User.AbsorptionRateOfProteins);
+            var proteinTime = (double)(protein / GlobalParameters.User.AbsorptionRateOfProteins);
             var proteinAssimilated = hours >= proteinTime
-                ? Protein
+                ? protein
                 : hours > 0
                     ? (double)GlobalParameters.User.AbsorptionRateOfProteins * hours
                     : 0;
@@ -2083,14 +2097,14 @@ namespace InsulinSensitivity.Eating
             hours -= proteinTime;
 
             // Жиры
-            var fatTime = (double)(Fat / GlobalParameters.User.AbsorptionRateOfFats);
+            var fatTime = (double)(fat / GlobalParameters.User.AbsorptionRateOfFats);
             var fatAssimilated = hours >= fatTime
-                ? Fat
+                ? fat
                 : hours > 0
                     ? (double)GlobalParameters.User.AbsorptionRateOfFats * hours
                     : 0;
 
-            return $"Усвоилось по скорости: {Math.Round(carbohydrateAssimilated, 0)} У; {Math.Round(proteinAssimilated, 0)} Б; {Math.Round(fatAssimilated, 0)} Ж";
+            return ((int)Math.Round(carbohydrateAssimilated, 0), (int)Math.Round(proteinAssimilated, 0), (int)Math.Round(fatAssimilated, 0));
         }
 
         /// <summary>
@@ -2099,6 +2113,31 @@ namespace InsulinSensitivity.Eating
         private void CalculateTotal()
         {
             var startEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+
+            // Кол-во усвоенных БЖУ по скорости абсорбции в текущем приёме пищи на текущий момент
+            var assimilatedCurrent = GetAssimilatedNutritionalWithAbsorptionRate(Carbohydrate, Protein, Fat, startEating, DateTime.Now);
+
+            // Кол-во усвоенных БЖУ по скорости абсорбции в предыдущем приёме пищи на момент начала текущего
+            var previousEating = (PreviousEatings?.Count ?? 0) > 0
+                ? PreviousEatings[0]
+                : null;
+
+            (int carbohydrate, int protein, int fat) assimilatedPrevious = previousEating == null
+                ? (0, 0, 0)
+                : GetAssimilatedNutritionalWithAbsorptionRate(
+                    previousEating.Carbohydrate, previousEating.Protein, previousEating.Fat,
+                    Calculation.DateTimeUnionTimeSpan(previousEating.DateCreated, previousEating.InjectionTime), startEating);
+
+            RemainderCarbohydrate = previousEating == null
+                ? 0
+                : (int)Math.Round(
+                    (previousEating.Carbohydrate - assimilatedPrevious.carbohydrate) +
+                    (previousEating.Protein - assimilatedPrevious.protein) * GlobalParameters.User.ProteinCoefficient +
+                    (previousEating.Fat - assimilatedPrevious.fat) * GlobalParameters.User.FatCoefficient, 0);
+
+            var carbohydrate = assimilatedCurrent.carbohydrate + RemainderCarbohydrate;
+            var protein = assimilatedCurrent.protein;
+            var fat = assimilatedCurrent.fat;
 
             // Тип приёма пищи
             EatingType = EatingTypes
@@ -2125,10 +2164,10 @@ namespace InsulinSensitivity.Eating
             ActiveInformation = string.Join("\n", active.informations);
 
             // Доза болюсного инсулина
-            CalculateBolusDose();
+            CalculateBolusDose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);
 
             // Ожидаемый сахар
-            CalculateExpectedGlucose();
+            CalculateExpectedGlucose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);
 
             // Время отработки пищи
             SetWorkingTime();
@@ -2137,14 +2176,14 @@ namespace InsulinSensitivity.Eating
             AdditionallyInjection = GetIsAdditionallyInjection();
 
             // Фактический ФЧИ
-            CalculateInsulinSensitivityFact();
+            CalculateInsulinSensitivityFact(carbohydrate, protein, fat);
 
             // ФЧИ пользователя
-            CalculateInsulinSensitivityUser();
+            CalculateInsulinSensitivityUser(carbohydrate, protein, fat);
 
-            // Кол-во усвоенных БЖУ
-            AssimilatedNutritional = GetAssimilatedNutritional();
-            AssimilatedNutritionalWithAbsorptionRate = GetAssimilatedNutritionalWithAbsorptionRate();
+            // Сообщение о кол-ве усвоенных БЖУ
+            AssimilatedNutritional = GetAssimilatedNutritional();            
+            AssimilatedNutritionalWithAbsorptionRate = $"Усвоилось по скорости: {assimilatedCurrent.carbohydrate} У; {assimilatedCurrent.protein} Б; {assimilatedCurrent.fat} Ж";
 
             // Точность
             CalculateAccuracyUser();
