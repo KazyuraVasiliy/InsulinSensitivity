@@ -203,6 +203,11 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// Первый расчёт
+        /// </summary>
+        private bool IsFirstCalculation = true;
+
         #endregion
 
         #region --Previous
@@ -2145,7 +2150,7 @@ namespace InsulinSensitivity.Eating
             var proteinTime = beginPeriod.AddHours(hours < 0.5 ? 0.5 : hours);
 
             hours = (double)(protein / GlobalParameters.User.AbsorptionRateOfProteins);
-            var fatTime = proteinTime.AddHours(hours < 1 ? 1 : hours);
+            var fatTime = proteinTime.AddHours(hours < 1 ? 0 : hours);
 
             var result = $"Внести в xDrip как:\n";
 
@@ -2153,9 +2158,9 @@ namespace InsulinSensitivity.Eating
                 result += $"  {beginPeriod:dd.MM HH:mm} - {carbohydate} у.\n";
 
             if (protein != 0)
-                result += $"  {proteinTime:dd.MM HH:mm} - {protein * GlobalParameters.User.ProteinCoefficient:N0} у.\n";
+                result += $"  {proteinTime:dd.MM HH:mm} - {(protein * GlobalParameters.User.ProteinCoefficient + (hours < 1 ? fat * GlobalParameters.User.FatCoefficient : 0)):N0} у.\n";
 
-            if (fat != 0)
+            if (fat != 0 && hours >= 1)
                 result += $"  {fatTime:dd.MM HH:mm} - {fat * GlobalParameters.User.FatCoefficient:N0} у.\n";
 
             return result.Trim('\n');
@@ -2210,24 +2215,24 @@ namespace InsulinSensitivity.Eating
             // Расчётное ФЧИ (средний)
             CalculateInsulinSensitivityAuto();
 
+            // Время отработки пищи
+            var properties = new string[] { nameof(Carbohydrate), nameof(Protein), nameof(Fat), nameof(Pause), nameof(InjectionTime), nameof(SaveSnackCommand) };
+
+            if (properties.Contains(prop) || IsFirstCalculation)
+                SetWorkingTime();
+
             var active = GlobalMethods.GetActiveInsulin(Eating, Injections,
                 startEating, Eating.EndEating, Eating.Id, false,
                 Eating.Carbohydrate, Eating.Pause, Eatings);
 
             BolusDoseTotal = active.insulin;
-            ActiveInformation = string.Join("\n", active.informations);
+            ActiveInformation = string.Join("\n", active.informations);            
 
             // Доза болюсного инсулина
             CalculateBolusDose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);
 
             // Ожидаемый сахар
-            CalculateExpectedGlucose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);
-
-            // Время отработки пищи
-            var properties = new string[] { nameof(Carbohydrate), nameof(Protein), nameof(Fat), nameof(Pause), nameof(InjectionTime) };
-
-            if (properties.Contains(prop))
-                SetWorkingTime();
+            CalculateExpectedGlucose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);            
 
             // Дробление инъекции
             AdditionallyInjection = GetIsAdditionallyInjection();
@@ -2247,6 +2252,8 @@ namespace InsulinSensitivity.Eating
             // Точность
             CalculateAccuracyUser();
             CalculateAccuracyAuto();
+
+            IsFirstCalculation = false;
         }
 
         #endregion
