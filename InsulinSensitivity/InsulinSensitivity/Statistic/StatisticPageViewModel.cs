@@ -334,7 +334,7 @@ namespace InsulinSensitivity.Statistic
                     .SelectMany(x =>
                         x
                             .Where(y =>
-                                y.BolusDoseFact != 0 &&
+                                (y.BolusDoseTotal ?? 0) != 0 &&
                                 (y.Carbohydrate + y.Protein + y.Fat) >= 30)
                             .OrderByDescending(y =>
                                 y.DateCreated)
@@ -345,7 +345,7 @@ namespace InsulinSensitivity.Statistic
                         x.Key.TimeStart)
                     .Select(x =>
                         $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
-                        $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseFact), 1, MidpointRounding.AwayFromZero)}");
+                        $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
 
                 CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
 
