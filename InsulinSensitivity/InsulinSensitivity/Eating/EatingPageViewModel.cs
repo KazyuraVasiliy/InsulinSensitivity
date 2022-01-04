@@ -12,6 +12,7 @@ using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace InsulinSensitivity.Eating
 {
@@ -2152,10 +2153,10 @@ namespace InsulinSensitivity.Eating
                 result += $"  {beginPeriod:dd.MM HH:mm} - {carbohydate} у.\n";
 
             if (protein != 0)
-                result += $"  {proteinTime:dd.MM HH:mm} - {protein} у.\n";
+                result += $"  {proteinTime:dd.MM HH:mm} - {protein * GlobalParameters.User.ProteinCoefficient:N0} у.\n";
 
             if (fat != 0)
-                result += $"  {fatTime:dd.MM HH:mm} - {fat} у.\n";
+                result += $"  {fatTime:dd.MM HH:mm} - {fat * GlobalParameters.User.FatCoefficient:N0} у.\n";
 
             return result.Trim('\n');
         }
@@ -2163,7 +2164,7 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт всех значений
         /// </summary>
-        private void CalculateTotal()
+        private void CalculateTotal([CallerMemberName] string prop = "")
         {
             var startEating = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
 
@@ -2223,7 +2224,10 @@ namespace InsulinSensitivity.Eating
             CalculateExpectedGlucose(Carbohydrate + RemainderCarbohydrate, Protein, Fat);
 
             // Время отработки пищи
-            SetWorkingTime();
+            var properties = new string[] { nameof(Carbohydrate), nameof(Protein), nameof(Fat), nameof(Pause), nameof(InjectionTime) };
+
+            if (properties.Contains(prop))
+                SetWorkingTime();
 
             // Дробление инъекции
             AdditionallyInjection = GetIsAdditionallyInjection();
