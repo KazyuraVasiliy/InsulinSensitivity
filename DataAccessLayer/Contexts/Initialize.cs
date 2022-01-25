@@ -82,6 +82,41 @@ namespace DataAccessLayer.Contexts
                     db.SaveChanges();
                 }
 
+                // Инициализация периодов
+                if (db.EatingTypes.Count() == 7)
+                {
+                    // ...Изменение завтрака
+                    var breakfast = db.EatingTypes
+                        .First(x =>
+                            x.Name == "Завтрак");
+
+                    breakfast.TimeStart = new TimeSpan(7, 0, 0);
+                    breakfast.TimeEnd = new TimeSpan(8, 59, 59);
+
+                    // ...Изменение ночного приёма
+                    var nightEating = db.EatingTypes
+                        .First(x =>
+                            x.Name == "Ночной приём пищи");
+
+                    nightEating.Name = "Ночь";
+                    nightEating.TimeStart = new TimeSpan(0, 0, 0);
+                    nightEating.TimeEnd = new TimeSpan(3, 59, 59);
+
+                    // ...Добавление раннего утра
+                    db.EatingTypes.AddRange(new List<Models.EatingType>()
+                    {
+                        new Models.EatingType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Раннее утро",
+                            TimeStart = new TimeSpan(4, 0, 0),
+                            TimeEnd = new TimeSpan(6, 59, 59),
+                            IsBasal = false
+                        }
+                    });
+                    db.SaveChanges();
+                }
+
                 // Инициализация инсулинов
                 if (db.InsulinTypes.Count() == 0)
                 {
