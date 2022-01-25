@@ -246,15 +246,39 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private DateTime? LastMenstruationDate { get; set; }
 
+        private decimal? extremum;
         /// <summary>
         /// Верхняя граница
         /// </summary>
-        private decimal? Extremum { get; set; }
+        public decimal? Extremum
+        {
+            get => extremum;
+            set
+            {
+                if (extremum != value)
+                {
+                    extremum = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
+        private decimal? infinum;
         /// <summary>
         /// Нижняя граница
         /// </summary>
-        private decimal? Infinum { get; set; }
+        public decimal? Infinum
+        {
+            get => infinum;
+            set
+            {
+                if (infinum != value)
+                {
+                    infinum = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Дни для расчёта ФЧИ по циклу
