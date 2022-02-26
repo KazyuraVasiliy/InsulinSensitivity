@@ -1921,14 +1921,14 @@ namespace InsulinSensitivity.Eating
 
                     if ((ratios?.Count ?? 0) > 0)
                     {
-                        var infinum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Min();
-                        var extremum = PreviousEatings[0].InsulinSensitivityFact.Value * ratios.Max();
+                        var min = ratios.Min();
+                        var max = ratios.Max();
 
-                        if (infinum < 0.95M)
-                            Infinum = infinum;
+                        if (min < 0.95M)
+                            Infinum = PreviousEatings[0].InsulinSensitivityFact.Value * min;
 
-                        if (extremum > 1.05M)
-                            Extremum = extremum;
+                        if (max > 1.05M)
+                            Extremum = PreviousEatings[0].InsulinSensitivityFact.Value * max;
                     }
 
                     InfinumExtremumDictionary.Add(EatingType.Id, (Infinum, Extremum));
