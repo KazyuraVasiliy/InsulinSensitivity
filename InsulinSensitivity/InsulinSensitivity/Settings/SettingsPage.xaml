@@ -238,6 +238,15 @@
                             view:Tag.Tag="BatteryLifespan"
                             Unfocused="Entry_Unfocused"
                             Text="{Binding Path=BatteryLifespan}"/>
+
+                        <Label
+                            Text="Мониторинг:"/>
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="MonitoringLifespan"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=MonitoringLifespan}"/>
                     </StackLayout>
                 </Frame>
             </StackLayout>

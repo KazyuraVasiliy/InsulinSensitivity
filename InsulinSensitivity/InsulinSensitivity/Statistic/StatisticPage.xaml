@@ -45,6 +45,7 @@
                             Spacing="0">
 
                             <ScrollView
+                                x:Name="sv" x:FieldModifier="public"
                                 HeightRequest="300"                        
                                 HorizontalOptions="FillAndExpand"
                                 HorizontalScrollBarVisibility="Always"

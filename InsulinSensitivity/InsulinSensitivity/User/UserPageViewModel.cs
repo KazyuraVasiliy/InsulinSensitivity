@@ -1,19 +1,12 @@
-﻿using System;
+﻿using BusinessLogicLayer.Service;
+using BusinessLogicLayer.ViewModel;
+using DataAccessLayer.Contexts;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Windows.Input;
 using Xamarin.Forms;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using BusinessLogicLayer.Service.Interfaces;
-using Xamarin.Essentials;
-using System.IO;
-
-using DataAccessLayer.Contexts;
-using BusinessLogicLayer.ViewModel;
-using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 
 namespace InsulinSensitivity.User
@@ -355,6 +348,7 @@ namespace InsulinSensitivity.User
 
                 user.DosingAccuracy = User.DosingAccuracy;
                 user.IsPump = User.IsPump;
+                user.IsMonitoring = User.IsMonitoring;
 
                 user.AbsorptionRateOfCarbohydrates = User.AbsorptionRateOfCarbohydrates;
                 user.AbsorptionRateOfProteins = User.AbsorptionRateOfProteins;

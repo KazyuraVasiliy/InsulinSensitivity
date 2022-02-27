@@ -29,13 +29,14 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe0e3", "Активности", EditExerciseTypeCommand),
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
+                new MainPageMasterItemModel("\xe0e0", "Расходка", EditExpendableMaterialCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
-                //new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),                
+                //new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),
                 new MainPageMasterItemModel("\xe043", "Статистика", StatisticCommand),
-                new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand, true),
-                new MainPageMasterItemModel("\xe04f", "Настройки", SettingsCommand),
+                new MainPageMasterItemModel("\xe04f", "Настройки", SettingsCommand, true),
                 new MainPageMasterItemModel("\xe125", "Создать резервную копию", CreateBackupCommand),
-                new MainPageMasterItemModel("\xe064", "Восстановить из копии", RestoreBackupCommand),
+                new MainPageMasterItemModel("\xe064", "Восстановить из копии", RestoreBackupCommand, true),
+                new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand),
             };
         }
 
@@ -177,6 +178,33 @@ namespace InsulinSensitivity
 
         #endregion
 
+        #region --Edit Expendable Material
+
+        private async void EditExpendableMaterialExecute()
+        {
+            if (!EditExpendableMaterialCanExecute())
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    "Вам недоступен данный раздел",
+                    "Ok");
+                return;
+            }
+
+            var expendableMaterialPage = new ExpendableMaterial.ExpendableMaterialPage();
+            expendableMaterialPage.BindingContext = new ExpendableMaterial.ExpendableMaterialViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(expendableMaterialPage, true);
+        }
+
+        private bool EditExpendableMaterialCanExecute() =>
+            GlobalParameters.User != null;
+
+        public ICommand EditExpendableMaterialCommand =>
+            new Command(EditExpendableMaterialExecute, EditExpendableMaterialCanExecute);
+
+        #endregion
+
         #region --Statistic
 
         private async void StatisticExecute()
@@ -192,8 +220,9 @@ namespace InsulinSensitivity
 
             var statisticPage = new Statistic.StatisticPage();
             statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
-
+            
             await GlobalParameters.Navigation.PushAsync(statisticPage, true);
+            await statisticPage.sv.ScrollToAsync((statisticPage.BindingContext as Statistic.StatisticPageViewModel).WidthRequest, 0, true);
         }
 
         private bool StatisticCanExecute() =>

@@ -358,6 +358,63 @@ namespace DataAccessLayer.Contexts
                     });
                     db.SaveChanges();
                 }
+
+                // Инициализация типов расходного материала
+                if (db.ExpendableMaterialTypes.Count() == 0)
+                {
+                    db.ExpendableMaterialTypes.AddRange(new List<Models.ExpendableMaterialType>()
+                    {
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 1,
+                            Name = "Тест-полоски",
+                            Unit = "шт."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 2,
+                            Name = "Сенсоры",
+                            Unit = "шт."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 3,
+                            Name = "Базальный инсулин",
+                            Unit = "ед."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 4,
+                            Name = "Болюсный инсулин",
+                            Unit = "ед."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 5,
+                            Name = "Катетеры",
+                            Unit = "шт."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 6,
+                            Name = "Канюли",
+                            Unit = "шт."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 7,
+                            Name = "Картриджи",
+                            Unit = "шт."
+                        },
+                        new Models.ExpendableMaterialType()
+                        {
+                            Id = 8,
+                            Name = "Иглы",
+                            Unit = "шт."
+                        },
+                    });
+                    db.SaveChanges();
+                }
             }
         }
     }

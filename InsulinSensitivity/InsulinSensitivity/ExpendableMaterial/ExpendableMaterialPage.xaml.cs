@@ -2,12 +2,12 @@
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace InsulinSensitivity.Eating
+namespace InsulinSensitivity.ExpendableMaterial
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class EatingPage : ContentPage
+    public partial class ExpendableMaterialPage : ContentPage
     {
-        public EatingPage() =>
+        public ExpendableMaterialPage() =>
             InitializeComponent();
 
         protected override void OnAppearing()
@@ -22,20 +22,7 @@ namespace InsulinSensitivity.Eating
             MessagingCenter.Send<object, bool>(this, "SwitchMaster", true);
         }
 
-        protected override bool OnBackButtonPressed()
-        {
-            if (BindingContext is EatingPageViewModel context)
-            {
-                if (context.IsModalInjection || context.IsModalDimension || context.IsModalSnack)
-                {
-                    context.IsModalInjection = context.IsModalDimension = context.IsModalSnack = false;
-                    return true;
-                }
-            }
-            return base.OnBackButtonPressed();
-        }
-
-        private void Element_Unfocused(object sender, FocusEventArgs e)
+        private void Entry_Unfocused(object sender, FocusEventArgs e)
         {
             if (sender is BindableObject bindable)
             {

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Windows.Input;
-using Xamarin.Forms;
-using Microcharts;
-
+﻿using BusinessLogicLayer.ViewModel;
 using DataAccessLayer.Contexts;
-using BusinessLogicLayer.ViewModel;
-using BusinessLogicLayer.Service;
-using Models = DataAccessLayer.Models;
+using Microcharts;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Xamarin.Forms;
 
 namespace InsulinSensitivity.Statistic
 {

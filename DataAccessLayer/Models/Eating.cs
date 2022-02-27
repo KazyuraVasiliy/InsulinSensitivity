@@ -230,6 +230,11 @@ namespace DataAccessLayer.Models
         public bool IsBatteryReplacement { get; set; }
 
         /// <summary>
+        /// Замена мониторинга
+        /// </summary>
+        public bool IsMonitoringReplacement { get; set; }
+
+        /// <summary>
         /// Итоговая доза инсулина
         /// </summary>
         public decimal? BolusDoseTotal { get; set; }

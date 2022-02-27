@@ -237,6 +237,25 @@ namespace InsulinSensitivity
                     batteryLifespan = value;
                 }
             }
+
+            private static int? monitoringLifespan;
+            /// <summary>
+            /// Продолжительность жизни мониторинга
+            /// </summary>
+            public static int MonitoringLifespan
+            {
+                get
+                {
+                    if (monitoringLifespan == null)
+                        monitoringLifespan = Preferences.Get("monitoringLifespan", 14);
+                    return monitoringLifespan.Value;
+                }
+                set
+                {
+                    Preferences.Set("monitoringLifespan", value);
+                    monitoringLifespan = value;
+                }
+            }
         }
     }
 }

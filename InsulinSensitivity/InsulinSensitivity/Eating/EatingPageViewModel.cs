@@ -1180,9 +1180,9 @@ namespace InsulinSensitivity.Eating
                     BasalRecommended = Math.Round(basalsCalculate.Average(x => x.dose * x.insulinSensitivity) /
                         PreviousEatings.Average(x => x.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero);
 
-                if (GlobalParameters.User.IsPump)
+                if (GlobalParameters.User.IsPump || GlobalParameters.User.IsMonitoring)
                 {
-                    var messages = new List<string>(4);
+                    var messages = new List<string>(5);
                     for (int i = 0; i < messages.Capacity; i++)
                         messages.Add(null);
 
@@ -1209,6 +1209,11 @@ namespace InsulinSensitivity.Eating
                              messages[3] = days >= GlobalParameters.Settings.BatteryLifespan
                                 ? $"Батарейка используется уже {days} дней."
                                 : "";
+
+                        if (eating.IsMonitoringReplacement && messages[4] == null)
+                            messages[4] = days >= GlobalParameters.Settings.MonitoringLifespan
+                               ? $"Мониторинг используется уже {days} дней."
+                               : "";
                     }
 
                     messages = messages
@@ -2517,6 +2522,7 @@ namespace InsulinSensitivity.Eating
                 eating.IsCatheterReplacement = Eating.IsCatheterReplacement;
                 eating.IsCartridgeReplacement = Eating.IsCartridgeReplacement;
                 eating.IsBatteryReplacement = Eating.IsBatteryReplacement;
+                eating.IsMonitoringReplacement = Eating.IsMonitoringReplacement;
 
                 if (Eating.Id == Guid.Empty)
                     db.Eatings.Add(eating);
@@ -2528,6 +2534,89 @@ namespace InsulinSensitivity.Eating
                         DateStart = DateTime.Now,
                         UserId = GlobalParameters.User.Id
                     });
+
+                if (GlucoseEnd != null)
+                {
+                    var date = DateTime.Now;
+
+                    // Полоски
+                    if (!GlobalParameters.User.IsMonitoring)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 1,
+                            Count = -1 - IntermediateDimensions?.Count ?? 0,
+                            DateCreated = date
+                        });
+
+                    // Мониторинг
+                    if (Eating.IsMonitoringReplacement)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 2,
+                            Count = -1,
+                            DateCreated = date
+                        });
+
+                    // Базальный инсулин
+                    db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                    {
+                        Id = Guid.NewGuid(),
+                        ExpendableMaterialTypeId = 3,
+                        Count = -BasalDose,
+                        DateCreated = date
+                    });
+
+                    // Болюсный инсулин
+                    db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                    {
+                        Id = Guid.NewGuid(),
+                        ExpendableMaterialTypeId = 4,
+                        Count = -BolusDoseFact - Injections?.Sum(x => x.BolusDose) ?? 0,
+                        DateCreated = date
+                    });
+
+                    // Катетер
+                    if (Eating.IsCatheterReplacement)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 5,
+                            Count = -1,
+                            DateCreated = date
+                        });
+
+                    // Канюля
+                    if (Eating.IsCannulaReplacement)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 6,
+                            Count = -1,
+                            DateCreated = date
+                        });
+
+                    // Картридж
+                    if (Eating.IsCartridgeReplacement)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 7,
+                            Count = -1,
+                            DateCreated = date
+                        });
+
+                    // Иглы
+                    if (!GlobalParameters.User.IsPump)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 8,
+                            Count = -1,
+                            DateCreated = date
+                        });
+                }
 
                 db.SaveChanges();
 

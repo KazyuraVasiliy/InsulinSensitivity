@@ -66,6 +66,16 @@ namespace DataAccessLayer.Models
         public bool IsPump { get; set; }
 
         /// <summary>
+        /// Мониторинг
+        /// </summary>
+        public bool IsMonitoring { get; set; }
+
+        /// <summary>
+        /// Заметки
+        /// </summary>
+        public string Comment { get; set; }
+
+        /// <summary>
         /// Точность дозирования инсулина
         /// </summary>
         public decimal DosingAccuracy { get; set; }

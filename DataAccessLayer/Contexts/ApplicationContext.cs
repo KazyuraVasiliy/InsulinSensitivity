@@ -16,6 +16,8 @@ namespace DataAccessLayer.Contexts
         public DbSet<MenstrualCycle> MenstrualCycles { get; set; }
         public DbSet<Injection> Injections { get; set; }
         public DbSet<IntermediateDimension> IntermediateDimensions { get; set; }
+        public DbSet<ExpendableMaterialType> ExpendableMaterialTypes { get; set; }
+        public DbSet<ExpendableMaterial> ExpendableMaterials { get; set; }
 
         public ApplicationContext(string databasePath) =>
             this.databasePath = databasePath;

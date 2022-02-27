@@ -200,6 +200,22 @@ namespace InsulinSensitivity.Settings
             }
         }
 
+        /// <summary>
+        /// Продолжительность жизни мониторинга
+        /// </summary>
+        public int MonitoringLifespan
+        {
+            get => GlobalParameters.Settings.MonitoringLifespan;
+            set
+            {
+                if (GlobalParameters.Settings.MonitoringLifespan != value && value > 0)
+                {
+                    GlobalParameters.Settings.MonitoringLifespan = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods

@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.ExpendableMaterial.ExpendableMaterialPage"
+             xmlns:global="clr-namespace:InsulinSensitivity"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
+             Title="Расходка"
+             IsEnabled="{Binding Path=AsyncBase.Inactive}">
+
+    <ContentPage.Resources>
+        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        <converters:RadioButtonToBoolConverter x:Key="RadioButtonToBoolConverter"/>
+
+        <s:Boolean x:Key="True">True</s:Boolean>
+        <s:Boolean x:Key="False">False</s:Boolean>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Command="{Binding Path=SaveCommand}">
+
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    Glyph="&#xe11e;"
+                    FontFamily="Typicons"
+                    Size="24"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout
+                Spacing="0">
+                
+                <Frame
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Остаток"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Полоски (шт.):"/>
+                                <Entry
+                                    TabIndex="1"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Strip"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Strip}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Мониторинг (шт.):"/>
+                                <Entry
+                                    TabIndex="2"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Monitoring"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Monitoring}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Базальный (ед.):"/>
+                                <Entry
+                                    TabIndex="3"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Basal"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Basal, Converter={StaticResource DecimalToStringConverter}}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Болюсный (ед.):"/>
+                                <Entry
+                                    TabIndex="4"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Bolus"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Bolus, Converter={StaticResource DecimalToStringConverter}}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Катетеры (шт.):"/>
+                                <Entry
+                                    TabIndex="5"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Catheter"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Catheter}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Канюли (шт.):"/>
+                                <Entry
+                                    TabIndex="6"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Cannula"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Cannula}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="0">
+
+                                <Label
+                                    Text="Картриджи (шт.):"/>
+                                <Entry
+                                    TabIndex="7"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Cartridge"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Cartridge}"
+                                    ReturnType="Next"/>
+                            </StackLayout>
+
+                            <StackLayout
+                                Spacing="0"
+                                Grid.Column="1">
+
+                                <Label
+                                    Text="Иглы (шт.):"/>
+                                <Entry
+                                    TabIndex="8"
+                                    Keyboard="Numeric"
+                                    view:Tag.Tag="Needle"
+                                    Unfocused="Entry_Unfocused"
+                                    Text="{Binding Path=Needle}"/>
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Margin="5, 5, 5, 0"
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Сроки"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <StackLayout
+                            BindableLayout.ItemsSource="{Binding ShelfLifes}"
+                            Spacing="0"
+                            Margin="5, 5, 5, 0">
+
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <StackLayout>
+                                        <Label
+                                            TextColor="{Binding Path=Foreground}">
+
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0} {1:dd.MM.yy}">
+                                                    <Binding Path="MaterialType.Name"/>
+                                                    <Binding Path="DateTime"/>
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </StackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Margin="5, 5, 5, 0"
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Заметки"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <Editor
+                            Keyboard="Chat"
+                            AutoSize="TextChanges"
+                            Text="{Binding Path=Comment}"/>
+                    </StackLayout>
+                </Frame>
+
+                <Frame
+                    Margin="5, 5, 5, 5"
+                    Style="{StaticResource Frame}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="История"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand"/>
+
+                        <ListView
+                            HasUnevenRows="True"
+                            SelectionMode="None"
+                            SeparatorVisibility="None"
+                            ItemsSource="{Binding Path=History}">
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <ViewCell.View>
+                                            <Frame Style="{StaticResource Frame}">
+                                                <StackLayout>
+                                                    <Label>
+                                                        <Label.Text>
+                                                            <MultiBinding StringFormat="{}{0} {1} {2} от {3:dd.MM.yy HH:mm}">
+                                                                <Binding Path="ExpendableMaterialType.Name"/>
+                                                                <Binding Path="Count"/>
+                                                                <Binding Path="ExpendableMaterialType.Unit"/>
+                                                                <Binding Path="DateCreated"/>
+                                                            </MultiBinding>
+                                                        </Label.Text>
+                                                    </Label>
+                                                    <Label
+                                                        Text="Внесено руками">
+
+                                                        <Label.Style>
+                                                            <Style TargetType="Label">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger TargetType="Label" Binding="{Binding Path=ChangeType}" Value="0">
+                                                                        <Setter Property="Text" Value="Приём пищи"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Label.Style>
+                                                    </Label>
+                                                </StackLayout>
+                                            </Frame>
+                                        </ViewCell.View>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
