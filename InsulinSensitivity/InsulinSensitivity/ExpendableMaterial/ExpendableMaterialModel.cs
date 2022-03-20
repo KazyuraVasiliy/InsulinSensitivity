@@ -32,7 +32,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                 return sub.TotalDays < 30
                     ? Color.Red
                     : sub.TotalDays > 365
-                        ? Color.Yellow
+                        ? Color.Orange
                         : Color.Black;
             }            
         }

@@ -474,9 +474,13 @@ namespace InsulinSensitivity.Statistic
                         new
                         {
                             Count = x.Count(),
+                            LastDate = x.Max(y => y.DateCreated.Date),
                             ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
                             InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
                         })
+                    .Where(x =>
+                        x.Count > 2 &&
+                        x.LastDate > DateTime.Now.AddMonths(-3).Date)
                     .OrderBy(x =>
                         x.InsulinSensitivityFact)
                     .ToList();

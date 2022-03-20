@@ -205,7 +205,7 @@
                         Spacing="0">
 
                         <Label
-                            Text="Сроки"
+                            Text="Запас"
                             FontAttributes="Bold"
                             FontSize="16"
                             HorizontalOptions="CenterAndExpand"/>
@@ -217,21 +217,29 @@
 
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate>
-                                    <StackLayout>
-                                        <Label
-                                            TextColor="{Binding Path=Foreground}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                            <Label.Text>
-                                                <MultiBinding StringFormat="{}{0} {1:dd.MM.yy}">
-                                                    <Binding Path="MaterialType.Name"/>
-                                                    <Binding Path="DateTime"/>
-                                                </MultiBinding>
-                                            </Label.Text>
-                                        </Label>
-                                    </StackLayout>
+                                        <Label
+                                            Grid.Column="0"
+                                            TextColor="{Binding Path=Foreground}"
+                                            Text="{Binding Path=MaterialType.Name}"/>
+                                        <Label
+                                            Grid.Column="1"
+                                            TextColor="{Binding Path=Foreground}"
+                                            Text="{Binding Path=DateTime, StringFormat='{}{0:dd.MM.yy}'}"/>
+                                    </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </StackLayout>
+
+                        <Label
+                            Text="{Binding Path=MonitoringRecomendationDate, StringFormat='{}Установить сенсор: {0:dd.MM.yyyy}'}"
+                            TextColor="Green"
+                            HorizontalOptions="CenterAndExpand"/>
                     </StackLayout>
                 </Frame>
 

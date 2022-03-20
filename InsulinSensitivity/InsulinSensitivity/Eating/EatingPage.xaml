@@ -88,7 +88,7 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Сахар на отработке: ?">
+                                        Text="Итоговый сахар: ?">
 
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
@@ -116,7 +116,7 @@
                                     Grid.Column="0">
 
                                     <Label                                
-                                        Text="Время отработки:"/>
+                                        Text="Время закрытия:"/>
                                     <TimePicker
                                         HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
                                         view:Tag.Tag="EndEatingTime"
@@ -136,7 +136,7 @@
 
                                     <Label
                                         Grid.Row="0"
-                                        Text="Дата отработки:"/>
+                                        Text="Дата закрытия:"/>
 
                                     <DatePicker
                                         Grid.Row="1"

@@ -175,6 +175,23 @@ namespace InsulinSensitivity.ExpendableMaterial
             }
         }
 
+        private DateTime monitoringRecomendationDate;
+        /// <summary>
+        /// Рекомендованная дата установки мониторинга
+        /// </summary>
+        public DateTime MonitoringRecomendationDate
+        {
+            get => monitoringRecomendationDate;
+            set
+            {
+                if (value != MonitoringRecomendationDate)
+                {
+                    monitoringRecomendationDate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Collections
@@ -351,9 +368,7 @@ namespace InsulinSensitivity.ExpendableMaterial
 
                 var monitoring = new ExpendableMaterialModel()
                 {
-                    Days = !GlobalParameters.User.IsMonitoring
-                        ? 0
-                        : Monitoring * GlobalParameters.Settings.MonitoringLifespan + (decimal)daysLeft,
+                    Days = Monitoring * GlobalParameters.Settings.MonitoringLifespan + (decimal)daysLeft,
 
                     MaterialType = types
                         .FirstOrDefault(x =>
@@ -372,6 +387,11 @@ namespace InsulinSensitivity.ExpendableMaterial
                             x.Id == 1),
                 };
 
+                // Рекомендация по установке мониторинга
+                MonitoringRecomendationDate = Strip - 2 * monitoring.Days < 0
+                    ? DateTime.Now.Date
+                    : DateTime.Now.Date.AddDays((double)(Strip - 2 * monitoring.Days) / 9);
+
                 ShelfLifes = new ObservableCollection<ExpendableMaterialModel>()
                 {
                     strip,
@@ -387,6 +407,8 @@ namespace InsulinSensitivity.ExpendableMaterial
                 ShelfLifes = ShelfLifes
                     .Where(x =>
                         x.Days > 0)
+                    .OrderBy(x =>
+                        x.DateTime)
                     .ToObservable();
 
                 OnPropertyChanged(nameof(ShelfLifes));

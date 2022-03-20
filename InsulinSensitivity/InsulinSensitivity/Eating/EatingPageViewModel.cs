@@ -2537,10 +2537,25 @@ namespace InsulinSensitivity.Eating
 
                 if (GlucoseEnd != null)
                 {
+                    var total = db.ExpendableMaterials
+                        .Include(x => x.ExpendableMaterialType)
+                        .ToList()
+                        .GroupBy(x =>
+                            x.ExpendableMaterialTypeId);
+
+                    var strip = (int)(total.FirstOrDefault(x => x.Key == 1)?.Sum(x => x.Count) ?? 0);
+                    var monitoring = (int)(total.FirstOrDefault(x => x.Key == 2)?.Sum(x => x.Count) ?? 0);
+                    var basal = total.FirstOrDefault(x => x.Key == 3)?.Sum(x => x.Count) ?? 0;
+                    var bolus = total.FirstOrDefault(x => x.Key == 4)?.Sum(x => x.Count) ?? 0;
+                    var catheter = (int)(total.FirstOrDefault(x => x.Key == 5)?.Sum(x => x.Count) ?? 0);
+                    var cannula = (int)(total.FirstOrDefault(x => x.Key == 6)?.Sum(x => x.Count) ?? 0);
+                    var cartridge = (int)(total.FirstOrDefault(x => x.Key == 7)?.Sum(x => x.Count) ?? 0);
+                    var needle = (int)(total.FirstOrDefault(x => x.Key == 8)?.Sum(x => x.Count) ?? 0);
+
                     var date = DateTime.Now;
 
                     // Полоски
-                    if (!GlobalParameters.User.IsMonitoring)
+                    if (!GlobalParameters.User.IsMonitoring && strip > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
@@ -2550,7 +2565,7 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Мониторинг
-                    if (Eating.IsMonitoringReplacement)
+                    if (Eating.IsMonitoringReplacement && monitoring > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
@@ -2560,25 +2575,27 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Базальный инсулин
-                    db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
-                    {
-                        Id = Guid.NewGuid(),
-                        ExpendableMaterialTypeId = 3,
-                        Count = -BasalDose,
-                        DateCreated = date
-                    });
+                    if (basal > 0)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 3,
+                            Count = -BasalDose,
+                            DateCreated = date
+                        });
 
                     // Болюсный инсулин
-                    db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
-                    {
-                        Id = Guid.NewGuid(),
-                        ExpendableMaterialTypeId = 4,
-                        Count = -BolusDoseFact - Injections?.Sum(x => x.BolusDose) ?? 0,
-                        DateCreated = date
-                    });
+                    if (bolus > 0)
+                        db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
+                        {
+                            Id = Guid.NewGuid(),
+                            ExpendableMaterialTypeId = 4,
+                            Count = -BolusDoseFact - Injections?.Sum(x => x.BolusDose) ?? 0,
+                            DateCreated = date
+                        });
 
                     // Катетер
-                    if (Eating.IsCatheterReplacement)
+                    if (Eating.IsCatheterReplacement && catheter > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
@@ -2588,7 +2605,7 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Канюля
-                    if (Eating.IsCannulaReplacement)
+                    if (Eating.IsCannulaReplacement && cannula > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
@@ -2598,7 +2615,7 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Картридж
-                    if (Eating.IsCartridgeReplacement)
+                    if (Eating.IsCartridgeReplacement && cartridge > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
@@ -2608,7 +2625,7 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Иглы
-                    if (!GlobalParameters.User.IsPump)
+                    if (!GlobalParameters.User.IsPump && needle > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {
                             Id = Guid.NewGuid(),
