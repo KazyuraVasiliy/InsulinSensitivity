@@ -2918,7 +2918,7 @@ namespace InsulinSensitivity.Eating
             
             try
             {
-                if (!OkCanExecute())
+                if (!CloseWithNightscoutCanExecute())
                     throw new Exception("Отсутствует строка полключения к Nightscout");
 
                 var baseUri = GlobalParameters.User.NightscoutUri.TrimEnd('/');
@@ -2934,12 +2934,15 @@ namespace InsulinSensitivity.Eating
                         throw new Exception("Нет доступа к серверу");
 
                     // Получение текущего сахара
-                    result = await client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date:yyyy-MM-dd}&count=1");
+                    result = await client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1");
                     if (!result.IsSuccessStatusCode)
-                        throw new Exception("Нет данных о текущем сахаре");
+                        throw new Exception("Не удалось получить данные о текущем сахаре");
 
                     var data = await result.Content.ReadAsStringAsync();
                     var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
+
+                    if (glucose == null)
+                        throw new Exception("Нет данных о текущем сахаре");
 
                     if (Math.Abs((date - glucose.dateString).TotalMinutes) > 10)
                         throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
@@ -2947,7 +2950,7 @@ namespace InsulinSensitivity.Eating
                     // Получение подколок
                     result = await client.GetAsync(baseUri + $"/treatments.json?find[insulin][$gte]=0.1&count=100");
                     if (!result.IsSuccessStatusCode)
-                        throw new Exception("Нет данных о подколках");
+                        throw new Exception("Не удалось получить данные о подколках");
 
                     data = await result.Content.ReadAsStringAsync();
                     var insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
