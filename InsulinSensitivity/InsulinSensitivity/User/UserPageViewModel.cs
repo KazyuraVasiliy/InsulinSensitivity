@@ -362,6 +362,8 @@ namespace InsulinSensitivity.User
                 user.FatCoefficient = User.FatCoefficient;
                 user.PeriodOfCalculation = User.PeriodOfCalculation;
 
+                user.NightscoutUri = User.NightscoutUri;
+
                 if (User.Id == Guid.Empty)
                     db.Users.Add(user);
                 

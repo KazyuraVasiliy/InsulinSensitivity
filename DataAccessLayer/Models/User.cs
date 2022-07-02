@@ -121,6 +121,11 @@ namespace DataAccessLayer.Models
         public int PeriodOfCalculation { get; set; }
 
         /// <summary>
+        /// Строка подключения к Nightscout
+        /// </summary>
+        public string NightscoutUri { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
         /// </summary>
         public InsulinType BasalType { get; set; }

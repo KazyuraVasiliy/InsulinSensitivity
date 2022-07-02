@@ -13,6 +13,9 @@ using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace InsulinSensitivity.Eating
 {
@@ -877,11 +880,12 @@ namespace InsulinSensitivity.Eating
                 if (Eating.GlucoseEnd != value)
                 {
                     Eating.GlucoseEnd = value;
+                    OnPropertyChanged();
 
                     Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now);
                     OnPropertyChanged(nameof(EndEatingTime));
                     OnPropertyChanged(nameof(EndEatingDate));
-
+                    
                     CalculateTotal();
                 }
             }
@@ -968,6 +972,8 @@ namespace InsulinSensitivity.Eating
                 if (Eating.BolusDoseFact != value)
                 {
                     Eating.BolusDoseFact = value;
+                    OnPropertyChanged();
+
                     CalculateTotal();
                 }
             }
@@ -2901,6 +2907,103 @@ namespace InsulinSensitivity.Eating
 
         public ICommand CancelSnackCommand =>
             new Command(() => IsModalSnack = false);
+
+        #endregion
+
+        #region --Close With Nightscout
+
+        private async void CloseWithNightscoutExecute()
+        {
+            AsyncBase.Open();
+            
+            try
+            {
+                if (!OkCanExecute())
+                    throw new Exception("Отсутствует строка полключения к Nightscout");
+
+                var baseUri = GlobalParameters.User.NightscoutUri.TrimEnd('/');
+                var date = DateTimeOffset.Now;
+                
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(5);
+
+                    // Проверка доступа к серверу
+                    var result = await client.GetAsync(baseUri + "/status");
+                    if (!result.IsSuccessStatusCode)
+                        throw new Exception("Нет доступа к серверу");
+
+                    // Получение текущего сахара
+                    result = await client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date:yyyy-MM-dd}&count=1");
+                    if (!result.IsSuccessStatusCode)
+                        throw new Exception("Нет данных о текущем сахаре");
+
+                    var data = await result.Content.ReadAsStringAsync();
+                    var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
+
+                    if (Math.Abs((date - glucose.dateString).TotalMinutes) > 10)
+                        throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
+
+                    // Получение подколок
+                    result = await client.GetAsync(baseUri + $"/treatments.json?find[insulin][$gte]=0.1&count=100");
+                    if (!result.IsSuccessStatusCode)
+                        throw new Exception("Нет данных о подколках");
+
+                    data = await result.Content.ReadAsStringAsync();
+                    var insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
+
+                    // Удаление подколок позже времени основной инъекции
+                    var dateStart = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
+
+                    var removable = Injections
+                        .Where(x => Calculation.DateTimeUnionTimeSpan(x.InjectionDate, x.InjectionTime) >= dateStart)
+                        .ToList();
+
+                    foreach (var i in removable)
+                        Injections.Remove(i);
+
+                    // Зануление основной инъекции
+                    BolusDoseFact = 0;
+
+                    // Добавление подколок
+                    insulins = insulins
+                        .Where(x => x.created_at >= dateStart)
+                        .OrderBy(x => x.created_at)
+                        .ToList();
+
+                    foreach (var insulin in insulins)
+                        Injections.Add(new Models.Injection()
+                        {
+                            Id = Guid.NewGuid(),
+                            InjectionTime = Calculation.TimeSpanWithoutSeconds(insulin.created_at.Add(DateTimeOffset.Now.Offset).TimeOfDay),
+                            InjectionDate = insulin.created_at.Add(DateTimeOffset.Now.Offset).Date,
+                            BolusType = GlobalParameters.User.BolusType,
+                            BolusDose = insulin.insulin
+                        });
+
+                    // Добавление сахара на отработке
+                    GlucoseEnd = Math.Round(glucose.sgv / 18, 2);
+
+                    // Пересчёт параметров
+                    CalculateTotal();
+                }
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message,
+                    "Ok");
+            }
+
+            AsyncBase.Close();
+        }
+
+        private bool CloseWithNightscoutCanExecute() =>
+            !string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutUri);
+
+        public ICommand CloseWithNightscoutCommand =>
+            new Command(CloseWithNightscoutExecute);
 
         #endregion
 

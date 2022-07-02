@@ -442,6 +442,13 @@
                             Unfocused="Entry_Unfocused"
                             Text="{Binding Path=PeriodOfCalculation}"
                             IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
+
+                        <Label
+                            Text="Nightscout API Uri:"/>
+                        <Editor
+                            Keyboard="Chat"
+                            AutoSize="TextChanges"
+                            Text="{Binding Path=User.NightscoutUri}"/>
                     </StackLayout>
                 </Frame>
 

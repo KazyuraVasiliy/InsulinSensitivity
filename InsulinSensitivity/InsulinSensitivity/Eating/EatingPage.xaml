@@ -15,6 +15,17 @@
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
     </ContentPage.Resources>
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Command="{Binding Path=CloseWithNightscoutCommand}">
+
+            <ToolbarItem.IconImageSource>
+                <FileImageSource
+                    File="nightscout.png"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
         <Grid>
             <ScrollView>
