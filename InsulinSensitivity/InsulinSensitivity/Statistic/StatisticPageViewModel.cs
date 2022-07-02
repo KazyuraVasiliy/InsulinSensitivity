@@ -239,6 +239,10 @@ namespace InsulinSensitivity.Statistic
                         .ThenInclude(x => x.ExerciseType)
                     .ToList();
 
+                var lastMonth = DateTime.Now.AddMonths(-1).Date;
+                var eatingsLastMonth = eatings
+                    .Where(x => x.DateCreated.Date >= lastMonth);
+
                 var basals = eatings
                     .GroupBy(x =>
                         x.DateCreated.Date)
@@ -305,7 +309,8 @@ namespace InsulinSensitivity.Statistic
                 };
 
                 // ФЧИ
-                var eatingTypeAverages = eatings
+                var eatingTypeAverages = eatingsLastMonth
+                    .Where(x => x.DateCreated.Date >= lastMonth)
                     .GroupBy(x =>
                         x.EatingType)
                     .OrderBy(x =>
@@ -313,16 +318,16 @@ namespace InsulinSensitivity.Statistic
                     .Select(x =>
                         $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
 
-                var min = eatings.Min(x => x.InsulinSensitivityFact.Value);
-                string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatings.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
+                var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
+                string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
 
-                var max = eatings.Max(x => x.InsulinSensitivityFact.Value);
-                string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatings.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
+                var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
+                string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
 
                 InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
 
                 // Соотношение углеводов к инсулину
-                var carbohydrateCoefficientAverages = eatings
+                var carbohydrateCoefficientAverages = eatingsLastMonth
                     .GroupBy(x =>
                         x.EatingType)
                     .SelectMany(x =>
