@@ -44,7 +44,7 @@ namespace InsulinSensitivity.Eating
             else Eating = new Models.Eating()
             {
                 DateCreated = DateTime.Now,
-                BasalRateCoefficient = 100
+                BasalRateCoefficient = GlobalParameters.User.DefaultBasalRateCoefficient
             };
 
             // Инициализация коллекций
@@ -1241,6 +1241,88 @@ namespace InsulinSensitivity.Eating
                 // Базальная скорость
                 if (IsBasalRateVisibility && Eating.Id == Guid.Empty)
                     Eating.BasalRate = previousEating?.BasalRate ?? 0;
+
+                // Получение сахара и базальной скорости из Nightscout
+                if (GlobalParameters.User.IsNightscoutStartParameters && !string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutUri) && Eating.Id == Guid.Empty)
+                {
+                    try
+                    {
+                        var baseUri = GlobalParameters.User.NightscoutUri.TrimEnd('/');
+                        var date = DateTimeOffset.Now;
+
+                        using (var client = new HttpClient())
+                        {
+                            client.Timeout = TimeSpan.FromSeconds(5);
+
+                            // Проверка доступа к серверу
+                            var result = client.GetAsync(baseUri + "/status").Result;
+                            if (!result.IsSuccessStatusCode)
+                                throw new Exception("Нет доступа к серверу");
+
+                            // Получение текущего сахара
+                            result = client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
+                            if (!result.IsSuccessStatusCode)
+                                throw new Exception("Не удалось получить данные о текущем сахаре");
+
+                            var data = result.Content.ReadAsStringAsync().Result;
+                            var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
+
+                            if (glucose == null)
+                                throw new Exception("Нет данных о текущем сахаре");
+
+                            if (Math.Abs((date - glucose.dateString).TotalMinutes) > 10)
+                                throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
+
+                            Eating.GlucoseStart = Math.Round(glucose.sgv / 18, 1);
+
+                            // Получение подколок
+                            result = client.GetAsync(baseUri + $"/treatments.json?find[insulin][$gte]=0.1&count=10").Result;
+                            if (!result.IsSuccessStatusCode)
+                                throw new Exception("Не удалось получить данные о подколках");
+
+                            data = result.Content.ReadAsStringAsync().Result;
+                            var insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
+
+                            // Поиск и парсинг профиля
+                            var profileStr = insulins
+                                .FirstOrDefault(x => x.boluscalc != null)?.boluscalc?.profile;
+
+                            if (profileStr == null)
+                                throw new Exception("Не удалось получить данные о текущем профиле");
+
+                            // ... Поиск коэффициента
+                            var index = profileStr.LastIndexOf('(');
+                            decimal percent = 100;
+
+                            if (index != -1)
+                                percent = decimal.TryParse(profileStr.Substring(index).Trim('(', ')').TrimEnd('%'), out percent)
+                                    ? percent
+                                    : 100;
+
+                            // ... Наименование профиля
+                            var profile = index != -1
+                                ? profileStr.Substring(0, index)
+                                : profileStr;
+
+                            // Получение профилей
+                            result = client.GetAsync(baseUri + "/profile").Result;
+                            if (!result.IsSuccessStatusCode)
+                                throw new Exception("Не удалось получить данные о профилях");
+
+                            JToken token = JArray.Parse(result.Content.ReadAsStringAsync().Result)[0];
+                            var profiles = token[$"store"][profile]["basal"];
+
+                            var profileBasals = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutBasal>>(profiles?.ToString());
+                            var basal = profileBasals
+                                ?.OrderByDescending(x => x.time)
+                                ?.FirstOrDefault(x => date.TimeOfDay >= x.time)?.value;
+
+                            if (basal != null)
+                                BasalRate = Math.Round(basal.Value * (percent / 100), 2);
+                        }
+                    }
+                    catch { }
+                }
 
                 // Средний ФЧИ предыдущего типа приёма пищи
                 if (previousEating != null)
@@ -2985,7 +3067,7 @@ namespace InsulinSensitivity.Eating
                         });
 
                     // Добавление сахара на отработке
-                    GlucoseEnd = Math.Round(glucose.sgv / 18, 2);
+                    GlucoseEnd = Math.Round(glucose.sgv / 18, 1);
 
                     // Пересчёт параметров
                     CalculateTotal();

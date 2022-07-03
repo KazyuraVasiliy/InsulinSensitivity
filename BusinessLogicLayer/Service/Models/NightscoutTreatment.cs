@@ -13,5 +13,18 @@ namespace BusinessLogicLayer.Service.Models
         /// Дата создания
         /// </summary>
         public DateTimeOffset created_at { get; set; }
+
+        /// <summary>
+        /// Данные профиля
+        /// </summary>
+        public BolusCalc boluscalc { get; set; }
+
+        public class BolusCalc
+        {
+            /// <summary>
+            /// Профиль
+            /// </summary>
+            public string profile { get; set; }
+        }
     }
 }

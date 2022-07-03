@@ -444,11 +444,37 @@
                             IsVisible="{Binding Path=IsEditableFieldsVisible, Mode=OneWay}"/>
 
                         <Label
+                            Text="ВБС по умолчанию:"/>
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="DefaultBasalRateCoefficient"
+                            Unfocused="Entry_Unfocused"
+                            TabIndex="9"
+                            Text="{Binding Path=DefaultBasalRateCoefficient, Converter={StaticResource DecimalToStringConverter}}"/>
+
+                        <Label
                             Text="Nightscout API Uri:"/>
                         <Editor
                             Keyboard="Chat"
                             AutoSize="TextChanges"
                             Text="{Binding Path=User.NightscoutUri}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="Инициализация из Nightscout:"/>
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=User.IsNightscoutStartParameters}"/>
+                        </Grid>
                     </StackLayout>
                 </Frame>
 

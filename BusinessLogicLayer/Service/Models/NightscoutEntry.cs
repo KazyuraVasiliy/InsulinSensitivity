@@ -14,4 +14,17 @@ namespace BusinessLogicLayer.Service.Models
         /// </summary>
         public DateTimeOffset dateString { get; set; }
     }
+
+    public class NightscoutBasal
+    {
+        /// <summary>
+        /// Время
+        /// </summary>
+        public TimeSpan time { get; set; }
+
+        /// <summary>
+        /// Значение
+        /// </summary>
+        public decimal value { get; set; }
+    }
 }

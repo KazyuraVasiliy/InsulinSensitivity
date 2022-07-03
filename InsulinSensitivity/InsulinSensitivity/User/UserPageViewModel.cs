@@ -246,6 +246,19 @@ namespace InsulinSensitivity.User
         }
 
         /// <summary>
+        /// ВБС по умолчанию
+        /// </summary>
+        public decimal DefaultBasalRateCoefficient
+        {
+            get => User.DefaultBasalRateCoefficient;
+            set
+            {
+                User.DefaultBasalRateCoefficient = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// Кол-во дней для расчёта
         /// </summary>
         public int PeriodOfCalculation
@@ -363,6 +376,9 @@ namespace InsulinSensitivity.User
                 user.PeriodOfCalculation = User.PeriodOfCalculation;
 
                 user.NightscoutUri = User.NightscoutUri;
+                user.IsNightscoutStartParameters = User.IsNightscoutStartParameters;
+
+                user.DefaultBasalRateCoefficient = User.DefaultBasalRateCoefficient;
 
                 if (User.Id == Guid.Empty)
                     db.Users.Add(user);

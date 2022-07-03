@@ -121,9 +121,19 @@ namespace DataAccessLayer.Models
         public int PeriodOfCalculation { get; set; }
 
         /// <summary>
+        /// Временная базальная скорость по умолчанию
+        /// </summary>
+        public decimal DefaultBasalRateCoefficient { get; set; }
+
+        /// <summary>
         /// Строка подключения к Nightscout
         /// </summary>
         public string NightscoutUri { get; set; }
+
+        /// <summary>
+        /// Получать стартовые параметры из Nightscout
+        /// </summary>
+        public bool IsNightscoutStartParameters { get; set; }
 
         /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
