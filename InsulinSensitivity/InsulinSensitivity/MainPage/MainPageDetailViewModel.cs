@@ -65,6 +65,12 @@ namespace InsulinSensitivity
         public decimal TargetGlucose =>
             GlobalParameters.User.TargetGlucose;
 
+        /// <summary>
+        /// УК
+        /// </summary>
+        public decimal CarbohydrateCoefficient =>
+            GlobalParameters.User.CarbohydrateCoefficient;
+
         private bool isRefreshing;
         /// <summary>
         /// Указывает на то, что обновление завершено

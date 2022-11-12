@@ -19,6 +19,7 @@
         <converters:InjectionsToStringConverter x:Key="InjectionsToStringConverter"/>
         <converters:IsIgnoredToOpacityConverter x:Key="IsIgnoredToOpacityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:SensitivityAndCoefficientConverter x:Key="SensitivityAndCoefficientConverter"/>
 
         <s:Boolean x:Key="True">True</s:Boolean>
 
@@ -212,18 +213,39 @@
                                                     </Label>
                                                 </Grid>
 
+                                                <!-- Элемент разбит на два для корректной работы CachingStrategy -->
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition/>
                                                         <ColumnDefinition/>
+                                                        <ColumnDefinition/>
                                                     </Grid.ColumnDefinitions>
 
-                                                    <!-- Элемент разбит на два для корректной работы CachingStrategy -->
+                                                    <Grid.IsVisible>
+                                                        <MultiBinding Converter="{StaticResource IsLastProductConverter}">
+                                                            <Binding Path="Id"/>
+                                                            <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id" FallbackValue="{x:Static s:Guid.Empty}" TargetNullValue="{x:Static s:Guid.Empty}"/>
+                                                            <Binding Source="{StaticResource True}"/>
+                                                        </MultiBinding>
+                                                    </Grid.IsVisible>
+
                                                     <Label 
                                                         Grid.Column="0"
                                                         VerticalTextAlignment="Center"
                                                         Text="{Binding Path=InsulinSensitivityFact, StringFormat='{}ФЧИ: {0:N2}'}">
+                                                    </Label>
+
+                                                    <Label 
+                                                        Grid.Column="1"
+                                                        VerticalTextAlignment="Center">
+
+                                                        <Label.Text>
+                                                            <MultiBinding Converter="{StaticResource SensitivityAndCoefficientConverter}">
+                                                                <Binding Path="InsulinSensitivityFact"/>
+                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.CarbohydrateCoefficient"/>
+                                                            </MultiBinding>
+                                                        </Label.Text>
 
                                                         <Label.IsVisible>
                                                             <MultiBinding Converter="{StaticResource IsLastProductConverter}">
@@ -235,6 +257,35 @@
                                                     </Label>
 
                                                     <Label
+                                                        Grid.Column="2"
+                                                        Margin="0, 4, 0, 0"
+                                                        VerticalTextAlignment="Center"
+                                                        FontFamily="Typicons"
+                                                        Text="{Binding Path=AccuracyAuto, StringFormat='{}&#xe037; {0}%'}"/>
+                                                    
+                                                    <Label
+                                                        Grid.Column="3"
+                                                        Margin="0, 4, 0, 0"
+                                                        VerticalTextAlignment="Center"
+                                                        FontFamily="Typicons"
+                                                        Text="{Binding Path=AccuracyUser, StringFormat='{}&#xe12c; {0}%'}"/>
+                                                </Grid>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Grid.IsVisible>
+                                                        <MultiBinding Converter="{StaticResource IsLastProductConverter}">
+                                                            <Binding Path="Id"/>
+                                                            <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
+                                                        </MultiBinding>
+                                                    </Grid.IsVisible>
+
+                                                    <Label
                                                         Grid.Column="0"
                                                         VerticalTextAlignment="End"
                                                         HorizontalTextAlignment="Start"
@@ -242,13 +293,6 @@
                                                         TextColor="Red"
                                                         FontFamily="Typicons"                                                        
                                                         Text="{Binding Path=ExpectedGlucose, StringFormat='{}отр: {0:N1}'}">
-
-                                                        <Label.IsVisible>
-                                                            <MultiBinding Converter="{StaticResource IsLastProductConverter}">
-                                                                <Binding Path="Id"/>
-                                                                <Binding Source="{RelativeSource AncestorType={x:Type ContentPage}}" Path="BindingContext.LastEating.Id"/>
-                                                            </MultiBinding>
-                                                        </Label.IsVisible>
 
                                                         <Label.Style>
                                                             <Style TargetType="Label">
@@ -274,6 +318,7 @@
                                                         VerticalTextAlignment="Center"
                                                         FontFamily="Typicons"
                                                         Text="{Binding Path=AccuracyAuto, StringFormat='{}&#xe037; {0}%'}"/>
+                                                    
                                                     <Label
                                                         Grid.Column="2"
                                                         Margin="0, 4, 0, 0"
