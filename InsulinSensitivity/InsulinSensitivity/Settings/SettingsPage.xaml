@@ -222,7 +222,7 @@
                             Text="{Binding Path=CatheterLifespan}"/>
 
                         <Label
-                            Text="Резервуар:"/>
+                            Text="Картридж:"/>
 
                         <Entry
                             Keyboard="Numeric"

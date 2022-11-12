@@ -879,7 +879,7 @@
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена резервуара:"/>
+                                        Text="Замена картриджа:"/>
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"

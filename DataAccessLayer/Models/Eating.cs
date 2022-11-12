@@ -220,7 +220,7 @@ namespace DataAccessLayer.Models
         public bool IsCatheterReplacement { get; set; }
 
         /// <summary>
-        /// Замена резервуара
+        /// Замена картриджа
         /// </summary>
         public bool IsCartridgeReplacement { get; set; }
 

@@ -156,6 +156,9 @@ namespace InsulinSensitivity
             {
                 basalBeginPeriod = basalBeginPeriod.Value.AddMinutes(pause.Value);
                 basalEndPeriod = basalBeginPeriod.Value.AddHours(carbohydrate.Value / (double)GlobalParameters.User.AbsorptionRateOfCarbohydrates);
+
+                if ((basalEndPeriod - basalBeginPeriod).Value.TotalHours > 2)
+                    basalEndPeriod = basalBeginPeriod.Value.AddHours(2);
             }
 
             if (endPeriod == null)

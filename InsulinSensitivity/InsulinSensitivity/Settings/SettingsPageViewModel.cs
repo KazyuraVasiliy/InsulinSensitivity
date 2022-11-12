@@ -169,7 +169,7 @@ namespace InsulinSensitivity.Settings
         }
 
         /// <summary>
-        /// Продолжительность жизни резервуара
+        /// Продолжительность жизни картриджа
         /// </summary>
         public int CartridgeLifespan
         {
