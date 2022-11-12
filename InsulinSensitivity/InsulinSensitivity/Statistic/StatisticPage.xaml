@@ -82,6 +82,35 @@
                             Spacing="0">
 
                             <Label
+                                Text="ФЧИ по неделям года"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand"/>
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <ScrollView
+                                    HeightRequest="300"                        
+                                    HorizontalOptions="FillAndExpand"
+                                    HorizontalScrollBarVisibility="Always"
+                                    Orientation="Horizontal">
+
+                                    <microcharts:ChartView
+                                        WidthRequest="{Binding Path=WidthRequestWeeks}"
+                                        Chart="{Binding Path=ChartWeeks}"/>
+                                </ScrollView>
+                            </StackLayout>
+                        </StackLayout>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
                                 Text="Соотношение углеводов к инсулину (г/ед)"
                                 FontAttributes="Bold"
                                 FontSize="16"

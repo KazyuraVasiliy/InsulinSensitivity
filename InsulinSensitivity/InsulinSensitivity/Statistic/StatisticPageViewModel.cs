@@ -59,6 +59,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private double widthRequestWeeks;
+        /// <summary>
+        /// Ширина недельного графика
+        /// </summary>
+        public double WidthRequestWeeks
+        {
+            get => widthRequestWeeks;
+            set
+            {
+                widthRequestWeeks = value;
+                OnPropertyChanged();
+            }
+        }
+
         private double cycleWidthRequest;
         /// <summary>
         /// Ширина графика ФЧИ по циклу
@@ -183,6 +197,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        public LineChart chartWeeks;
+        /// <summary>
+        /// График недельный
+        /// </summary>
+        public LineChart ChartWeeks
+        {
+            get => chartWeeks;
+            set
+            {
+                chartWeeks = value;
+                OnPropertyChanged();
+            }
+        }
+
         public LineChart cycleChart;
         /// <summary>
         /// График ФЧИ по дням цикла
@@ -299,6 +327,48 @@ namespace InsulinSensitivity.Statistic
                     LineMode = LineMode.Spline,
                     LabelTextSize = 24,
                     Entries = entries,
+
+                    LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                        ? SkiaSharp.SKColors.White
+                        : SkiaSharp.SKColors.Black,
+                    BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                        ? new SkiaSharp.SKColor(29, 29, 29)
+                        : SkiaSharp.SKColors.White,
+                };
+
+                // Недельный график
+                var basalsCalculateWeeks = basalsCalculate
+                    .GroupBy(x => (x.date.Date.DayOfYear - 1) / 7)
+                    .Select(x => (
+                        x.Key,
+                        x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
+
+                var entriesWeeks = eatings
+                    .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
+                    .OrderBy(x => x.Key)
+                    .Select(x =>
+                        new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                        {
+                            Label = x.Key.ToString(),
+                            ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                                $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
+                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+
+                            Color = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.LightSkyBlue
+                                : SkiaSharp.SKColors.Blue
+                        })
+                    .ToList();
+
+                WidthRequestWeeks = (entriesWeeks?.Count() ?? 0) * 15;
+
+                ChartWeeks = new LineChart()
+                {
+                    LineMode = LineMode.Spline,
+                    LabelTextSize = 24,
+                    Entries = entriesWeeks,
 
                     LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                         ? SkiaSharp.SKColors.White
