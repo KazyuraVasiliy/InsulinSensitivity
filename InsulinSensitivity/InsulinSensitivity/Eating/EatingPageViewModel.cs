@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace InsulinSensitivity.Eating
 {
@@ -1253,6 +1254,14 @@ namespace InsulinSensitivity.Eating
                         using (var client = new HttpClient())
                         {
                             client.Timeout = TimeSpan.FromSeconds(5);
+
+                            if (!string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutApiKey))
+                            {
+                                var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(GlobalParameters.User.NightscoutApiKey));
+                                var hashStr = string.Concat(hash.Select(b => b.ToString("x2")));
+
+                                client.DefaultRequestHeaders.Add("api-secret", hashStr);
+                            }                            
 
                             // Проверка доступа к серверу
                             var result = client.GetAsync(baseUri + "/status").Result;
@@ -3009,6 +3018,14 @@ namespace InsulinSensitivity.Eating
                 using (var client = new HttpClient())
                 {
                     client.Timeout = TimeSpan.FromSeconds(5);
+
+                    if (!string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutApiKey))
+                    {
+                        var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(GlobalParameters.User.NightscoutApiKey));
+                        var hashStr = string.Concat(hash.Select(b => b.ToString("x2")));
+
+                        client.DefaultRequestHeaders.Add("api-secret", hashStr);
+                    }
 
                     // Проверка доступа к серверу
                     var result = await client.GetAsync(baseUri + "/status");

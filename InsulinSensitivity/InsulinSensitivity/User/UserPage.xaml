@@ -459,6 +459,13 @@
                             AutoSize="TextChanges"
                             Text="{Binding Path=User.NightscoutUri}"/>
 
+                        <Label
+                            Text="Nightscout API Key:"/>
+                        <Editor
+                            Keyboard="Chat"
+                            AutoSize="TextChanges"
+                            Text="{Binding Path=User.NightscoutApiKey}"/>
+                        
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>

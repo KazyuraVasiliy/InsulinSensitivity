@@ -376,6 +376,7 @@ namespace InsulinSensitivity.User
                 user.PeriodOfCalculation = User.PeriodOfCalculation;
 
                 user.NightscoutUri = User.NightscoutUri;
+                user.NightscoutApiKey = User.NightscoutApiKey;
                 user.IsNightscoutStartParameters = User.IsNightscoutStartParameters;
 
                 user.DefaultBasalRateCoefficient = User.DefaultBasalRateCoefficient;

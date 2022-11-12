@@ -131,6 +131,11 @@ namespace DataAccessLayer.Models
         public string NightscoutUri { get; set; }
 
         /// <summary>
+        /// Nightscout API Key
+        /// </summary>
+        public string NightscoutApiKey { get; set; }
+
+        /// <summary>
         /// Получать стартовые параметры из Nightscout
         /// </summary>
         public bool IsNightscoutStartParameters { get; set; }
