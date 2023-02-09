@@ -209,20 +209,30 @@ namespace InsulinSensitivity
 
         private async void StatisticExecute()
         {
-            if (!StatisticCanExecute())
+            try
+            {
+                if (!StatisticCanExecute())
+                {
+                    await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                        "Ошибка",
+                        "Пользователь не создан",
+                        "Ok");
+                    return;
+                }
+
+                var statisticPage = new Statistic.StatisticPage();
+                statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
+
+                await GlobalParameters.Navigation.PushAsync(statisticPage, true);
+                await statisticPage.sv.ScrollToAsync((statisticPage.BindingContext as Statistic.StatisticPageViewModel).WidthRequest, 0, true);
+            }
+            catch (Exception ex)
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
                     "Ошибка",
-                    "Пользователь не создан",
+                    ex.Message + ex?.InnerException?.Message,
                     "Ok");
-                return;
             }
-
-            var statisticPage = new Statistic.StatisticPage();
-            statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
-            
-            await GlobalParameters.Navigation.PushAsync(statisticPage, true);
-            await statisticPage.sv.ScrollToAsync((statisticPage.BindingContext as Statistic.StatisticPageViewModel).WidthRequest, 0, true);
         }
 
         private bool StatisticCanExecute() =>
