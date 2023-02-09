@@ -295,7 +295,9 @@ namespace InsulinSensitivity.Statistic
                         !x.IsIgnored)
                     .ToList();
 
+                var lastYear = DateTime.Now.AddYears(-1).Date;
                 var entries = eatings
+                    .Where(x => x.DateCreated.Date >= lastYear)
                     .OrderBy(x =>
                         x.DateCreated.Date)
                     .GroupBy(x =>
@@ -343,6 +345,7 @@ namespace InsulinSensitivity.Statistic
                         x.Key,
                         x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
 
+                var currentWeek = (DateTime.Now.DayOfYear - 1) / 7;
                 var entriesWeeks = eatings
                     .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
                     .OrderBy(x => x.Key)
@@ -356,9 +359,11 @@ namespace InsulinSensitivity.Statistic
                                 ? SkiaSharp.SKColors.White
                                 : SkiaSharp.SKColors.Black,
 
-                            Color = App.Current.RequestedTheme == OSAppTheme.Dark
-                                ? SkiaSharp.SKColors.LightSkyBlue
-                                : SkiaSharp.SKColors.Blue
+                            Color = currentWeek == x.Key
+                                ? SkiaSharp.SKColors.Red
+                                : App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.LightSkyBlue
+                                    : SkiaSharp.SKColors.Blue
                         })
                     .ToList();
 
@@ -388,13 +393,16 @@ namespace InsulinSensitivity.Statistic
                     .Select(x =>
                         $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
 
-                var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
-                string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
+                if (eatingTypeAverages.Count() > 0)
+                {
+                    var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
+                    string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
 
-                var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
-                string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
+                    var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
+                    string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
 
-                InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
+                    InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
+                }
 
                 // Соотношение углеводов к инсулину
                 var carbohydrateCoefficientAverages = eatingsLastMonth
