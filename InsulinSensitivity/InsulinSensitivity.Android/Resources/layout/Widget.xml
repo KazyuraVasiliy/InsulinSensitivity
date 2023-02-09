@@ -63,13 +63,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <TextView
+                <ImageView
                     android:id="@+id/widgetTextLastEatingTimeIcon"
-                    style="@style/TextIcon"
-                    android:text="@string/timeIcon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"/>
+                    android:layout_marginTop="10px"
+                    android:layout_marginRight="5px"/>
 
                 <TextView
                     android:layout_marginLeft="4dp"
@@ -85,13 +84,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <TextView
+                <ImageView
                     android:id="@+id/widgetTextLastEatingNutritionalIcon"
-                    style="@style/TextIcon"
-                    android:text="@string/nutritionalIcon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/white"/>
+                    android:layout_marginTop="10px"
+                    android:layout_marginRight="5px"/>
 
                 <TextView
                     android:layout_marginLeft="4dp"
@@ -113,15 +111,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <TextView
+    <ImageView
         android:id="@+id/widgetTextSettings"
-        style="@style/TextIcon"
-        android:text="@string/settingsIcon"
         android:layout_gravity="right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:textColor="@android:color/white"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:paddingBottom="20dp"

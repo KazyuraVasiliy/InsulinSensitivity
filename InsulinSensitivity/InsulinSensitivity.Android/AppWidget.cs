@@ -1,15 +1,13 @@
 ﻿using Android.App;
 using Android.Appwidget;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
+using Android.Graphics;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Core.Content.Resources;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace InsulinSensitivity.Droid
 {
@@ -27,7 +25,7 @@ namespace InsulinSensitivity.Droid
             appWidgetManager.UpdateAppWidget(me, Process(views, true));
 
             // Установка текста
-            SetTextViewText(views);
+            SetTextViewText(views, context);
 
             // Регистрация обновления
             var updateIntent = new Intent(context, typeof(AppWidget));
@@ -102,13 +100,25 @@ namespace InsulinSensitivity.Droid
 
                 var views = new RemoteViews(context.PackageName, Resource.Layout.Widget);
                 foreach (var field in fields)
-                    views.SetTextColor((int)field.GetValue(null), Color);
+                {
+                    if (field.Name == "widgetTextLastEatingNutritionalIcon")
+                        views.SetImageViewBitmap((int)field.GetValue(null), ConvertToImg("\xe04e", context, 40, Color));
+
+                    else if (field.Name == "widgetTextLastEatingTimeIcon")
+                        views.SetImageViewBitmap((int)field.GetValue(null), ConvertToImg("\xe120", context, 40, Color));
+
+                    else if (field.Name == "widgetTextSettings")
+                        views.SetImageViewBitmap((int)field.GetValue(null), ConvertToImg("\xe103", context, 60, Color));
+
+                    else 
+                        views.SetTextColor((int)field.GetValue(null), Color);                    
+                }                    
 
                 manager.UpdateAppWidget(me, views);
             }
         }
 
-        private void SetTextViewText(RemoteViews views)
+        private void SetTextViewText(RemoteViews views, Context context)
         {
             // Получение данных из БД
             var path = new AndroidDbPath().GetDatabasePath("InsulinSensitivityApp.db");
@@ -147,13 +157,15 @@ namespace InsulinSensitivity.Droid
                 // Установка данных
                 views.SetTextViewText(Resource.Id.widgetTextActiveInsulin, eatings != null && user != null
                     ? GlobalMethods.GetActiveInsulinForWidget(eatings, user).ToString()
-                    : "0");
+                : "0");
 
+                views.SetImageViewBitmap(Resource.Id.widgetTextLastEatingTimeIcon, ConvertToImg("\xe120", context, 40, Color.White));
                 views.SetTextViewText(Resource.Id.widgetTextLastEatingType, last?.EatingType?.Name ?? "Нет приёмов пищи");
                 views.SetTextViewText(Resource.Id.widgetTextLastEatingTime, last != null
                     ? $"{last?.InjectionTime.Hours:00}:{last?.InjectionTime.Minutes:00} ({last?.Pause} мин)"
                     : "");
 
+                views.SetImageViewBitmap(Resource.Id.widgetTextLastEatingNutritionalIcon, ConvertToImg("\xe04e", context, 40, Color.White));
                 views.SetTextViewText(Resource.Id.widgetTextLastEatingNutritional, last != null
                     ? $"{last?.Protein} / {last?.Fat} / {last?.Carbohydrate}"
                     : "");
@@ -162,10 +174,29 @@ namespace InsulinSensitivity.Droid
                     ? $"(до {last?.WorkingTime.Hours:00}:{last?.WorkingTime.Minutes:00})"
                     : "");
 
+                views.SetImageViewBitmap(Resource.Id.widgetTextSettings, ConvertToImg("\xe103", context, 60, Color.White));
                 views.SetViewVisibility(Resource.Id.widgetTextLastEatingWorkingTime, last?.GlucoseEnd == null 
                     ? ViewStates.Visible 
                     : ViewStates.Gone);
             } 
+        }
+
+        private Bitmap ConvertToImg(String text, Context context, int size, Color color)
+        {
+            Bitmap btmText = Bitmap.CreateBitmap(size, size, Bitmap.Config.Argb4444);
+            Canvas cnvText = new Canvas(btmText);
+
+            Typeface tf = ResourcesCompat.GetFont(context, Resource.Font.typicons);
+
+            Paint paint = new Paint();
+            paint.AntiAlias = true;
+            paint.SubpixelText = true;
+            paint.SetTypeface(tf);
+            paint.SetARGB(color.A, color.R, color.G, color.B);
+            paint.TextSize = size;
+
+            cnvText.DrawText(text, 5, size - 10, paint);
+            return btmText;
         }
     }
 }
