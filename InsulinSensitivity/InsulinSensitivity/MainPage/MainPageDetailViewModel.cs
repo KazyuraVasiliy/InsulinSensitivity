@@ -456,7 +456,7 @@ namespace InsulinSensitivity
             string action = await GlobalParameters.Navigation.NavigationStack.Last()
                 .DisplayActionSheet("Фильтр", "Отмена", null, buttons);
 
-            if (action != "Отмена")
+            if (!string.IsNullOrWhiteSpace(action) && action != "Отмена")
             {
                 eatingType = eatingTypes
                     .FirstOrDefault(x =>
