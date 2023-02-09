@@ -15,6 +15,8 @@ namespace InsulinSensitivity
         public MainPage()
         {
             InitializeComponent();
+
+            MasterBehavior = MasterBehavior.Popover;
             MessagingCenter.Subscribe<object, bool>(this, "SwitchMaster", 
                 (sender, enabled) =>
                     IsGestureEnabled = enabled);
