@@ -393,7 +393,7 @@ namespace InsulinSensitivity.Statistic
                     .Select(x =>
                         $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
 
-                if (eatingTypeAverages.Count() > 0)
+                if (eatingTypeAverages.Count() > 0 && eatingsLastMonth.Count() > 0)
                 {
                     var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
                     string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
@@ -405,26 +405,29 @@ namespace InsulinSensitivity.Statistic
                 }
 
                 // Соотношение углеводов к инсулину
-                var carbohydrateCoefficientAverages = eatingsLastMonth
-                    .GroupBy(x =>
-                        x.EatingType)
-                    .SelectMany(x =>
-                        x
-                            .Where(y =>
-                                (y.BolusDoseTotal ?? 0) != 0 &&
-                                (y.Carbohydrate + y.Protein + y.Fat) >= 30)
-                            .OrderByDescending(y =>
-                                y.DateCreated)
-                            .Take(4))
-                    .GroupBy(x =>
-                        x.EatingType)
-                    .OrderBy(x =>
-                        x.Key.TimeStart)
-                    .Select(x =>
-                        $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
-                        $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
+                if (eatingsLastMonth.Count > 0)
+                {
+                    var carbohydrateCoefficientAverages = eatingsLastMonth
+                        .GroupBy(x =>
+                            x.EatingType)
+                        .SelectMany(x =>
+                            x
+                                .Where(y =>
+                                    (y.BolusDoseTotal ?? 0) != 0 &&
+                                    (y.Carbohydrate + y.Protein + y.Fat) >= 30)
+                                .OrderByDescending(y =>
+                                    y.DateCreated)
+                                .Take(4))
+                        .GroupBy(x =>
+                            x.EatingType)
+                        .OrderBy(x =>
+                            x.Key.TimeStart)
+                        .Select(x =>
+                            $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
+                            $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
 
-                CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
+                    CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
+                }
 
                 // Цикл
                 if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
