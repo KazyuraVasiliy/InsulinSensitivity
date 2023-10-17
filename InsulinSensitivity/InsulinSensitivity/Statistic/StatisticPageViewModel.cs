@@ -405,7 +405,7 @@ namespace InsulinSensitivity.Statistic
                 }
 
                 // Соотношение углеводов к инсулину
-                if (eatingsLastMonth.Count > 0)
+                if (eatingsLastMonth.Count() > 0)
                 {
                     var carbohydrateCoefficientAverages = eatingsLastMonth
                         .GroupBy(x =>

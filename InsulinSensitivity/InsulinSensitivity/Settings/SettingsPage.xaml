@@ -240,7 +240,7 @@
                             Text="{Binding Path=BatteryLifespan}"/>
 
                         <Label
-                            Text="Мониторинг:"/>
+                            Text="Сенсор:"/>
 
                         <Entry
                             Keyboard="Numeric"

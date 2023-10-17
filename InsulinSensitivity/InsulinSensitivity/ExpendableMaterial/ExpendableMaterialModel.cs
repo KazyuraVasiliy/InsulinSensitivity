@@ -33,7 +33,9 @@ namespace InsulinSensitivity.ExpendableMaterial
                     ? Color.Red
                     : sub.TotalDays > 365
                         ? Color.Orange
-                        : Color.Black;
+                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? Color.White
+                            : Color.Black;
             }            
         }
     }

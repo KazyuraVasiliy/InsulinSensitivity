@@ -240,7 +240,7 @@ namespace InsulinSensitivity
 
             private static int? monitoringLifespan;
             /// <summary>
-            /// Продолжительность жизни мониторинга
+            /// Продолжительность жизни сенсора
             /// </summary>
             public static int MonitoringLifespan
             {

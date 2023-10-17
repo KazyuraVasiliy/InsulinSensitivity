@@ -201,7 +201,7 @@ namespace InsulinSensitivity.Settings
         }
 
         /// <summary>
-        /// Продолжительность жизни мониторинга
+        /// Продолжительность жизни сенсора
         /// </summary>
         public int MonitoringLifespan
         {

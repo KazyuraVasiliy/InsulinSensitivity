@@ -117,6 +117,30 @@ namespace DataAccessLayer.Contexts
                     db.SaveChanges();
                 }
 
+                // Изменение времени периодов приёмов пищи
+                if (db.EatingTypes.Count() == 8)
+                {
+                    var night = db.EatingTypes
+                        .First(x =>
+                            x.Name == "Ночь");
+
+                    if (night.TimeEnd != new TimeSpan(2, 59, 59))
+                    {
+                        var eatingTypes = db.EatingTypes
+                            .ToList()
+                            .OrderBy(x => x.TimeStart)
+                            .ToList();
+
+                        for (int i = 0; i < eatingTypes.Count; i++)
+                        {
+                            eatingTypes[i].TimeStart = new TimeSpan(3 * i, 0, 0);
+                            eatingTypes[i].TimeEnd = new TimeSpan(3 * i + 2, 59, 59);
+                        }
+
+                        db.SaveChanges();
+                    }
+                }
+
                 // Инициализация инсулинов
                 if (db.InsulinTypes.Count() == 0)
                 {

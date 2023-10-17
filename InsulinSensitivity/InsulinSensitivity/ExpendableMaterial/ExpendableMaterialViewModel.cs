@@ -58,7 +58,7 @@ namespace InsulinSensitivity.ExpendableMaterial
 
         private int monitoring;
         /// <summary>
-        /// Мониторинг
+        /// Сенсор
         /// </summary>
         public int Monitoring
         {
@@ -177,7 +177,7 @@ namespace InsulinSensitivity.ExpendableMaterial
 
         private DateTime monitoringRecomendationDate;
         /// <summary>
-        /// Рекомендованная дата установки мониторинга
+        /// Рекомендованная дата установки сенсора
         /// </summary>
         public DateTime MonitoringRecomendationDate
         {
@@ -351,7 +351,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                             x.Id == 4),
                 };
 
-                // Мониторинг
+                // Сенсор
                 var lastMonitoring = eatings
                     .Where(x =>
                         x.IsMonitoringReplacement)
@@ -387,7 +387,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                             x.Id == 1),
                 };
 
-                // Рекомендация по установке мониторинга
+                // Рекомендация по установке сенсора
                 MonitoringRecomendationDate = Strip - 2 * monitoring.Days < 0
                     ? DateTime.Now.Date
                     : DateTime.Now.Date.AddDays((double)(Strip - 2 * monitoring.Days) / 9);

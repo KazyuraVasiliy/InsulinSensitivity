@@ -230,7 +230,7 @@ namespace DataAccessLayer.Models
         public bool IsBatteryReplacement { get; set; }
 
         /// <summary>
-        /// Замена мониторинга
+        /// Замена сенсора
         /// </summary>
         public bool IsMonitoringReplacement { get; set; }
 

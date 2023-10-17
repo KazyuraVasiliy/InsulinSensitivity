@@ -74,7 +74,7 @@
                                 Grid.Column="1">
 
                                 <Label
-                                    Text="Мониторинг (шт.):"/>
+                                    Text="Сенсоры (шт.):"/>
                                 <Entry
                                     TabIndex="2"
                                     Keyboard="Numeric"

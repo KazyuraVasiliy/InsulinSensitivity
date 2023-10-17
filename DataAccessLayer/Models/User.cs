@@ -66,7 +66,7 @@ namespace DataAccessLayer.Models
         public bool IsPump { get; set; }
 
         /// <summary>
-        /// Мониторинг
+        /// Сенсор
         /// </summary>
         public bool IsMonitoring { get; set; }
 

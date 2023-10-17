@@ -1219,7 +1219,7 @@ namespace InsulinSensitivity.Eating
 
                         if (eating.IsMonitoringReplacement && messages[4] == null)
                             messages[4] = days >= GlobalParameters.Settings.MonitoringLifespan
-                               ? $"Мониторинг используется уже {days} дней."
+                               ? $"Сенсор используется уже {days} дней."
                                : "";
                     }
 
@@ -2661,7 +2661,7 @@ namespace InsulinSensitivity.Eating
                             DateCreated = date
                         });
 
-                    // Мониторинг
+                    // Сенсор
                     if (Eating.IsMonitoringReplacement && monitoring > 0)
                         db.ExpendableMaterials.Add(new Models.ExpendableMaterial()
                         {

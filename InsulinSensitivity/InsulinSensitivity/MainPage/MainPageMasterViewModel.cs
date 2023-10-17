@@ -37,6 +37,7 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe125", "Создать резервную копию", CreateBackupCommand),
                 new MainPageMasterItemModel("\xe064", "Восстановить из копии", RestoreBackupCommand, true),
                 new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand),
+                new MainPageMasterItemModel("\xe09d", "Помощь", HelpCommand),
             };
         }
 
@@ -255,6 +256,28 @@ namespace InsulinSensitivity
 
         public ICommand InformationCommand =>
             new Command(InformationExecute);
+
+        #endregion
+
+        #region --Help
+
+        private async void HelpExecute()
+        {
+            try
+            {
+                await Browser.OpenAsync("https://t.me/+TcNRD7VazqQCC4ub", BrowserLaunchMode.SystemPreferred);
+            }
+            catch (Exception ex)
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    ex.Message + ex?.InnerException?.Message,
+                    "Ok");
+            }
+        }
+
+        public ICommand HelpCommand =>
+            new Command(HelpExecute);
 
         #endregion
 
