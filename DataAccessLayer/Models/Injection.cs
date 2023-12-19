@@ -30,6 +30,11 @@ namespace DataAccessLayer.Models
         public Guid? BolusTypeId { get; set; }
 
         /// <summary>
+        /// По данным ВБС
+        /// </summary>
+        public bool IsBasalRateCoefficient { get; set; }
+
+        /// <summary>
         /// Тип болюсного инсулина (Навигационное свойство)
         /// </summary>
         public InsulinType BolusType { get; set; }

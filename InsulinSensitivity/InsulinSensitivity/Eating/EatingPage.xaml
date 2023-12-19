@@ -13,6 +13,8 @@
         <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:BorderInjectionConverter
+            x:Key="BorderInjectionConverter" />
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
@@ -457,12 +459,12 @@
                                         <Frame
                                             Style="{StaticResource Frame}"
                                             Margin="0"
-                                            BorderColor="LightBlue">
+                                            BorderColor="{Binding Path=IsBasalRateCoefficient, Converter={StaticResource BorderInjectionConverter}}">
 
                                             <Frame.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditInjectionCommand}"
-                                                    CommandParameter="{Binding .}"/>
+                                                    CommandParameter="{Binding .}" />
                                             </Frame.GestureRecognizers>
 
                                             <Grid>
@@ -471,6 +473,27 @@
                                                     <ColumnDefinition Width="auto"/>
                                                 </Grid.ColumnDefinitions>
 
+                                                <!--<Grid.Style>
+                                                    <Style
+                                                        TargetType="Grid">
+
+                                                        <Setter
+                                                            Property="BackgroundColor"
+                                                            Value="Transparent" />
+
+                                                        <Style.Triggers>
+                                                            <DataTrigger
+                                                                TargetType="Grid"
+                                                                Binding="{Binding Path=IsBasalRateCoefficient}" Value="True">
+
+                                                                <Setter
+                                                                    Property="BackgroundColor"
+                                                                    Value="LightGreen" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>-->
+                                                
                                                 <Label
                                                     Grid.Column="0">
 

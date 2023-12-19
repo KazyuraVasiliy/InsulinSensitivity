@@ -23,7 +23,7 @@ namespace InsulinSensitivity
 
         public MainPageMasterViewModel()
         {
-            Items = new List<MainPageMasterItemModel>()
+            Items = new ObservableCollection<MainPageMasterItemModel>()
             {
                 new MainPageMasterItemModel("\xe12c", "Пользователь", EditUserCommand),
                 new MainPageMasterItemModel("\xe0e3", "Активности", EditExerciseTypeCommand),
@@ -86,7 +86,7 @@ namespace InsulinSensitivity
         /// <summary>
         /// Меню
         /// </summary>
-        public List<MainPageMasterItemModel> Items { get; private set; }
+        public ObservableCollection<MainPageMasterItemModel> Items { get; private set; }
 
         #endregion
 

@@ -17,6 +17,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
+using DataAccessLayer.Migrations;
 
 namespace InsulinSensitivity.Eating
 {
@@ -1285,49 +1286,22 @@ namespace InsulinSensitivity.Eating
                             Eating.GlucoseStart = Math.Round(glucose.sgv / 18, 1);
 
                             // Получение подколок
-                            result = client.GetAsync(baseUri + $"/treatments.json?find[insulin][$gte]=0.1&count=10").Result;
+                            result = client.GetAsync(baseUri + $"/treatments.json?find[eventType]=Temp%20Basal&count=1").Result;
                             if (!result.IsSuccessStatusCode)
-                                throw new Exception("Не удалось получить данные о подколках");
+                                throw new Exception("Не удалось получить данные о БС");
 
                             data = result.Content.ReadAsStringAsync().Result;
-                            var insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
+                            var insulin = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data).FirstOrDefault();
 
-                            // Поиск и парсинг профиля
-                            var profileStr = insulins
-                                .FirstOrDefault(x => x.boluscalc != null)?.boluscalc?.profile;
+                            if (insulin != null)
+                            {
+                                var percent = (int)Math.Round((insulin.percent ?? 0) + 100, 0);
 
-                            if (profileStr == null)
-                                throw new Exception("Не удалось получить данные о текущем профиле");
-
-                            // ... Поиск коэффициента
-                            var index = profileStr.LastIndexOf('(');
-                            decimal percent = 100;
-
-                            if (index != -1)
-                                percent = decimal.TryParse(profileStr.Substring(index).Trim('(', ')').TrimEnd('%'), out percent)
-                                    ? percent
-                                    : 100;
-
-                            // ... Наименование профиля
-                            var profile = index != -1
-                                ? profileStr.Substring(0, index)
-                                : profileStr;
-
-                            // Получение профилей
-                            result = client.GetAsync(baseUri + "/profile").Result;
-                            if (!result.IsSuccessStatusCode)
-                                throw new Exception("Не удалось получить данные о профилях");
-
-                            JToken token = JArray.Parse(result.Content.ReadAsStringAsync().Result)[0];
-                            var profiles = token[$"store"][profile]["basal"];
-
-                            var profileBasals = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutBasal>>(profiles?.ToString());
-                            var basal = profileBasals
-                                ?.OrderByDescending(x => x.time)
-                                ?.FirstOrDefault(x => date.TimeOfDay >= x.time)?.value;
-
-                            if (basal != null)
-                                BasalRate = Math.Round(basal.Value * (percent / 100), 2);
+                                BasalRateCoefficient = percent;
+                                BasalRate = percent != 0
+                                    ? Math.Round((insulin.rate ?? 0) * 100 / percent, 2)
+                                    : 0;
+                            }
                         }
                     }
                     catch { }
@@ -3058,7 +3032,9 @@ namespace InsulinSensitivity.Eating
                     var dateStart = Calculation.DateTimeUnionTimeSpan(Eating.DateCreated, Eating.InjectionTime);
 
                     var removable = Injections
-                        .Where(x => Calculation.DateTimeUnionTimeSpan(x.InjectionDate, x.InjectionTime) >= dateStart)
+                        .Where(x => 
+                            !x.IsBasalRateCoefficient &&
+                            Calculation.DateTimeUnionTimeSpan(x.InjectionDate, x.InjectionTime) >= dateStart)
                         .ToList();
 
                     foreach (var i in removable)
@@ -3080,8 +3056,65 @@ namespace InsulinSensitivity.Eating
                             InjectionTime = Calculation.TimeSpanWithoutSeconds(insulin.created_at.Add(DateTimeOffset.Now.Offset).TimeOfDay),
                             InjectionDate = insulin.created_at.Add(DateTimeOffset.Now.Offset).Date,
                             BolusType = GlobalParameters.User.BolusType,
-                            BolusDose = insulin.insulin
+                            BolusDose = insulin.insulin.Value
                         });
+
+                    // Получение ВБС
+                    result = await client.GetAsync(baseUri + $"/treatments.json?find[eventType]=Temp%20Basal&count=150");
+                    if (!result.IsSuccessStatusCode)
+                        throw new Exception("Не удалось получить данные о подколках");
+
+                    data = await result.Content.ReadAsStringAsync();
+                    insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
+
+                    // ... Удаление
+                    removable = Injections
+                        .Where(x => x.IsBasalRateCoefficient)
+                        .ToList();
+
+                    foreach (var i in removable)
+                        Injections.Remove(i);
+
+                    // ... Добавление
+                    insulins = insulins
+                        .Where(x => 
+                            (x.percent ?? 0) > 0 &&
+                            (x.created_at >= dateStart ||
+                            x.created_at.AddMinutes((double)(x.duration ?? 0)) >= dateStart))
+                        .OrderBy(x => x.created_at)
+                        .ToList();
+
+                    foreach (var insulin in insulins)
+                    {
+                        var injectionStartDateTime = insulin.created_at.Add(DateTimeOffset.Now.Offset).DateTime;
+                        var injectionEndDateTime = injectionStartDateTime.AddMinutes((double)(insulin.duration ?? 0));
+
+                        if (injectionStartDateTime < dateStart)
+                            injectionStartDateTime = dateStart;
+
+                        if (Eating.EndEating != null && injectionEndDateTime > Eating.EndEating)
+                            injectionEndDateTime = Eating.EndEating.Value;
+
+                        var delta = (injectionEndDateTime - injectionStartDateTime).TotalSeconds;
+                        var injectionDateTime = injectionStartDateTime.AddSeconds(delta / 2);
+
+                        Injections.Add(new Models.Injection()
+                        {
+                            Id = Guid.NewGuid(),
+                            InjectionTime = Calculation.TimeSpanWithoutSeconds(injectionDateTime.TimeOfDay),
+                            InjectionDate = injectionDateTime.Date,
+                            BolusType = GlobalParameters.User.BolusType,
+                            BolusDose = Math.Round(((insulin.rate ?? 0) * (insulin.percent ?? 0) * ((decimal)delta / 60)) / (((insulin.percent ?? 0) + 100) * 60), 2),
+                            IsBasalRateCoefficient = true
+                        });
+                    }
+
+                    Injections = Injections
+                        .OrderBy(x => x.InjectionDate)
+                        .ThenBy(x => x.InjectionTime)
+                        .ToObservable();
+
+                    OnPropertyChanged(nameof(Injections));
 
                     // Добавление сахара на отработке
                     GlucoseEnd = Math.Round(glucose.sgv / 18, 1);

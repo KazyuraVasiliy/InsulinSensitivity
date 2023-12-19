@@ -7,12 +7,27 @@ namespace BusinessLogicLayer.Service.Models
         /// <summary>
         /// Доза инсулина
         /// </summary>
-        public decimal insulin { get; set; }
+        public decimal? insulin { get; set; }
 
         /// <summary>
         /// Дата создания
         /// </summary>
         public DateTimeOffset created_at { get; set; }
+
+        /// <summary>
+        /// БС
+        /// </summary>
+        public decimal? rate { get; set; }
+
+        /// <summary>
+        /// ВБС
+        /// </summary>
+        public decimal? percent { get; set; }
+
+        /// <summary>
+        /// Продолжительность в минутах
+        /// </summary>
+        public decimal? duration { get; set; }
 
         /// <summary>
         /// Данные профиля

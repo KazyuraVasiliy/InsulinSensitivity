@@ -151,12 +151,15 @@ namespace InsulinSensitivity
                 }
 
                 InitEatings();
+                RemoveCycle();
 
                 // Подписки на события
                 MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
                     (sender) =>
                     {
                         InitEatings();
+                        RemoveCycle();
+
                         OnPropertyChanged(nameof(TargetGlucose));
                     });
 
@@ -169,7 +172,6 @@ namespace InsulinSensitivity
                 MessagingCenter.Subscribe<MainPageMasterViewModel>(this, "RestoreBackup",
                     (sender) => Init());
             }, "Инициализация\nПожалуйста, подождите");
-
 
         /// <summary>
         /// Инициализация приёмов пищи
@@ -241,6 +243,27 @@ namespace InsulinSensitivity
             
             OnPropertyChanged(nameof(LastEating));
             ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
+        }
+
+        /// <summary>
+        /// Удаляет цикл из меню
+        /// </summary>
+        private void RemoveCycle()
+        {
+            if (GlobalParameters.User != null)
+            {
+                var age = (DateTime.MinValue + (DateTime.Now - GlobalParameters.User.BirthDate)).Year - 1;
+                if (GlobalParameters.User.Gender == true || age < 8)
+                {
+                    var master = ((MasterDetailPage)App.Current.MainPage).Master as MainPageMaster;
+                    var context = master.BindingContext as MainPageMasterViewModel;
+
+                    var item = context.Items.FirstOrDefault(x => x.Name == "Циклы");
+                    if (item != null)
+                        context.Items.Remove(item);
+                }
+            }
+            
         }
 
         #endregion
@@ -339,38 +362,38 @@ namespace InsulinSensitivity
                     "Да",
                     "Нет");
 
-                if (!question)
-                    return;
-
-                var eatingObj = (Models.Eating)obj;
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                if (question)
                 {
-                    var exercise = db.Exercises.Find(eatingObj.Exercise.Id);
-                    if (exercise != null)
-                        db.Exercises.Remove(exercise);
+                    var eatingObj = (Models.Eating)obj;
+                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    {
+                        var exercise = db.Exercises.Find(eatingObj.Exercise.Id);
+                        if (exercise != null)
+                            db.Exercises.Remove(exercise);
 
-                    var injections = db.Injections
-                        .Where(x =>
-                            x.EatingId == eatingObj.Id)
-                        .ToList();
+                        var injections = db.Injections
+                            .Where(x =>
+                                x.EatingId == eatingObj.Id)
+                            .ToList();
 
-                    foreach (var injection in injections)
-                        db.Injections.Remove(injection);
+                        foreach (var injection in injections)
+                            db.Injections.Remove(injection);
 
-                    var dimensions = db.IntermediateDimensions
-                        .Where(x =>
-                            x.EatingId == eatingObj.Id)
-                        .ToList();
+                        var dimensions = db.IntermediateDimensions
+                            .Where(x =>
+                                x.EatingId == eatingObj.Id)
+                            .ToList();
 
-                    foreach (var dimension in dimensions)
-                        db.IntermediateDimensions.Remove(dimension);
+                        foreach (var dimension in dimensions)
+                            db.IntermediateDimensions.Remove(dimension);
 
-                    var eating = db.Eatings.Find(eatingObj.Id);
-                    if (eating != null)
-                        db.Eatings.Remove(eating);
+                        var eating = db.Eatings.Find(eatingObj.Id);
+                        if (eating != null)
+                            db.Eatings.Remove(eating);
 
-                    db.SaveChanges();
-                    InitEatings();
+                        db.SaveChanges();
+                        InitEatings();
+                    }
                 }
             }
             catch (Exception ex)
@@ -403,17 +426,17 @@ namespace InsulinSensitivity
                     "Да",
                     "Нет");
 
-                if (!question)
-                    return;
-
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                if (question)
                 {
-                    var eating = db.Eatings.Find(eatingObj.Id);
-                    if (eating != null)
-                        eating.IsIgnored = !eating.IsIgnored;
+                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                    {
+                        var eating = db.Eatings.Find(eatingObj.Id);
+                        if (eating != null)
+                            eating.IsIgnored = !eating.IsIgnored;
 
-                    db.SaveChanges();
-                    InitEatings();
+                        db.SaveChanges();
+                        InitEatings();
+                    }
                 }
             }
             catch (Exception ex)
