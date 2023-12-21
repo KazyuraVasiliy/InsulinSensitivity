@@ -439,6 +439,15 @@ namespace DataAccessLayer.Contexts
                     });
                     db.SaveChanges();
                 }
+
+                // Создание временной метки в FileTime формате
+                if (db.Eatings.FirstOrDefault()?.FileTimeUtcDateCreated == 0)
+                {
+                    var eatings = db.Eatings.ToList();
+                    foreach (var eating in eatings)
+                        eating.FileTimeUtcDateCreated = eating.DateCreated.Date.ToFileTimeUtc();
+                    db.SaveChanges();
+                }
             }
         }
     }

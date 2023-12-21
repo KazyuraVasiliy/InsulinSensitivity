@@ -182,7 +182,17 @@ namespace InsulinSensitivity
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    var query = db.Eatings
+                    var period = GlobalParameters.User.PeriodOfCalculation;
+
+                    var query = db.Eatings.AsQueryable();
+                    if (period != 0)
+                    {
+                        var utcPeriod = DateTime.Now.Date.AddDays(-period).ToFileTimeUtc();
+                        query = query
+                            .Where(x => x.FileTimeUtcDateCreated >= utcPeriod);
+                    }
+
+                    query = query
                         .Where(x =>
                             x.UserId == GlobalParameters.User.Id &&
                             (eatingType == Guid.Empty ||
@@ -204,10 +214,8 @@ namespace InsulinSensitivity
                         .Include(x => x.BasalType)
                         .Include(x => x.BolusType)
                         .ToList()
-                        .GroupBy(x =>
-                            x.DateCreated.Date)
-                        .OrderByDescending(x =>
-                            x.Key)
+                        .GroupBy(x => x.DateCreated.Date)
+                        .OrderByDescending(x => x.Key)
                         .Select(x =>
                             new Grouping<DateTime, Models.Eating>(x.Key, x.OrderByDescending(y => y.InjectionTime)));
 

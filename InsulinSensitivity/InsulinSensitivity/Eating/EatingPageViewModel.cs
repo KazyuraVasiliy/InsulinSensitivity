@@ -1122,7 +1122,21 @@ namespace InsulinSensitivity.Eating
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
-                Eatings = db.Eatings
+                var period = GlobalParameters.User.PeriodOfCalculation;
+
+                // Ограничение для корректного учёта расходных материалов
+                if (period < 60 && period > 0)
+                    period = 60;
+
+                var query = db.Eatings.AsQueryable();
+                if (period != 0)
+                {
+                    var utcPeriod = DateTime.Now.Date.AddDays(-period).ToFileTimeUtc();
+                    query = query
+                        .Where(x => x.FileTimeUtcDateCreated >= utcPeriod);
+                }
+
+                Eatings = query
                     .Where(x =>
                         x.Id != Eating.Id &&
                         x.InsulinSensitivityFact != null)
@@ -2462,7 +2476,12 @@ namespace InsulinSensitivity.Eating
 
                 // Инициализация приёма пищи
                 var eating = Eating.Id == Guid.Empty
-                    ? new Models.Eating() { Id = Guid.NewGuid(), DateCreated = Eating.DateCreated }
+                    ? new Models.Eating() 
+                    { 
+                        Id = Guid.NewGuid(), 
+                        DateCreated = Eating.DateCreated,
+                        FileTimeUtcDateCreated = Eating.DateCreated.ToFileTimeUtc()
+                    }
                     : db.Eatings.Find(Eating.Id);
 
                 // Инъекции
@@ -3092,11 +3111,15 @@ namespace InsulinSensitivity.Eating
                         if (injectionStartDateTime < dateStart)
                             injectionStartDateTime = dateStart;
 
-                        if (Eating.EndEating != null && injectionEndDateTime > Eating.EndEating)
-                            injectionEndDateTime = Eating.EndEating.Value;
+                        //if (Eating.EndEating != null && injectionEndDateTime > Eating.EndEating)
+                        //    injectionEndDateTime = Eating.EndEating.Value;
 
                         var delta = (injectionEndDateTime - injectionStartDateTime).TotalSeconds;
                         var injectionDateTime = injectionStartDateTime.AddSeconds(delta / 2);
+
+                        var dose = Math.Round(((insulin.rate ?? 0) * (insulin.percent ?? 0) * ((decimal)delta / 60)) / (((insulin.percent ?? 0) + 100) * 60), 2);
+                        if (dose <= 0)
+                            continue;
 
                         Injections.Add(new Models.Injection()
                         {

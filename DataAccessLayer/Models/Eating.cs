@@ -21,6 +21,11 @@ namespace DataAccessLayer.Models
         public TimeSpan InjectionTime { get; set; }
 
         /// <summary>
+        /// Дата создания в FileTimeUtc формате
+        /// </summary>
+        public long FileTimeUtcDateCreated { get; set; }
+
+        /// <summary>
         /// Исходный сахар
         /// </summary>
         public decimal GlucoseStart { get; set; }

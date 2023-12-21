@@ -131,9 +131,15 @@ namespace InsulinSensitivity.Droid
                     .Include(x => x.BasalType)
                     .FirstOrDefault();
 
+                // Определение даты от которой будет расчитан активный инсулин
+                // Самая большая длительность 48 часов (2 дня) + день для точности
+                var period = DateTime.Now.Date.AddDays(-3);
+                var utcPeriod = period.ToFileTimeUtc();
+
                 var eatings = user != null
                     ? db.Eatings
                         .Where(x =>
+                            x.FileTimeUtcDateCreated >= utcPeriod &&
                             x.UserId == user.Id)
                         .Include(x => x.Exercise)
                             .ThenInclude(x => x.ExerciseType)

@@ -63,7 +63,11 @@ namespace InsulinSensitivity
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
+                    var utcPeriod = period.ToFileTimeUtc();
                     eatings = db.Eatings
+                        .Where(x =>
+                            x.FileTimeUtcDateCreated >= utcPeriod &&
+                            x.Id != excludeId)
                         .Include(x => x.Injections)
                             .ThenInclude(x => x.BolusType)
                         .Include(x => x.BolusType)
@@ -273,19 +277,10 @@ namespace InsulinSensitivity
         {
             decimal insulin = 0;
 
-            // Определение даты от которой будет расчитан активный инсулин
-            // Самая большая длительность 48 часов (2 дня) + день для точности
-            var period = DateTime.Now.Date.AddDays(-3);
-
             // Получение приёмов пищи
             var eatings = new List<DataAccessLayer.Models.Eating>();
             if ((selectedEatings?.Count ?? 0) > 0)
                 eatings.AddRange(selectedEatings);
-
-            eatings = eatings
-                .Where(x =>
-                    x.DateCreated.Date >= period.Date)
-                .ToList();
 
             // Запись всех инъекций в один массив для упрощения дальнейшего анализа
             var injections = new List<BusinessLogicLayer.Service.Models.Injection>();

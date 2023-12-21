@@ -44,6 +44,9 @@ namespace DataAccessLayer.Contexts
             modelBuilder.Entity<InsulinType>()
                 .HasMany(b => b.BolusEatings)
                 .WithOne(p => p.BolusType);
+
+            modelBuilder.Entity<Eating>()
+                .HasIndex(x => x.FileTimeUtcDateCreated);
         }
     }
 }
