@@ -1,19 +1,357 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="InsulinSensitivity.Information.InformationPage"
-             Title="Информация"
-             x:Name="Page">
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    x:Class="InsulinSensitivity.Information.InformationPage"
+    Title="Информация"
+    x:Name="Page">
+
     <ContentPage.Content>
-        <ScrollView>
-            <StackLayout>
-                <Label 
-                    FontSize="16"
-                    Padding="12, 8"
-                    VerticalOptions="CenterAndExpand" 
-                    HorizontalOptions="CenterAndExpand"
-                    Text="{Binding Path=Information}"/>
-            </StackLayout>
-        </ScrollView>
+
+        <ContentView>
+            <ScrollView>
+                <StackLayout>
+                    <Frame
+                        Style="{StaticResource Frame}">
+                        <xct:Expander
+                            IsExpanded="True">
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Предупреждение"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Label
+                                FontSize="16"
+                                TextType="Html">
+
+                                <Label.Text>
+                                    <![CDATA[
+                                    <p>&nbsp;</p>
+                                    <p>Данное приложение создано в информативных целях и для улучшения компенсации <strong>сахарного диабета 1 типа</strong>.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Все решения относительно постановки фактических доз инсулина пользователь принимает <span style="color: #ff0000;"><strong>самостоятельно</strong></span>.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Предполагается, что фоновый базальный инсулин подобран корректно, и ваша гликемия будет ровной при отсутствии приема пищи.</p>
+                                ]]>
+                                </Label.Text>
+                            </Label>
+                        </xct:Expander>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Margin="5, 0, 5, 0">
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="О программе"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Label
+                                FontSize="16"
+                                TextType="Html">
+
+                                <Label.Text>
+                                    <![CDATA[
+                                    <p>&nbsp;</p>
+                                    <p>InsulinSensitivity &ndash; это Программа-<strong>Калькулятор</strong> дозировок болюсного инсулина на еду. Приложение не является диабет-дневником и предназначено строго для выполнения последовательных расчётов в настоящем времени!</p>
+                                    <p>&nbsp;</p>
+                                    <p>Использовать программу может любой человек с диабетом 1 типа или родитель ребенка с СД. Не имеет значения также, какие у вас гаджеты (только тест-полоски и шприц-ручки, помпа, мониторинг глюкозы или ИПЖ). Нет никаких ограничений, но важно <strong>считать и записывать точные БЖУ</strong> в каждом приеме пищи.</p>
+                                    <p>&nbsp;</p>
+                                    <p><span style="color: #ff0000;"><strong>Цель программы &ndash; точные дозировки болюсного инсулина и хороший сахар на отработке.</strong></span></p>
+                                    <p>&nbsp;</p>
+                                    <p>Принцип работы &ndash; статистика и прогнозирование на основе предыдущих данных. Программа накапливает детальную информацию о прошедших приемах пищи, чтобы регулярно, оперативно и автоматически корректировать дозировки в случае изменения чувствительности к инсулину.</p>
+                                    <p>&nbsp;</p>
+                                    <p>От пользователя требуется лишь корректно записывать нужные данные.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Приложение протестировано на разных возрастных группах, в т.ч. на детях в возрасте 1-7 лет.</p>
+                                    <p>&nbsp;</p>
+                                    <p>По нескромному мнению автора, является лучшим Калькулятором болюса из ныне существующих (потому что способно учесть ВСЁ).</p>
+                                ]]>
+                                </Label.Text>
+                            </Label>
+                        </xct:Expander>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Margin="5, 0, 5, 0">
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Обозначения"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Label
+                                FontSize="16"
+                                TextType="Html">
+
+                                <Label.Text>
+                                    <![CDATA[
+                                    <p>&nbsp;</p>
+                                    <p><strong>ФЧИ</strong> &ndash; Фактор Чувствительности к Инсулину &ndash; коэффициент, отвечающий за то, насколько сильно организм восприимчив к введённому извне инсулину. Выражается в ммоль/л/ед. Показывает, <strong>на сколько ммоль/л снизится сахар от 1 ед. инсулина</strong>.</p>
+                                    <p>&nbsp;</p>
+                                    <p><strong>Важно:</strong> ФЧИ &ndash; не постоянная величина, а динамическая! Он изменяется каждый день и зависит от десятков различных условий. Предсказать его изменение с высокой точностью &ndash; задача InsulinSensitivity.</p>
+                                    <p>&nbsp;</p>
+                                    <p><strong>УК</strong> &ndash; Углеводный Коэффициент &ndash; количественный показатель потенциальной возможности углеводов повышать сахар крови в отсутствие инсулина. Выражается в ммоль/л/грамм. Показывает, <strong>на сколько ммоль/л повысит глюкозу крови 1 г. углеводов</strong>.</p>
+                                    <p>&nbsp;</p>
+                                    <p style="padding-left: 30px;"><span style="color: #ff0000;"><strong>Важно:</strong></span> УК является константой и не зависит от чувствительности к инсулину! Это рассчитываемое значение, обратно пропорциональное объему крови в организме (чем больше объем крови &ndash; тем ниже УК). УК рассчитывается автоматически при создании нового пользователя на основе его пола, веса, роста и возраста. Поэтому при изменении веса, роста и возраста в Профиле УК будет пересчитан.</p>
+                                    <p>&nbsp;</p>
+                                    <p><strong>БК, ЖК</strong> &ndash; Белковый и Жировой Коэффициенты &ndash; показатели, характеризующие потенциальную возможность белков и жиров в организме преобразовываться в глюкозу. Согласно исследованиям, 20-40% белков и от 5-30% жиров повышают сахар крови. По этой причине программа предлагает учитывать этот рост с помощью коэффициентов перевода граммов белков и жиров в граммы углеводов. Принимают значение от 0 до 1 (по умолчанию 0.3)</p>
+                                    <p>&nbsp;</p>
+                                    <p><strong>АУ, АБ, АЖ</strong> &ndash; Абсорбции углеводов, белков и жиров &ndash; коэффициенты, отражающие скорость поступления глюкозы в организм из БЖУ. Выражается в грамм/час. Показывает, сколько граммов нутриента будет усвоено организмом за 1 час. Является усреднённой величиной.</p>
+                                    <p>&nbsp;</p>
+                                    <p style="padding-left: 30px;"><span style="color: #ff0000;"><strong>Важно:</strong></span> Углеводы усваиваются первыми, затем идут белки и после &ndash; жиры. Чем больше БЖУ в приёме пищи &ndash; тем дольше будет происходить усвоение и поступление глюкозы в кровь. Большое кол-во жиров и клетчатки замедляет всасывание пищи.</p>
+                                    <p>&nbsp;</p>
+                                    <p><strong>IC </strong>&ndash; Insulin Carb &ndash; неиспользуемый в расчетах InsulinSensitivity вторичный показатель <strong>отношения ФЧИ к УК</strong>. Выражается в грамм/ед. Показывает, сколько граммов углеводов приходится на 1 ед. инсулина. IC прямо зависит от часто изменяющегося ФЧИ и не даёт понимания, как выставить коррекцию высокого сахара &ndash; это упрощённая величина, использующаяся только в быту (для расчетов доз в уме, &laquo;примерно&raquo; и &laquo;на глаз&raquo;) и не подходящая для серьезных вычислений.</p>
+                                ]]>
+                                </Label.Text>
+                            </Label>
+                        </xct:Expander>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Margin="5, 0, 5, 0">
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Начало работы"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Label
+                                FontSize="16"
+                                TextType="Html">
+
+                                <Label.Text>
+                                    <![CDATA[
+                                    <p>&nbsp;</p>
+                                    <p>1. Заполните Профиль Пользователя, указав реальные данные больного СД. Нужные начальные коэффициенты рассчитаются автоматически (но при желании и понимании &ndash; вы сможете скорректировать их позднее).</p>
+                                    <p>&nbsp;</p>
+                                    <p>2. Создайте новый Период Усвоения через <span style="color: #008000;"><strong>зелёную кнопку +</strong></span>. В открывшейся форме заполните данные нового приема пищи: укажите исходный сахар перед едой, точные БЖУ, дозу инсулина, которую будете ставить на эту еду, паузу перед едой, тип активности на ближайшие 4 часа (+ продолжительность активности, и через сколько часов после инъекции начнёте эту активность), информацию о базальном инсулине &ndash; и сохраните введённые данные. Итоговый сахар &ndash; <span style="color: #ff0000;"><strong>НЕ ВВОДИТЬ</strong></span>.</p>
+                                    <p>&nbsp;</p>
+                                    <p>3. Через 3-5 часов после еды (когда соберётесь снова поесть) нажмите на зелёную кнопку с карандашиком и укажите Итоговый сахар на отработке (т.е. сахар сейчас). После чего &ndash; сохраните. Это действие закроет текущий Период усвоения, и вы не сможете больше к нему вернуться и отредактировать что-то.</p>
+                                    <p>&nbsp;</p>
+                                    <p>4. Теперь вы можете снова создать Новый прием пищи и заполнить все данные как в п.2.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Для того, чтобы программа накопила достаточно данных, чтобы рекомендовать вам дозировки болюса, требуется от 2 до 3 дней. Поначалу точность прогнозов будет не слишком высокой, но 4-5 дней достаточно, чтобы программа научилась понимать ваш диабет.</p>
+                                ]]>
+                                </Label.Text>
+                            </Label>
+                        </xct:Expander>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Margin="5, 0, 5, 0">
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Основные моменты"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Label
+                                FontSize="16"
+                                TextType="Html">
+
+                                <Label.Text>
+                                    <![CDATA[
+                                    <p>&nbsp;</p>
+                                    <p>Рядом с каждым непонятным обозначением или полем есть значок &laquo;?&raquo;, на который можно нажать и получить нужную информацию.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Предварительные пищевые коэффициенты рассчитываются в программе автоматически и указаны в информации о Пользователе. Расчет чувствительности к инсулину выполняется автоматически после закрытия каждого приема пищи &ndash; в момент внесения итогового сахара.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Структура программы основана на Периодах усвоения &ndash; условных промежутках времени, между приёмами пищи. Период открывается перед введением болюсного инсулина на еду и закрывается через 2-5 часов после еды, или перед следующим приёмом пищи.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Создавая новый прием пищи для расчета дозы, вам потребуется: измерить сахар перед едой, самостоятельно рассчитать БЖУ всей пищи, обязательно указать планируемую активность и др. данные по вашему усмотрению. В первые 1-2 суток программа проанализирует вашу потребность в инсулине, а начиная с 3-их суток &ndash; начнет выдавать рекомендательные дозы.</p>
+                                    <p>&nbsp;</p>
+                                    <p>За раз вы можете создать только 1 текущий Период, который будет активен до ввода Итогового сахара на отработке. После ввода Итогового сахара Период будет закрыт, и вы не сможете вернуться к нему и изменить информацию.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Для каждого завершенного Периода выполняется расчет точности предсказания ФЧИ (чувствительности к инсулину) и для программы, и для пользователя.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Ожидаемая точность предсказаний программы &ndash; от 90%. Потребность в инсулине может быть переменчива, но программа всегда обучается и выполняет любые расчеты дозировок только на основе <strong>предыдущих приемов пищи и их результатов</strong>. При смене чувствительности к инсулину в зависимости от времени суток, нагрузок и дня менструального цикла &ndash; программа учтет изменения ФЧИ и скорректирует дозировки на последующие приемы пищи.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Будьте внимательны и не ожидайте, что расчетный ФЧИ программы будет идеально совпадать с реальным фактическим. Помните &ndash; чем больше доза инсулина, тем выше погрешность расчета сахара на отработке. И конечно, предсказать можно только то, что можно спрогнозировать заранее.</p>
+                                    <p>&nbsp;</p>
+                                    <p>Если у вас остались вопросы, или вы испытываете сложности с использованием программы &ndash; обратитесь в раздел &laquo;Помощь&raquo;. Автор программы лично ответит на ваш запрос и поможет разобраться.</p>
+                                ]]>
+                                </Label.Text>
+                            </Label>
+                        </xct:Expander>
+                    </Frame>
+                </StackLayout>
+            </ScrollView>
+        </ContentView>
     </ContentPage.Content>
 </ContentPage>
