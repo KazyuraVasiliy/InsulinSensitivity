@@ -240,305 +240,98 @@ namespace InsulinSensitivity.Statistic
         /// <summary>
         /// Инициализирует статистику
         /// </summary>
-        private void InitStatistic()
-        {
-            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+        private async void InitStatistic() =>
+            await AsyncBase.NewTask(() =>
             {
-                if (!db.Eatings.Any(x => x.InsulinSensitivityFact != null && !x.IsIgnored))
-                    return;
-
-                var cycles = db.MenstrualCycles
-                    .AsNoTracking()
-                    .OrderBy(x =>
-                        x.DateStart)
-                    .ToList();
-
-                var ovulations = cycles
-                    .Select(x =>
-                        x.DateStart.AddDays(-14))
-                    .ToList();
-                if ((cycles?.Count ?? 0) > 0)
-                    ovulations.Add(cycles.Last().DateStart.AddDays(14));
-
-                var eatings = db.Eatings
-                    .AsNoTracking()
-                    .Where(x =>
-                        x.InsulinSensitivityFact != null)
-                    .Include(x => x.EatingType)
-                    .Include(x => x.Exercise)
-                        .ThenInclude(x => x.ExerciseType)
-                    .ToList();
-
-                var lastMonth = DateTime.Now.AddMonths(-1).Date;
-                var eatingsLastMonth = eatings
-                    .Where(x => x.DateCreated.Date >= lastMonth);
-
-                var basals = eatings
-                    .GroupBy(x =>
-                        x.DateCreated.Date)
-                    .ToList();
-
-                var basalsCalculate = new List<(DateTime date, decimal dose)>();
-                foreach (var el in basals)
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    var value = el.Sum(x => x.BasalDose);
+                    if (!db.Eatings.Any(x => x.InsulinSensitivityFact != null && !x.IsIgnored))
+                        return;
 
-                    var rateCollection = el.Where(x =>
-                        x.BasalRate != 0);
-
-                    if (rateCollection.Count() != 0)
-                        value += Math.Round(rateCollection.Average(x => x.BasalRate) * 24, 1, MidpointRounding.AwayFromZero);
-
-                    basalsCalculate.Add((el.Key, value));
-                }
-
-                eatings = eatings
-                    .Where(x =>
-                        !x.IsIgnored)
-                    .ToList();
-
-                var lastYear = DateTime.Now.AddYears(-1).Date;
-                var entries = eatings
-                    .Where(x => x.DateCreated.Date >= lastYear)
-                    .OrderBy(x =>
-                        x.DateCreated.Date)
-                    .GroupBy(x =>
-                        x.DateCreated.Date)
-                    .Select(x =>
-                        new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
-                        {
-                            Label = x.Key.ToString("dd.MM.yy"),
-                            ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
-                                $"({basalsCalculate.FirstOrDefault(y => y.date == x.Key).dose})",
-                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                ? SkiaSharp.SKColors.White
-                                : SkiaSharp.SKColors.Black,
-
-                            Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
-                                ? SkiaSharp.SKColors.Red
-                                : ovulations.Any(y => y.Date == x.Key.Date)
-                                    ? SkiaSharp.SKColors.Pink
-                                    : App.Current.RequestedTheme == OSAppTheme.Dark
-                                        ? SkiaSharp.SKColors.LightSkyBlue
-                                        : SkiaSharp.SKColors.Blue
-                        })
-                    .ToList();
-
-                WidthRequest = (entries?.Count() ?? 0) * 15;
-
-                Chart = new LineChart()
-                {
-                    LineMode = LineMode.Spline,
-                    LabelTextSize = 24,
-                    Entries = entries,
-
-                    LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                        ? SkiaSharp.SKColors.White
-                        : SkiaSharp.SKColors.Black,
-                    BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                        ? new SkiaSharp.SKColor(29, 29, 29)
-                        : SkiaSharp.SKColors.White,
-                };
-
-                // Недельный график
-                var basalsCalculateWeeks = basalsCalculate
-                    .GroupBy(x => (x.date.Date.DayOfYear - 1) / 7)
-                    .Select(x => (
-                        x.Key,
-                        x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
-
-                var currentWeek = (DateTime.Now.DayOfYear - 1) / 7;
-                var entriesWeeks = eatings
-                    .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
-                    .OrderBy(x => x.Key)
-                    .Select(x =>
-                        new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
-                        {
-                            Label = x.Key.ToString(),
-                            ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
-                                $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
-                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                ? SkiaSharp.SKColors.White
-                                : SkiaSharp.SKColors.Black,
-
-                            Color = currentWeek == x.Key
-                                ? SkiaSharp.SKColors.Red
-                                : App.Current.RequestedTheme == OSAppTheme.Dark
-                                    ? SkiaSharp.SKColors.LightSkyBlue
-                                    : SkiaSharp.SKColors.Blue
-                        })
-                    .ToList();
-
-                WidthRequestWeeks = (entriesWeeks?.Count() ?? 0) * 15;
-
-                ChartWeeks = new LineChart()
-                {
-                    LineMode = LineMode.Spline,
-                    LabelTextSize = 24,
-                    Entries = entriesWeeks,
-
-                    LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                        ? SkiaSharp.SKColors.White
-                        : SkiaSharp.SKColors.Black,
-                    BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                        ? new SkiaSharp.SKColor(29, 29, 29)
-                        : SkiaSharp.SKColors.White,
-                };
-
-                // ФЧИ
-                var eatingTypeAverages = eatingsLastMonth
-                    .Where(x => x.DateCreated.Date >= lastMonth)
-                    .GroupBy(x =>
-                        x.EatingType)
-                    .OrderBy(x =>
-                        x.Key.TimeStart)
-                    .Select(x =>
-                        $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
-
-                if (eatingTypeAverages.Count() > 0 && eatingsLastMonth.Count() > 0)
-                {
-                    var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
-                    string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
-
-                    var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
-                    string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
-
-                    InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
-                }
-
-                // Соотношение углеводов к инсулину
-                if (eatingsLastMonth.Count() > 0)
-                {
-                    var carbohydrateCoefficientAverages = eatingsLastMonth
-                        .GroupBy(x =>
-                            x.EatingType)
-                        .SelectMany(x =>
-                            x
-                                .Where(y =>
-                                    (y.BolusDoseTotal ?? 0) != 0 &&
-                                    (y.Carbohydrate + y.Protein + y.Fat) >= 30)
-                                .OrderByDescending(y =>
-                                    y.DateCreated)
-                                .Take(4))
-                        .GroupBy(x =>
-                            x.EatingType)
+                    var cycles = db.MenstrualCycles
+                        .AsNoTracking()
                         .OrderBy(x =>
-                            x.Key.TimeStart)
+                            x.DateStart)
+                        .ToList();
+
+                    var ovulations = cycles
                         .Select(x =>
-                            $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
-                            $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
+                            x.DateStart.AddDays(-14))
+                        .ToList();
+                    if ((cycles?.Count ?? 0) > 0)
+                        ovulations.Add(cycles.Last().DateStart.AddDays(14));
 
-                    CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
-                }
-
-                // Цикл
-                if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
-                {
-                    CycleDay = (int)Math.Round((DateTime.Now.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
-                    List<DateTime> dates = new List<DateTime>();
-
-                    for (int i = 0; i < cycles.Count; i++)
-                    {
-                        var equivalentDay = cycles[i].DateStart.AddDays(CycleDay);
-                        if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
-                            dates.Add(equivalentDay);
-
-                        if (i == (cycles.Count - 1))
-                            dates.Add(equivalentDay);
-                    }
-
-                    var eatingTypeCycleAverages = eatings
+                    var eatings = db.Eatings
+                        .AsNoTracking()
                         .Where(x =>
-                            dates.Any(y => y.Date == x.DateCreated.Date))
+                            x.InsulinSensitivityFact != null)
+                        .Include(x => x.EatingType)
+                        .Include(x => x.Exercise)
+                            .ThenInclude(x => x.ExerciseType)
+                        .ToList();
+
+                    var lastMonth = DateTime.Now.AddMonths(-1).Date;
+                    var eatingsLastMonth = eatings
+                        .Where(x => x.DateCreated.Date >= lastMonth);
+
+                    var basals = eatings
                         .GroupBy(x =>
-                            x.EatingType)
-                        .OrderBy(x =>
-                            x.Key.TimeStart)
-                        .Select(x =>
-                            $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
+                            x.DateCreated.Date)
+                        .ToList();
 
-                    Cycle = string.Join("\n", eatingTypeCycleAverages);
-                }
-
-                // График ФЧИ по циклу
-                if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
-                {
-                    var values = new List<(int day, decimal value, decimal baseDose)>();
-
-                    for (int i = -10; i < GlobalParameters.Settings.LengthGraph; i++)
+                    var basalsCalculate = new List<(DateTime date, decimal dose)>();
+                    foreach (var el in basals)
                     {
-                        List<DateTime> dates = new List<DateTime>();
+                        var value = el.Sum(x => x.BasalDose);
 
-                        for (int j = 0; j < cycles.Count; j++)
-                        {
-                            var equivalentDay = cycles[j].DateStart.AddDays(i);
-                            if (i >= 0)
-                            {                                
-                                if ((j != (cycles.Count - 1)) && equivalentDay.Date < cycles[j + 1].DateStart.Date)
-                                    dates.Add(equivalentDay);
+                        var rateCollection = el.Where(x =>
+                            x.BasalRate != 0);
 
-                                if (j == (cycles.Count - 1))
-                                    dates.Add(equivalentDay);
-                            }
-                            else
-                            {
-                                if (j == 0)
-                                    dates.Add(equivalentDay);
+                        if (rateCollection.Count() != 0)
+                            value += Math.Round(rateCollection.Average(x => x.BasalRate) * 24, 1, MidpointRounding.AwayFromZero);
 
-                                if (j != 0 && equivalentDay.Date >= cycles[j - 1].DateStart.Date)
-                                    dates.Add(equivalentDay);
-                            }
-                        }
-
-                        var data = eatings
-                            .Where(x =>
-                                dates.Any(y => y.Date == x.DateCreated.Date));
-
-                        var basalsCycle = basalsCalculate
-                            .Where(x =>
-                                dates.Any(y => y.Date == x.date));
-
-                        if (data.Count() > 0)
-                            values.Add((
-                                i >= 0 ? i + 1 : i,
-                                Math.Round(data
-                                    .Average(x =>
-                                        x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
-                                basalsCycle.Count() > 0
-                                    ? Math.Round(basalsCycle
-                                        .Average(x =>
-                                            x.dose), 1, MidpointRounding.AwayFromZero)
-                                    : 0));
+                        basalsCalculate.Add((el.Key, value));
                     }
 
+                    eatings = eatings
+                        .Where(x =>
+                            !x.IsIgnored)
+                        .ToList();
 
-                    CycleWidthRequest = (values?.Count() ?? 0) * 15;
+                    var lastYear = DateTime.Now.AddYears(-1).Date;
+                    var entries = eatings
+                        .Where(x => x.DateCreated.Date >= lastYear)
+                        .OrderBy(x =>
+                            x.DateCreated.Date)
+                        .GroupBy(x =>
+                            x.DateCreated.Date)
+                        .Select(x =>
+                            new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                            {
+                                Label = x.Key.ToString("dd.MM.yy"),
+                                ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                                    $"({basalsCalculate.FirstOrDefault(y => y.date == x.Key).dose})",
+                                ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.White
+                                    : SkiaSharp.SKColors.Black,
 
-                    CycleChart = new LineChart()
+                                Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
+                                    ? SkiaSharp.SKColors.Red
+                                    : ovulations.Any(y => y.Date == x.Key.Date)
+                                        ? SkiaSharp.SKColors.Pink
+                                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                                            ? SkiaSharp.SKColors.LightSkyBlue
+                                            : SkiaSharp.SKColors.Blue
+                            })
+                        .ToList();
+
+                    WidthRequest = (entries?.Count() ?? 0) * 15;
+
+                    Chart = new LineChart()
                     {
                         LineMode = LineMode.Spline,
                         LabelTextSize = 24,
-                        Entries = values
-                            .Select(x =>
-                                new ChartEntry((float)x.value)
-                                {
-                                    Label = x.day.ToString("D2"),
-                                    ValueLabel = $"{x.value} " +
-                                        $"({x.baseDose})",
-                                    ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                        ? SkiaSharp.SKColors.White
-                                        : SkiaSharp.SKColors.Black,
-
-                                    Color = x.day == CycleDay + 1
-                                        ? SkiaSharp.SKColors.Green
-                                        : x.day >= 1 && x.day <= 3
-                                            ? SkiaSharp.SKColors.Red
-                                            : x.day == 15
-                                                ? SkiaSharp.SKColors.Pink
-                                                :App.Current.RequestedTheme == OSAppTheme.Dark
-                                                    ? SkiaSharp.SKColors.LightSkyBlue
-                                                    : SkiaSharp.SKColors.Blue
-                                }),
+                        Entries = entries,
 
                         LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                             ? SkiaSharp.SKColors.White
@@ -546,94 +339,302 @@ namespace InsulinSensitivity.Statistic
                         BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
                             ? new SkiaSharp.SKColor(29, 29, 29)
                             : SkiaSharp.SKColors.White,
-                        MinValue = (float)values.Min(x => x.value) - 0.5f
                     };
-                }
 
-                // Активность
-                var exercises = eatings
-                    .GroupBy(x =>
-                        new
-                        {
-                            x.Exercise.ExerciseType,
-                            x.Exercise.HoursAfterInjection
-                        })
-                    .Select(x =>
-                        new
-                        {
-                            Count = x.Count(),
-                            LastDate = x.Max(y => y.DateCreated.Date),
-                            ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
-                            InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
-                        })
-                    .Where(x =>
-                        x.Count > 2 &&
-                        x.LastDate > DateTime.Now.AddMonths(-3).Date)
-                    .OrderBy(x =>
-                        x.InsulinSensitivityFact)
-                    .ToList();
+                    // Недельный график
+                    var basalsCalculateWeeks = basalsCalculate
+                        .GroupBy(x => (x.date.Date.DayOfYear - 1) / 7)
+                        .Select(x => (
+                            x.Key,
+                            x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
 
-                var maxElement = (exercises?.Count ?? 0) > 0
-                    ? exercises
-                        .FirstOrDefault(x =>
-                            x.Count == exercises.Max(y => y.Count))
-                    : null;
+                    var currentWeek = (DateTime.Now.DayOfYear - 1) / 7;
+                    var entriesWeeks = eatings
+                        .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
+                        .OrderBy(x => x.Key)
+                        .Select(x =>
+                            new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                            {
+                                Label = x.Key.ToString(),
+                                ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                                    $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
+                                ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.White
+                                    : SkiaSharp.SKColors.Black,
 
-                StringBuilder exercisesInformation = new StringBuilder(exercises.Count);
-                for (int i = 0; i < (exercises?.Count ?? 0); i++)
-                {
-                    if (exercises[i] != maxElement)
+                                Color = currentWeek == x.Key
+                                    ? SkiaSharp.SKColors.Red
+                                    : App.Current.RequestedTheme == OSAppTheme.Dark
+                                        ? SkiaSharp.SKColors.LightSkyBlue
+                                        : SkiaSharp.SKColors.Blue
+                            })
+                        .ToList();
+
+                    WidthRequestWeeks = (entriesWeeks?.Count() ?? 0) * 15;
+
+                    ChartWeeks = new LineChart()
                     {
-                        var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
-                        exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
+                        LineMode = LineMode.Spline,
+                        LabelTextSize = 24,
+                        Entries = entriesWeeks,
+
+                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? SkiaSharp.SKColors.White
+                            : SkiaSharp.SKColors.Black,
+                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? new SkiaSharp.SKColor(29, 29, 29)
+                            : SkiaSharp.SKColors.White,
+                    };
+
+                    // ФЧИ
+                    var eatingTypeAverages = eatingsLastMonth
+                        .Where(x => x.DateCreated.Date >= lastMonth)
+                        .GroupBy(x =>
+                            x.EatingType)
+                        .OrderBy(x =>
+                            x.Key.TimeStart)
+                        .Select(x =>
+                            $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
+
+                    if (eatingTypeAverages.Count() > 0 && eatingsLastMonth.Count() > 0)
+                    {
+                        var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
+                        string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
+
+                        var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
+                        string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
+
+                        InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
                     }
-                    else exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
-                }
 
-                Exercise = exercisesInformation.ToString();
+                    // Соотношение углеводов к инсулину
+                    if (eatingsLastMonth.Count() > 0)
+                    {
+                        var carbohydrateCoefficientAverages = eatingsLastMonth
+                            .GroupBy(x =>
+                                x.EatingType)
+                            .SelectMany(x =>
+                                x
+                                    .Where(y =>
+                                        (y.BolusDoseTotal ?? 0) != 0 &&
+                                        (y.Carbohydrate + y.Protein + y.Fat) >= 30)
+                                    .OrderByDescending(y =>
+                                        y.DateCreated)
+                                    .Take(4))
+                            .GroupBy(x =>
+                                x.EatingType)
+                            .OrderBy(x =>
+                                x.Key.TimeStart)
+                            .Select(x =>
+                                $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
+                                $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
 
-                // Точность
-                StringBuilder accuracyInformation = new StringBuilder(9);
-                if (eatings.Any(x => x.AccuracyAuto != null || x.AccuracyUser != null))
-                {
-                    accuracyInformation.AppendLine("Всё время:");
+                        CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
+                    }
 
-                    if (eatings.Any(x => x.AccuracyAuto != null))
-                        accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(eatings.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
+                    // Цикл
+                    if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
+                    {
+                        CycleDay = (int)Math.Round((DateTime.Now.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
+                        List<DateTime> dates = new List<DateTime>();
 
-                    if (eatings.Any(x => x.AccuracyUser != null))
-                        accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(eatings.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
+                        for (int i = 0; i < cycles.Count; i++)
+                        {
+                            var equivalentDay = cycles[i].DateStart.AddDays(CycleDay);
+                            if ((i != (cycles.Count - 1)) && equivalentDay.Date < cycles[i + 1].DateStart.Date)
+                                dates.Add(equivalentDay);
+
+                            if (i == (cycles.Count - 1))
+                                dates.Add(equivalentDay);
+                        }
+
+                        var eatingTypeCycleAverages = eatings
+                            .Where(x =>
+                                dates.Any(y => y.Date == x.DateCreated.Date))
+                            .GroupBy(x =>
+                                x.EatingType)
+                            .OrderBy(x =>
+                                x.Key.TimeStart)
+                            .Select(x =>
+                                $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
+
+                        Cycle = string.Join("\n", eatingTypeCycleAverages);
+                    }
+
+                    // График ФЧИ по циклу
+                    if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
+                    {
+                        var values = new List<(int day, decimal value, decimal baseDose)>();
+
+                        for (int i = -10; i < GlobalParameters.Settings.LengthGraph; i++)
+                        {
+                            List<DateTime> dates = new List<DateTime>();
+
+                            for (int j = 0; j < cycles.Count; j++)
+                            {
+                                var equivalentDay = cycles[j].DateStart.AddDays(i);
+                                if (i >= 0)
+                                {                                
+                                    if ((j != (cycles.Count - 1)) && equivalentDay.Date < cycles[j + 1].DateStart.Date)
+                                        dates.Add(equivalentDay);
+
+                                    if (j == (cycles.Count - 1))
+                                        dates.Add(equivalentDay);
+                                }
+                                else
+                                {
+                                    if (j == 0)
+                                        dates.Add(equivalentDay);
+
+                                    if (j != 0 && equivalentDay.Date >= cycles[j - 1].DateStart.Date)
+                                        dates.Add(equivalentDay);
+                                }
+                            }
+
+                            var data = eatings
+                                .Where(x =>
+                                    dates.Any(y => y.Date == x.DateCreated.Date));
+
+                            var basalsCycle = basalsCalculate
+                                .Where(x =>
+                                    dates.Any(y => y.Date == x.date));
+
+                            if (data.Count() > 0)
+                                values.Add((
+                                    i >= 0 ? i + 1 : i,
+                                    Math.Round(data
+                                        .Average(x =>
+                                            x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
+                                    basalsCycle.Count() > 0
+                                        ? Math.Round(basalsCycle
+                                            .Average(x =>
+                                                x.dose), 1, MidpointRounding.AwayFromZero)
+                                        : 0));
+                        }
+
+
+                        CycleWidthRequest = (values?.Count() ?? 0) * 15;
+
+                        CycleChart = new LineChart()
+                        {
+                            LineMode = LineMode.Spline,
+                            LabelTextSize = 24,
+                            Entries = values
+                                .Select(x =>
+                                    new ChartEntry((float)x.value)
+                                    {
+                                        Label = x.day.ToString("D2"),
+                                        ValueLabel = $"{x.value} " +
+                                            $"({x.baseDose})",
+                                        ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                            ? SkiaSharp.SKColors.White
+                                            : SkiaSharp.SKColors.Black,
+
+                                        Color = x.day == CycleDay + 1
+                                            ? SkiaSharp.SKColors.Green
+                                            : x.day >= 1 && x.day <= 3
+                                                ? SkiaSharp.SKColors.Red
+                                                : x.day == 15
+                                                    ? SkiaSharp.SKColors.Pink
+                                                    :App.Current.RequestedTheme == OSAppTheme.Dark
+                                                        ? SkiaSharp.SKColors.LightSkyBlue
+                                                        : SkiaSharp.SKColors.Blue
+                                    }),
+
+                            LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+                            BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? new SkiaSharp.SKColor(29, 29, 29)
+                                : SkiaSharp.SKColors.White,
+                            MinValue = (float)values.Min(x => x.value) - 0.5f
+                        };
+                    }
+
+                    // Активность
+                    var exercises = eatings
+                        .GroupBy(x =>
+                            new
+                            {
+                                x.Exercise.ExerciseType,
+                                x.Exercise.HoursAfterInjection
+                            })
+                        .Select(x =>
+                            new
+                            {
+                                Count = x.Count(),
+                                LastDate = x.Max(y => y.DateCreated.Date),
+                                ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
+                                InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
+                            })
+                        .Where(x =>
+                            x.Count > 2 &&
+                            x.LastDate > DateTime.Now.AddMonths(-3).Date)
+                        .OrderBy(x =>
+                            x.InsulinSensitivityFact)
+                        .ToList();
+
+                    var maxElement = (exercises?.Count ?? 0) > 0
+                        ? exercises
+                            .FirstOrDefault(x =>
+                                x.Count == exercises.Max(y => y.Count))
+                        : null;
+
+                    StringBuilder exercisesInformation = new StringBuilder(exercises.Count);
+                    for (int i = 0; i < (exercises?.Count ?? 0); i++)
+                    {
+                        if (exercises[i] != maxElement)
+                        {
+                            var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
+                            exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
+                        }
+                        else exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
+                    }
+
+                    Exercise = exercisesInformation.ToString();
+
+                    // Точность
+                    StringBuilder accuracyInformation = new StringBuilder(9);
+                    if (eatings.Any(x => x.AccuracyAuto != null || x.AccuracyUser != null))
+                    {
+                        accuracyInformation.AppendLine("Всё время:");
+
+                        if (eatings.Any(x => x.AccuracyAuto != null))
+                            accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(eatings.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
+
+                        if (eatings.Any(x => x.AccuracyUser != null))
+                            accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(eatings.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
                         
-                    accuracyInformation.AppendLine("\nМесяц:");
+                        accuracyInformation.AppendLine("\nМесяц:");
 
-                    var month = DateTime.Now.AddMonths(-1).Date;
-                    var monthCollection = eatings
-                        .Where(x =>
-                            x.DateCreated.Date >= month);
+                        var month = DateTime.Now.AddMonths(-1).Date;
+                        var monthCollection = eatings
+                            .Where(x =>
+                                x.DateCreated.Date >= month);
 
-                    if (monthCollection.Any(x => x.AccuracyAuto != null))
-                        accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(monthCollection.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
+                        if (monthCollection.Any(x => x.AccuracyAuto != null))
+                            accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(monthCollection.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
 
-                    if (monthCollection.Any(x => x.AccuracyUser != null))
-                        accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(monthCollection.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
+                        if (monthCollection.Any(x => x.AccuracyUser != null))
+                            accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(monthCollection.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
 
-                    accuracyInformation.AppendLine("\nНеделя:");
+                        accuracyInformation.AppendLine("\nНеделя:");
 
-                    var week = DateTime.Now.AddDays(-7).Date;
-                    var weekCollection = monthCollection
-                        .Where(x =>
-                            x.DateCreated.Date >= week);
+                        var week = DateTime.Now.AddDays(-7).Date;
+                        var weekCollection = monthCollection
+                            .Where(x =>
+                                x.DateCreated.Date >= week);
 
-                    if (weekCollection.Any(x => x.AccuracyAuto != null))
-                        accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(weekCollection.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
+                        if (weekCollection.Any(x => x.AccuracyAuto != null))
+                            accuracyInformation.AppendLine($"Средняя точность программы: {Math.Round(weekCollection.Where(x => x.AccuracyAuto != null).Average(x => x.AccuracyAuto.Value), 2, MidpointRounding.AwayFromZero)}%");
 
-                    if (weekCollection.Any(x => x.AccuracyUser != null))
-                        accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(weekCollection.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
+                        if (weekCollection.Any(x => x.AccuracyUser != null))
+                            accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(weekCollection.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
+                    }
+
+                    Accuracy = accuracyInformation.ToString();
                 }
-
-                Accuracy = accuracyInformation.ToString();
-            }
-        }
+            }, "Инициализация\nПожалуйста, подождите");
 
         #endregion
     }

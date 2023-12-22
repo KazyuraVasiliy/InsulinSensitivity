@@ -1,190 +1,203 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
-             x:Class="InsulinSensitivity.Statistic.StatisticPage"
-             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
-             Title="Статистика"
-             x:Name="Page">
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:microcharts="clr-namespace:Microcharts.Forms;assembly=Microcharts.Forms"
+    x:Class="InsulinSensitivity.Statistic.StatisticPage"
+    xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+    Title="Статистика"
+    x:Name="Page">
 
     <ContentPage.Resources>
-        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
-        <converters:InversionBoolConverter x:Key="InversionBoolConverter"/>
+        <converters:DecimalToStringConverter
+            x:Key="DecimalToStringConverter" />
+        <converters:InversionBoolConverter
+            x:Key="InversionBoolConverter" />
     </ContentPage.Resources>
 
     <ContentPage.Content>
-        <ScrollView>
-            <StackLayout
-                Spacing="0">
-                
-                <Frame
-                    Style="{StaticResource Frame}"
-                    IsVisible="{Binding Path=AsyncBase.Inactive, Converter={StaticResource InversionBoolConverter}}">
-
-                    <StackLayout>
-                        <Label
-                            Text="{Binding Path=AsyncBase.Description}"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
-
-                        <ActivityIndicator
-                            IsRunning="True"/>
-                    </StackLayout>
-                </Frame>
-
+        <ContentView>
+            <ScrollView>
                 <StackLayout
-                    Spacing="0"
-                    IsVisible="{Binding Path=AsyncBase.Inactive}">
-                    
-                    <Frame
-                        Style="{StaticResource Frame}"
-                        Padding="4">
+                    Spacing="0">
 
-                        <StackLayout
-                            Spacing="0">
+                    <StackLayout
+                        Grid.Row="0"
+                        Grid.ColumnSpan="3"
+                        IsVisible="{Binding Path=AsyncBase.Inactive, Converter={StaticResource InversionBoolConverter}}">
 
-                            <ScrollView
-                                x:Name="sv" x:FieldModifier="public"
-                                HeightRequest="300"                        
-                                HorizontalOptions="FillAndExpand"
-                                HorizontalScrollBarVisibility="Always"
-                                Orientation="Horizontal">
+                        <Frame
+                            Margin="5"
+                            Style="{StaticResource Frame}">
 
-                                <microcharts:ChartView
-                                    WidthRequest="{Binding Path=WidthRequest}"
-                                    Chart="{Binding Path=Chart}"/>
-                            </ScrollView>
-                        </StackLayout>
-                    </Frame>
+                            <StackLayout>
+                                <Label
+                                    Text="{Binding Path=AsyncBase.Description}"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalTextAlignment="Center"
+                                    HorizontalOptions="CenterAndExpand" />
 
-                    <Frame
-                        Style="{StaticResource Frame}">
+                                <ActivityIndicator
+                                    IsRunning="{Binding Path=AsyncBase.Inactive, Converter={StaticResource InversionBoolConverter}}" />
+                            </StackLayout>
+                        </Frame>
+                    </StackLayout>
 
-                        <StackLayout
-                            Spacing="0">
+                    <StackLayout
+                        Spacing="0"
+                        IsVisible="{Binding Path=AsyncBase.Inactive}">
 
-                            <Label
-                                Text="ФЧИ"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
-
-                            <Label
-                                Text="{Binding Path=InsulinSensitivity}"/>
-                        </StackLayout>
-                    </Frame>
-
-                    <Frame
-                        Style="{StaticResource Frame}">
-
-                        <StackLayout
-                            Spacing="0">
-
-                            <Label
-                                Text="ФЧИ по неделям года"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                        <Frame
+                            Style="{StaticResource Frame}"
+                            Padding="4">
 
                             <StackLayout
                                 Spacing="0">
 
                                 <ScrollView
-                                    HeightRequest="300"                        
+                                    x:Name="sv"
+                                    x:FieldModifier="public"
+                                    HeightRequest="300"
                                     HorizontalOptions="FillAndExpand"
                                     HorizontalScrollBarVisibility="Always"
                                     Orientation="Horizontal">
 
                                     <microcharts:ChartView
-                                        WidthRequest="{Binding Path=WidthRequestWeeks}"
-                                        Chart="{Binding Path=ChartWeeks}"/>
+                                        WidthRequest="{Binding Path=WidthRequest}"
+                                        Chart="{Binding Path=Chart}" />
                                 </ScrollView>
                             </StackLayout>
-                        </StackLayout>
-                    </Frame>
+                        </Frame>
 
-                    <Frame
-                        Style="{StaticResource Frame}">
+                        <Frame
+                            Style="{StaticResource Frame}">
 
-                        <StackLayout
-                            Spacing="0">
+                            <StackLayout
+                                Spacing="0">
 
-                            <Label
-                                Text="Соотношение углеводов к инсулину (г/ед)"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                <Label
+                                    Text="ФЧИ"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
 
-                            <Label
-                                Text="{Binding Path=CarbohydrateCoefficient}"/>
-                        </StackLayout>
-                    </Frame>
+                                <Label
+                                    Text="{Binding Path=InsulinSensitivity}" />
+                            </StackLayout>
+                        </Frame>
 
-                    <Frame
-                        Style="{StaticResource Frame}"
-                        IsVisible="{Binding Path=IsCycleVisibility}">
+                        <Frame
+                            Style="{StaticResource Frame}">
 
-                        <StackLayout
-                            Spacing="0">
+                            <StackLayout
+                                Spacing="0">
 
-                            <Label
-                                Text="{Binding Path=IncCycleDay, StringFormat='{}Цикл: {0}-й день'}"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                <Label
+                                    Text="ФЧИ по неделям года"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
 
-                            <ScrollView
-                                HeightRequest="400"
-                                HorizontalOptions="FillAndExpand"
-                                HorizontalScrollBarVisibility="Always"
-                                Orientation="Horizontal">
+                                <StackLayout
+                                    Spacing="0">
 
-                                <microcharts:ChartView
-                                    WidthRequest="{Binding Path=CycleWidthRequest}"
-                                    Chart="{Binding Path=CycleChart}"/>
-                            </ScrollView>
+                                    <ScrollView
+                                        HeightRequest="300"
+                                        HorizontalOptions="FillAndExpand"
+                                        HorizontalScrollBarVisibility="Always"
+                                        Orientation="Horizontal">
 
-                            <Label
-                                Text="{Binding Path=Cycle}"/>
-                        </StackLayout>
-                    </Frame>
+                                        <microcharts:ChartView
+                                            WidthRequest="{Binding Path=WidthRequestWeeks}"
+                                            Chart="{Binding Path=ChartWeeks}" />
+                                    </ScrollView>
+                                </StackLayout>
+                            </StackLayout>
+                        </Frame>
 
-                    <Frame
-                        Style="{StaticResource Frame}">
+                        <Frame
+                            Style="{StaticResource Frame}">
 
-                        <StackLayout
-                            Spacing="0">
+                            <StackLayout
+                                Spacing="0">
 
-                            <Label
-                                Text="Активность"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                <Label
+                                    Text="Соотношение углеводов к инсулину (г/ед)"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
 
-                            <Label
-                                Text="{Binding Path=Exercise}"/>
-                        </StackLayout>
-                    </Frame>
+                                <Label
+                                    Text="{Binding Path=CarbohydrateCoefficient}" />
+                            </StackLayout>
+                        </Frame>
 
-                    <Frame
-                        Style="{StaticResource Frame}">
+                        <Frame
+                            Style="{StaticResource Frame}"
+                            IsVisible="{Binding Path=IsCycleVisibility}">
 
-                        <StackLayout
-                            Spacing="0">
+                            <StackLayout
+                                Spacing="0">
 
-                            <Label
-                                Text="Точность"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                <Label
+                                    Text="{Binding Path=IncCycleDay, StringFormat='{}Цикл: {0}-й день'}"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
 
-                            <Label
-                                Text="{Binding Path=Accuracy}"/>
-                        </StackLayout>
-                    </Frame>
+                                <ScrollView
+                                    HeightRequest="400"
+                                    HorizontalOptions="FillAndExpand"
+                                    HorizontalScrollBarVisibility="Always"
+                                    Orientation="Horizontal">
+
+                                    <microcharts:ChartView
+                                        WidthRequest="{Binding Path=CycleWidthRequest}"
+                                        Chart="{Binding Path=CycleChart}" />
+                                </ScrollView>
+
+                                <Label
+                                    Text="{Binding Path=Cycle}" />
+                            </StackLayout>
+                        </Frame>
+
+                        <Frame
+                            Style="{StaticResource Frame}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
+                                    Text="Активность"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
+
+                                <Label
+                                    Text="{Binding Path=Exercise}" />
+                            </StackLayout>
+                        </Frame>
+
+                        <Frame
+                            Style="{StaticResource Frame}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
+                                    Text="Точность"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
+
+                                <Label
+                                    Text="{Binding Path=Accuracy}" />
+                            </StackLayout>
+                        </Frame>
+                    </StackLayout>
                 </StackLayout>
-            </StackLayout>
-        </ScrollView>
-    </ContentPage.Content>    
+            </ScrollView>
+        </ContentView>
+    </ContentPage.Content>
 </ContentPage>
