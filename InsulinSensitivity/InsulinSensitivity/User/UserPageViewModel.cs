@@ -1,10 +1,12 @@
 ﻿using BusinessLogicLayer.Service;
 using BusinessLogicLayer.ViewModel;
 using DataAccessLayer.Contexts;
+using DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Models = DataAccessLayer.Models;
@@ -100,6 +102,32 @@ namespace InsulinSensitivity.User
             set
             {
                 User.Weight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Пол
+        /// </summary>
+        public bool Gender
+        {
+            get => User.Gender;
+            set
+            {
+                User.Gender = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Дата рождения
+        /// </summary>
+        public DateTime BirthDate
+        {
+            get => User.BirthDate;
+            set
+            {
+                User.BirthDate = value;
                 OnPropertyChanged();
             }
         }
@@ -332,9 +360,9 @@ namespace InsulinSensitivity.User
             if (!OkCanExecute())
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
-                    "Ошибка",
-                    "Все поля должны быть заполнены.\n" +
-                        "Уровни гликемии должны отличаться и идти в порядке возрастания.",
+                "Ошибка",
+                "Все поля должны быть заполнены.\n" +
+                "Уровни гликемии должны отличаться и идти в порядке возрастания.",
                     "Ok");
                 return;
             }
@@ -345,7 +373,15 @@ namespace InsulinSensitivity.User
                     ? new Models.User() { Id = Guid.NewGuid() }
                     : db.Users.Find(User.Id);
 
+                var isParameterChanged =
+                    User.Id != Guid.Empty &&
+                    (user.BirthDate != User.BirthDate ||
+                    user.Gender != User.Gender ||
+                    user.Height != User.Height ||
+                    user.Weight != User.Weight);
+
                 user.Name = User.Name;
+                    
                 user.BirthDate = User.BirthDate;
                 user.Gender = User.Gender;
 
@@ -371,7 +407,22 @@ namespace InsulinSensitivity.User
 
                 if (User.Id == Guid.Empty)
                     user.CarbohydrateCoefficient = Math.Round(Calculation.GetCarbohydrateCoefficient(user.BirthDate, user.Gender, user.Height, user.Weight), 2, MidpointRounding.AwayFromZero);
-                else user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
+                else
+                {
+                    if (isParameterChanged)
+                    {
+                        bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                            "Запрос",
+                            "Пересчитать УК?",
+                            "Да",
+                            "Нет");
+
+                        if (question)
+                            user.CarbohydrateCoefficient = Math.Round(Calculation.GetCarbohydrateCoefficient(User.BirthDate, User.Gender, User.Height, User.Weight), 2, MidpointRounding.AwayFromZero);
+                        else user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
+                    }
+                    else user.CarbohydrateCoefficient = User.CarbohydrateCoefficient;
+                }
 
                 user.ProteinCoefficient = User.ProteinCoefficient;
                 user.FatCoefficient = User.FatCoefficient;

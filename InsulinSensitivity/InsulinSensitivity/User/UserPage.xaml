@@ -76,7 +76,7 @@
                                 Visual="Material"
                                 Opacity="0"
                                 HeightRequest="0"
-                                Date="{Binding Path=User.BirthDate}"/>
+                                Date="{Binding Path=BirthDate}"/>
                         </Grid>
 
                         <Grid>
@@ -263,7 +263,7 @@
 
                             <RadioButton
                                 GroupName="Gender"
-                                IsChecked="{Binding Path=User.Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource True}}"/>
+                                IsChecked="{Binding Path=Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource True}}"/>
                             <Label
                                 VerticalTextAlignment="Center"
                                 Text="Мужской"/>
@@ -275,7 +275,7 @@
 
                             <RadioButton
                                 GroupName="Gender"
-                                IsChecked="{Binding Path=User.Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource False}}"/>
+                                IsChecked="{Binding Path=Gender, Converter={StaticResource RadioButtonToBoolConverter}, ConverterParameter={StaticResource False}}"/>
                             <Label
                                 VerticalTextAlignment="Center"
                                 Text="Женский"/>
