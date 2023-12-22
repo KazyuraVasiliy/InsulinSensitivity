@@ -175,7 +175,7 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 accuracy = value;
-                //OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -390,7 +390,11 @@ namespace InsulinSensitivity.Statistic
                     var eatingTypeAverages = eatingsLastMonth
                         .Where(x => x.DateCreated.Date >= lastMonth)
                         .GroupBy(x =>
-                            x.EatingType)
+                            new
+                            {
+                                x.EatingType.Name,
+                                x.EatingType.TimeStart
+                            })
                         .OrderBy(x =>
                             x.Key.TimeStart)
                         .Select(x =>
@@ -412,7 +416,11 @@ namespace InsulinSensitivity.Statistic
                     {
                         var carbohydrateCoefficientAverages = eatingsLastMonth
                             .GroupBy(x =>
-                                x.EatingType)
+                                new
+                                {
+                                    x.EatingType.Name,
+                                    x.EatingType.TimeStart
+                                })
                             .SelectMany(x =>
                                 x
                                     .Where(y =>
@@ -422,7 +430,12 @@ namespace InsulinSensitivity.Statistic
                                         y.DateCreated)
                                     .Take(4))
                             .GroupBy(x =>
-                                x.EatingType)
+                                new
+                                {
+                                    x.EatingType.Name,
+                                    x.EatingType.TimeStart,
+                                    x.EatingType.TimeEnd
+                                })
                             .OrderBy(x =>
                                 x.Key.TimeStart)
                             .Select(x =>
@@ -452,7 +465,11 @@ namespace InsulinSensitivity.Statistic
                             .Where(x =>
                                 dates.Any(y => y.Date == x.DateCreated.Date))
                             .GroupBy(x =>
-                                x.EatingType)
+                                new
+                                {
+                                    x.EatingType.Name,
+                                    x.EatingType.TimeStart
+                                })
                             .OrderBy(x =>
                                 x.Key.TimeStart)
                             .Select(x =>
@@ -474,7 +491,7 @@ namespace InsulinSensitivity.Statistic
                             {
                                 var equivalentDay = cycles[j].DateStart.AddDays(i);
                                 if (i >= 0)
-                                {                                
+                                {
                                     if ((j != (cycles.Count - 1)) && equivalentDay.Date < cycles[j + 1].DateStart.Date)
                                         dates.Add(equivalentDay);
 
@@ -536,7 +553,7 @@ namespace InsulinSensitivity.Statistic
                                                 ? SkiaSharp.SKColors.Red
                                                 : x.day == 15
                                                     ? SkiaSharp.SKColors.Pink
-                                                    :App.Current.RequestedTheme == OSAppTheme.Dark
+                                                    : App.Current.RequestedTheme == OSAppTheme.Dark
                                                         ? SkiaSharp.SKColors.LightSkyBlue
                                                         : SkiaSharp.SKColors.Blue
                                     }),
@@ -556,7 +573,8 @@ namespace InsulinSensitivity.Statistic
                         .GroupBy(x =>
                             new
                             {
-                                x.Exercise.ExerciseType,
+                                x.Exercise.ExerciseType.Id,
+                                x.Exercise.ExerciseType.Name,
                                 x.Exercise.HoursAfterInjection
                             })
                         .Select(x =>
@@ -564,7 +582,7 @@ namespace InsulinSensitivity.Statistic
                             {
                                 Count = x.Count(),
                                 LastDate = x.Max(y => y.DateCreated.Date),
-                                ExerciseType = $"{x.Key.ExerciseType.Name} (через {x.Key.HoursAfterInjection} ч.)",
+                                ExerciseType = $"{x.Key.Name} (через {x.Key.HoursAfterInjection} ч.)",
                                 InsulinSensitivityFact = x.Average(y => y.InsulinSensitivityFact)
                             })
                         .Where(x =>
@@ -604,7 +622,7 @@ namespace InsulinSensitivity.Statistic
 
                         if (eatings.Any(x => x.AccuracyUser != null))
                             accuracyInformation.AppendLine($"Средняя точность пользователя: {Math.Round(eatings.Where(x => x.AccuracyUser != null).Average(x => x.AccuracyUser.Value), 2, MidpointRounding.AwayFromZero)}%");
-                        
+
                         accuracyInformation.AppendLine("\nМесяц:");
 
                         var month = DateTime.Now.AddMonths(-1).Date;
