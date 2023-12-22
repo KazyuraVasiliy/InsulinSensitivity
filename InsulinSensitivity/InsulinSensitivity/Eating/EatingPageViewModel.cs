@@ -312,6 +312,12 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
+        /// Приёмы пищи исключая не учитываемые для расчёта по циклу (включают только ФЧИ и тип приёма пищи)
+        /// </summary>
+        private List<Models.Eating> EatingsWithoutIgnoredForCycle =
+            new List<Models.Eating>();
+
+        /// <summary>
         /// Средние ФЧИ по приёму пищи
         /// </summary>
         private Dictionary<Guid, decimal?> AverageEatingTypeSensitivityDictionary { get; set; } =
@@ -1437,6 +1443,28 @@ namespace InsulinSensitivity.Eating
 
                     if ((cycles?.Count ?? 0) > 0)
                         LastMenstruationDate = cycles.Last().DateStart;
+
+                    if (EquivalentDays.Count > 0)
+                    {
+                        var equivalentDaysUtc = EquivalentDays
+                            .Select(x => x.Date.ToFileTimeUtc())
+                            .ToList();
+
+                        EatingsWithoutIgnoredForCycle = db.Eatings
+                            .AsNoTracking()
+                            .Where(x =>
+                                equivalentDaysUtc.Contains(x.FileTimeUtcDateCreated) &&
+                                x.Id != Eating.Id &&
+                                x.InsulinSensitivityFact != null &&
+                                !x.IsIgnored)
+                            .Select(x =>
+                                new Models.Eating()
+                                {
+                                    InsulinSensitivityFact = x.InsulinSensitivityFact,
+                                    EatingTypeId = x.EatingTypeId
+                                })
+                            .ToList();
+                    }
                 }
             }
         }
@@ -1647,13 +1675,8 @@ namespace InsulinSensitivity.Eating
                     averageEatingTypeCycleSensitivity = AverageEatingTypeCycleSensitivityDictionary[EatingType.Id];
                 else
                 {
-                    var averageEatingTypeSensitivityCollection = EatingsWithoutIgnored
-                        .Where(x =>
-                            x.InsulinSensitivityFact != null &&
-                            x.EatingTypeId == EatingType.Id &&
-                            EquivalentDays
-                                .Any(y =>
-                                    y.Date == x.DateCreated.Date))
+                    var averageEatingTypeSensitivityCollection = EatingsWithoutIgnoredForCycle
+                        .Where(x => x.EatingTypeId == EatingType.Id)
                         .ToList();
 
                     if ((averageEatingTypeSensitivityCollection?.Count ?? 0) > 0)
