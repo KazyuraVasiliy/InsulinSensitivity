@@ -10,6 +10,7 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InsulinSensitivity.ExerciseType
 {
@@ -61,6 +62,7 @@ namespace InsulinSensitivity.ExerciseType
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 Types = db.ExerciseTypes
+                    .AsNoTracking()
                     .Where(x =>
                         x.DateDeleted == null)
                     .OrderBy(x =>

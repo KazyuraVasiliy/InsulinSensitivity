@@ -21,6 +21,7 @@ namespace InsulinSensitivity.User
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                     User = db.Users
+                        .AsNoTracking()
                         .Include(x => x.BolusType)
                         .Include(x => x.BasalType)
                         .FirstOrDefault(x => 
@@ -51,6 +52,7 @@ namespace InsulinSensitivity.User
             // Инициализация коллекций
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 InsulinTypes = db.InsulinTypes
+                    .AsNoTracking()
                     .OrderBy(x =>
                         x.Name)
                     .ToList();

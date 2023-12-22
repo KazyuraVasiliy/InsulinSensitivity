@@ -10,6 +10,7 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InsulinSensitivity.EatingType
 {
@@ -43,6 +44,7 @@ namespace InsulinSensitivity.EatingType
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 Types = db.EatingTypes
+                    .AsNoTracking()
                     .ToList()
                     .OrderBy(x =>
                         x.TimeStart)

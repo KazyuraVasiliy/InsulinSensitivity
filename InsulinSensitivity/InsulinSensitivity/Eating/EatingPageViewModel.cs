@@ -40,6 +40,7 @@ namespace InsulinSensitivity.Eating
                         .Include(x => x.IntermediateDimensions)
                         .Include(x => x.BasalType)
                         .Include(x => x.BolusType)
+                        .AsNoTracking()
                         .FirstOrDefault(x =>
                             x.Id == eating.Id);
             }
@@ -54,6 +55,7 @@ namespace InsulinSensitivity.Eating
             {
                 // ... Типы приёмов пищи
                 EatingTypes = db.EatingTypes
+                    .AsNoTracking()
                     .ToList()
                     .OrderBy(x => 
                         x.TimeStart)
@@ -61,6 +63,7 @@ namespace InsulinSensitivity.Eating
 
                 // ... Типы упражнений
                 ExerciseTypes = db.ExerciseTypes
+                    .AsNoTracking()
                     .Where(x =>
                         x.DateDeleted == null)
                     .OrderBy(x =>
@@ -69,6 +72,7 @@ namespace InsulinSensitivity.Eating
 
                 // ... Типы инсулинов
                 InsulinTypes = db.InsulinTypes
+                    .AsNoTracking()
                     .OrderBy(x =>
                         x.Name)
                     .ToList();
@@ -1149,6 +1153,7 @@ namespace InsulinSensitivity.Eating
                         .ThenInclude(x => x.BolusType)
                     .Include(x => x.BolusType)
                     .Include(x => x.BasalType)
+                    .AsNoTracking()
                     .ToList();
 
                 EatingsWithoutIgnored = Eatings
@@ -1402,6 +1407,7 @@ namespace InsulinSensitivity.Eating
                 if (GlobalParameters.User.Gender == false)
                 {
                     var cycles = db.MenstrualCycles
+                        .AsNoTracking()
                         .OrderBy(x =>
                             x.DateStart)
                         .ToList();

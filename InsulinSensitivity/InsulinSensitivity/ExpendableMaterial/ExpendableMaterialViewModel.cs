@@ -222,6 +222,7 @@ namespace InsulinSensitivity.ExpendableMaterial
 
                 // История изменений
                 History = db.ExpendableMaterials
+                    .AsNoTracking()
                     .Include(x => x.ExpendableMaterialType)
                     .ToList()
                     .OrderByDescending(x =>
@@ -243,22 +244,21 @@ namespace InsulinSensitivity.ExpendableMaterial
                 Cartridge = (int)(total.FirstOrDefault(x => x.Key == 7)?.Sum(x => x.Count) ?? 0);
                 Needle = (int)(total.FirstOrDefault(x => x.Key == 8)?.Sum(x => x.Count) ?? 0);
 
-                // Расход                
+                // Расход
+                var lastMonth = DateTime.Now.AddMonths(-1).ToFileTimeUtc();
+
                 var eatings = db.Eatings
+                    .AsNoTracking()
                     .Where(x =>
+                        x.FileTimeUtcDateCreated >= lastMonth &&
                         x.InsulinSensitivityFact != null)
                     .Include(x => x.EatingType)
                     .Include(x => x.Exercise)
                         .ThenInclude(x => x.ExerciseType)
                     .ToList();
 
-                var lastMonth = DateTime.Now.AddMonths(-1);
-                eatings = eatings
-                    .Where(x =>
-                        x.DateCreated.Date >= lastMonth.Date)
-                    .ToList();
-
                 var types = db.ExpendableMaterialTypes
+                    .AsNoTracking()
                     .ToList();
 
                 // Базальный инсулин

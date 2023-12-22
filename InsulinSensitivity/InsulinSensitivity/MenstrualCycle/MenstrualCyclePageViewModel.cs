@@ -10,6 +10,7 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InsulinSensitivity.MenstrualCycle
 {
@@ -89,6 +90,7 @@ namespace InsulinSensitivity.MenstrualCycle
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 Cycles = db.MenstrualCycles
+                    .AsNoTracking()
                     .OrderByDescending(x =>
                         x.DateStart)
                     .ToObservable();

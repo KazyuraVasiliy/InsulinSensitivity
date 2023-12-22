@@ -102,6 +102,7 @@ namespace InsulinSensitivity.InsulinType
         {
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 Types = db.InsulinTypes
+                    .AsNoTracking()
                     .ToList()
                     .GroupBy(x =>
                         x.IsBasal)

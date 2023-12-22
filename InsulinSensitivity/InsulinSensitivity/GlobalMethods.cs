@@ -72,6 +72,7 @@ namespace InsulinSensitivity
                             .ThenInclude(x => x.BolusType)
                         .Include(x => x.BolusType)
                         .Include(x => x.BasalType)
+                        .AsNoTracking()
                         .ToList();
                 }
             }

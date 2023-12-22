@@ -149,6 +149,7 @@ namespace InsulinSensitivity.Droid
                         .Include(x => x.IntermediateDimensions)
                         .Include(x => x.BasalType)
                         .Include(x => x.BolusType)
+                        .AsNoTracking()
                         .ToList()
                         .OrderByDescending(x =>
                             x.DateCreated.Date)

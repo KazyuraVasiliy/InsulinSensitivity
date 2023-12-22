@@ -138,6 +138,7 @@ namespace InsulinSensitivity
 
                     // Инициализация типов приёмов пищи
                     eatingTypes = db.EatingTypes
+                        .AsNoTracking()
                         .ToList()
                         .OrderBy(x =>
                             x.TimeStart)
@@ -213,6 +214,7 @@ namespace InsulinSensitivity
                         .Include(x => x.IntermediateDimensions)
                         .Include(x => x.BasalType)
                         .Include(x => x.BolusType)
+                        .AsNoTracking()
                         .ToList()
                         .GroupBy(x => x.DateCreated.Date)
                         .OrderByDescending(x => x.Key)

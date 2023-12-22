@@ -248,6 +248,7 @@ namespace InsulinSensitivity.Statistic
                     return;
 
                 var cycles = db.MenstrualCycles
+                    .AsNoTracking()
                     .OrderBy(x =>
                         x.DateStart)
                     .ToList();
@@ -260,6 +261,7 @@ namespace InsulinSensitivity.Statistic
                     ovulations.Add(cycles.Last().DateStart.AddDays(14));
 
                 var eatings = db.Eatings
+                    .AsNoTracking()
                     .Where(x =>
                         x.InsulinSensitivityFact != null)
                     .Include(x => x.EatingType)
