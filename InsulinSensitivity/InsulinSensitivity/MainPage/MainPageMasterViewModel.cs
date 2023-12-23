@@ -222,10 +222,9 @@ namespace InsulinSensitivity
                 }
 
                 var statisticPage = new Statistic.StatisticPage();
-                statisticPage.BindingContext = new Statistic.StatisticPageViewModel();
+                statisticPage.BindingContext = new Statistic.StatisticPageViewModel(statisticPage);
 
                 await GlobalParameters.Navigation.PushAsync(statisticPage, true);
-                await statisticPage.sv.ScrollToAsync((statisticPage.BindingContext as Statistic.StatisticPageViewModel).WidthRequest, 0, true);
             }
             catch (Exception ex)
             {

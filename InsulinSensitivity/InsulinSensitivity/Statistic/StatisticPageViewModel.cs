@@ -14,8 +14,10 @@ namespace InsulinSensitivity.Statistic
     {
         #region Constructors
 
-        public StatisticPageViewModel()
+        public StatisticPageViewModel(Statistic.StatisticPage page)
         {
+            Page = page;
+
             // Инициализация коллекций
             InitStatistic();
         }
@@ -23,6 +25,8 @@ namespace InsulinSensitivity.Statistic
         #endregion
 
         #region Properties
+
+        public Statistic.StatisticPage Page { get; private set; }
 
         /// <summary>
         /// Видна ли статистика по циклам
@@ -241,7 +245,7 @@ namespace InsulinSensitivity.Statistic
         /// Инициализирует статистику
         /// </summary>
         private async void InitStatistic() =>
-            await AsyncBase.NewTask(() =>
+            await AsyncBase.NewTask(async () =>
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
@@ -652,6 +656,10 @@ namespace InsulinSensitivity.Statistic
 
                     Accuracy = accuracyInformation.ToString();
                 }
+
+                Device.BeginInvokeOnMainThread(async () =>
+                    await Page.sv.ScrollToAsync(WidthRequest, 0, true));                
+
             }, "Инициализация\nПожалуйста, подождите");
 
         #endregion
