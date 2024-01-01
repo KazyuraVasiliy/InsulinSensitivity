@@ -260,20 +260,15 @@ namespace InsulinSensitivity
         /// </summary>
         private void RemoveCycle()
         {
-            if (GlobalParameters.User != null)
+            if (GlobalParameters.IsCycleSettingsAccess)
             {
-                var age = (DateTime.MinValue + (DateTime.Now - GlobalParameters.User.BirthDate)).Year - 1;
-                if (GlobalParameters.User.Gender == true || age < 8)
-                {
-                    var master = ((MasterDetailPage)App.Current.MainPage).Master as MainPageMaster;
-                    var context = master.BindingContext as MainPageMasterViewModel;
+                var master = ((MasterDetailPage)App.Current.MainPage).Master as MainPageMaster;
+                var context = master.BindingContext as MainPageMasterViewModel;
 
-                    var item = context.Items.FirstOrDefault(x => x.Name == "Циклы");
-                    if (item != null)
-                        context.Items.Remove(item);
-                }
-            }
-            
+                var item = context.Items.FirstOrDefault(x => x.Name == "Циклы");
+                if (item != null)
+                    context.Items.Remove(item);
+            }            
         }
 
         #endregion

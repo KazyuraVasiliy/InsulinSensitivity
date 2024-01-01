@@ -33,27 +33,27 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
         /// </summary>
-        public List<User> BasalUsers { get; set; }
+        public virtual List<User> BasalUsers { get; set; }
 
         /// <summary>
         /// Пользователи с болюсным инсулином (Навигационное свойство)
         /// </summary>
-        public List<User> BolusUsers { get; set; }
+        public virtual List<User> BolusUsers { get; set; }
 
         /// <summary>
         /// Приёмы пищи с базальным инсулином (Навигационное свойство)
         /// </summary>
-        public List<Eating> BasalEatings { get; set; }
+        public virtual List<Eating> BasalEatings { get; set; }
 
         /// <summary>
         /// Приёмы пищи с болюсным инсулином (Навигационное свойство)
         /// </summary>
-        public List<Eating> BolusEatings { get; set; }
+        public virtual List<Eating> BolusEatings { get; set; }
 
         /// <summary>
         /// Подколки с болюсным инсулином (Навигационное свойство)
         /// </summary>
-        public List<Injection> BolusInjections { get; set; }
+        public virtual List<Injection> BolusInjections { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры

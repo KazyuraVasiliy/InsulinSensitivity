@@ -141,9 +141,74 @@ namespace DataAccessLayer.Models
         public bool IsNightscoutStartParameters { get; set; }
 
         /// <summary>
+        /// Учитывается ли активный базальный
+        /// </summary>
+        public bool IsActiveBasal { get; set; }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по средним значениям
+        /// </summary>
+        public bool IsAverageCalculateActive { get; set; }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по нагрузкам
+        /// </summary>
+        public bool IsExerciseCalculateActive { get; set; }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по дню цикла
+        /// </summary>
+        public bool IsCycleCalculateActive { get; set; }
+
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по дню использования канюли
+        /// </summary>
+        public bool IsCannulaCalculateActive { get; set; }
+
+        /// <summary>
+        /// Длительность приёма пищи
+        /// </summary>
+        public int EatingDuration { get; set; }
+
+        /// <summary>
+        /// Размерность графика ФЧИ по циклу
+        /// </summary>
+        public int LengthGraph { get; set; }
+
+        /// <summary>
+        /// Продолжительность жизни канюли
+        /// </summary>
+        public int CannulaLifespan { get; set; }
+
+        /// <summary>
+        /// Продолжительность жизни катетера
+        /// </summary>
+        public int CatheterLifespan { get; set; }
+
+        /// <summary>
+        /// Продолжительность жизни картриджа
+        /// </summary>
+        public int CartridgeLifespan { get; set; }
+
+        /// <summary>
+        /// Продолжительность жизни батарейки
+        /// </summary>
+        public int BatteryLifespan { get; set; }
+
+        /// <summary>
+        /// Продолжительность жизни сенсора
+        /// </summary>
+        public int MonitoringLifespan { get; set; }
+
+        /// <summary>
+        /// Беременность
+        /// </summary>
+        public bool IsPregnancy { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
         /// </summary>
-        public InsulinType BasalType { get; set; }
+        public virtual InsulinType BasalType { get; set; }
 
         /// <summary>
         /// Тип болюсного инсулина
@@ -153,11 +218,11 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип болюсного инсулина (Навигационное свойство)
         /// </summary>
-        public InsulinType BolusType { get; set; }
+        public virtual InsulinType BolusType { get; set; }
 
         /// <summary>
         /// Менструальные циклы (Навигационное свойство)
         /// </summary>
-        public List<MenstrualCycle> MenstrualCycles { get; set; }
+        public virtual List<MenstrualCycle> MenstrualCycles { get; set; }
     }
 }

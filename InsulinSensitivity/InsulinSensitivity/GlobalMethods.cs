@@ -10,6 +10,7 @@ using Models = DataAccessLayer.Models;
 using Xamarin.Forms;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace InsulinSensitivity
 {
@@ -199,7 +200,7 @@ namespace InsulinSensitivity
                     if (isOnlyStart && injection.InjectionTime >= localBeginPeriod)
                         continue;
 
-                    if (!GlobalParameters.Settings.IsActiveBasal && injection.IsBasal)
+                    if (!GlobalParameters.User.IsActiveBasal && injection.IsBasal)
                         continue;
 
                     decimal value = 0;
@@ -267,6 +268,25 @@ namespace InsulinSensitivity
                     $"{(string)obj}",
                     "Ok");
             });
+
+        /// <summary>
+        /// Отображает запрос (Да / Нет)
+        /// </summary>
+        public static async Task<bool> AskAQuestion(string question) =>
+            await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                "Запрос",
+                question,
+                "Да",
+                "Нет");
+
+        /// <summary>
+        /// Отображает ошибку
+        /// </summary>
+        public static async Task ShowError(string error) =>
+            await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                "Ошибка",
+                error,
+                "Ok");
 
         /// <summary>
         /// Расчёт активного инсулина для виджета

@@ -18,7 +18,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип нагрузки (Навигационное свойство)
         /// </summary>
-        public ExerciseType ExerciseType { get; set; }
+        public virtual ExerciseType ExerciseType { get; set; }
 
         /// <summary>
         /// Продолжительность в минутах
@@ -33,6 +33,6 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Приёмы пищи (Навигационное свойство)
         /// </summary>
-        public List<Eating> Eatings { get; set; }
+        public virtual List<Eating> Eatings { get; set; }
     }
 }

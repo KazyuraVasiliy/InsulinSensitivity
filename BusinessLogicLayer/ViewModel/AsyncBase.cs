@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.ViewModel
@@ -132,23 +131,6 @@ namespace BusinessLogicLayer.ViewModel
         }
 
         /// <summary>
-        /// Открытие асинхронной задачи с передачей блокировщика
-        /// </summary>
-        /// <returns>true - блокировщик свободен и задача открыта; false - блокировщик занят</returns>
-        public bool Open(ref bool isLock, string description = null, [CallerMemberName] string caller = null)
-        {
-            lock (this)
-            {
-                if (isLock)
-                    return false;
-                else isLock = true;
-            }
-
-            Open(description, caller);
-            return true;
-        }
-
-        /// <summary>
         /// Закрытие асинхронной задачи
         /// </summary>
         public void Close([CallerMemberName] string caller = null)
@@ -171,16 +153,6 @@ namespace BusinessLogicLayer.ViewModel
 
                 Description = string.Join("; ", Descriptions.Select(x => x.Value).ToArray());
             }
-        }
-
-        /// <summary>
-        /// Закрытие асинхронной задачи с передачей блокировщика
-        /// </summary>
-        public void Close(ref bool isLock, [CallerMemberName] string caller = null)
-        {
-            lock (this)
-                isLock = false;
-            Close(caller);
         }
 
         /// <summary>

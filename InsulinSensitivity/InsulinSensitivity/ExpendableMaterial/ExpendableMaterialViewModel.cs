@@ -289,7 +289,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                 // Катетеры
                 var catheter = new ExpendableMaterialModel()
                 {
-                    Days = basal.Days + Catheter * GlobalParameters.Settings.CatheterLifespan,
+                    Days = basal.Days + Catheter * GlobalParameters.User.CatheterLifespan,
                     MaterialType = types
                         .FirstOrDefault(x =>
                             x.Id == 5),
@@ -298,7 +298,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                 // Канюли
                 var cannula = new ExpendableMaterialModel()
                 {
-                    Days = basal.Days + Cannula * GlobalParameters.Settings.CannulaLifespan,
+                    Days = basal.Days + Cannula * GlobalParameters.User.CannulaLifespan,
                     MaterialType = types
                         .FirstOrDefault(x =>
                             x.Id == 6),
@@ -307,7 +307,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                 // Картриджи
                 var cartridge = new ExpendableMaterialModel()
                 {
-                    Days = basal.Days + Cartridge * GlobalParameters.Settings.CartridgeLifespan,
+                    Days = basal.Days + Cartridge * GlobalParameters.User.CartridgeLifespan,
                     MaterialType = types
                         .FirstOrDefault(x =>
                             x.Id == 7),
@@ -360,7 +360,7 @@ namespace InsulinSensitivity.ExpendableMaterial
                     .FirstOrDefault();
 
                 var daysLeft = lastMonitoring != null
-                    ? GlobalParameters.Settings.MonitoringLifespan - (DateTime.Now.Date - lastMonitoring.DateCreated.Date).TotalDays
+                    ? GlobalParameters.User.MonitoringLifespan - (DateTime.Now.Date - lastMonitoring.DateCreated.Date).TotalDays
                     : 0;
 
                 if (daysLeft < 0)
@@ -368,7 +368,7 @@ namespace InsulinSensitivity.ExpendableMaterial
 
                 var monitoring = new ExpendableMaterialModel()
                 {
-                    Days = Monitoring * GlobalParameters.Settings.MonitoringLifespan + (decimal)daysLeft,
+                    Days = Monitoring * GlobalParameters.User.MonitoringLifespan + (decimal)daysLeft,
 
                     MaterialType = types
                         .FirstOrDefault(x =>

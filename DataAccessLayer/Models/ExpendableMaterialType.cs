@@ -23,7 +23,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Расходные материалы (Навигационное свойство)
         /// </summary>
-        public List<ExpendableMaterial> ExpendableMaterials { get; set; }
+        public virtual List<ExpendableMaterial> ExpendableMaterials { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры

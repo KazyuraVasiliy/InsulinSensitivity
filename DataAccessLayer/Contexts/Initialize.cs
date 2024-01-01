@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xamarin.Essentials;
 
 namespace DataAccessLayer.Contexts
 {
@@ -446,6 +448,25 @@ namespace DataAccessLayer.Contexts
                     var eatings = db.Eatings.ToList();
                     foreach (var eating in eatings)
                         eating.FileTimeUtcDateCreated = eating.DateCreated.Date.ToFileTimeUtc();
+                    db.SaveChanges();
+                }
+
+                // Перенос настроек в БД
+                if (db.Users.FirstOrDefault() is User user && user.CatheterLifespan == 0)
+                {
+                    user.IsActiveBasal = Preferences.Get("isActiveBasal", false);
+                    user.IsAverageCalculateActive = Preferences.Get("isAverageCalculateActive", true);
+                    user.IsExerciseCalculateActive = Preferences.Get("isExerciseCalculateActive", true);
+                    user.IsCycleCalculateActive = Preferences.Get("isCycleCalculateActive", true);
+                    user.IsCannulaCalculateActive = Preferences.Get("isCannulaCalculateActive", true);
+                    user.EatingDuration = Preferences.Get("eatingDuration", 5);
+                    user.LengthGraph = Preferences.Get("lengthGraph", 45);
+                    user.CannulaLifespan = Preferences.Get("cannulaLifespan", 3);
+                    user.CatheterLifespan = Preferences.Get("catheterLifespan", 3);
+                    user.CartridgeLifespan = Preferences.Get("cartridgeLifespan", 6);
+                    user.BatteryLifespan = Preferences.Get("batteryLifespan", 30);
+                    user.MonitoringLifespan = Preferences.Get("monitoringLifespan", 14);
+
                     db.SaveChanges();
                 }
             }

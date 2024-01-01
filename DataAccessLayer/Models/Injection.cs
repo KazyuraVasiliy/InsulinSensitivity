@@ -37,7 +37,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип болюсного инсулина (Навигационное свойство)
         /// </summary>
-        public InsulinType BolusType { get; set; }
+        public virtual InsulinType BolusType { get; set; }
 
         /// <summary>
         /// Приём пищи
@@ -47,6 +47,6 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Приём пищи (Навигационное свойство)
         /// </summary>
-        public Eating Eating { get; set; }
+        public virtual Eating Eating { get; set; }
     }
 }

@@ -33,7 +33,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Приёмы пищи (Навигационное свойство)
         /// </summary>
-        public List<Eating> Eatings { get; set; }
+        public virtual List<Eating> Eatings { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры

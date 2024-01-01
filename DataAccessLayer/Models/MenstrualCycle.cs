@@ -24,6 +24,6 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Пользователь (Навигационное свойство)
         /// </summary>
-        public User User { get; set; }
+        public virtual User User { get; set; }
     }
 }

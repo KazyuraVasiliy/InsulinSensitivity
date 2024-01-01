@@ -48,7 +48,23 @@ namespace InsulinSensitivity.User
 
                 CarbohydrateCoefficient = 0.25M,
                 ProteinCoefficient = 0.35M,
-                FatCoefficient = 0.3M
+                FatCoefficient = 0.3M,
+
+                IsActiveBasal = false,
+                IsAverageCalculateActive = true,
+                IsExerciseCalculateActive = true,
+                IsCycleCalculateActive = true,
+                IsCannulaCalculateActive = true,
+
+                EatingDuration = 5,
+                LengthGraph = 45,
+
+                CannulaLifespan = 3,
+                CatheterLifespan = 3,
+                CartridgeLifespan = 6,
+                BatteryLifespan = 30,
+                MonitoringLifespan = 14,
+
             };
 
             // Инициализация коллекций
@@ -356,7 +372,6 @@ namespace InsulinSensitivity.User
 
         private async void OkExecute()
         {
-            AsyncBase.Open();
             if (!OkCanExecute())
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
@@ -366,6 +381,8 @@ namespace InsulinSensitivity.User
                     "Ok");
                 return;
             }
+
+            AsyncBase.Open();
 
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {

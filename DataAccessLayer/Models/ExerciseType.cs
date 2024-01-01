@@ -33,7 +33,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Нагрузки (Навигационное свойство)
         /// </summary>
-        public List<Exercise> Exercises { get; set; }
+        public virtual List<Exercise> Exercises { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры

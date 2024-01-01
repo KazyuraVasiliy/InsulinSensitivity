@@ -88,7 +88,7 @@ namespace InsulinSensitivity.Eating
             if (eating == null)
             {
                 Eating.InjectionTime = Calculation.TimeSpanWithoutSeconds(DateTime.Now.TimeOfDay);
-                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(GlobalParameters.Settings.EatingDuration));
+                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(GlobalParameters.User.EatingDuration));
                 Eating.BasalInjectionTime = Calculation.DateTimeWithoutSeconds(DateTime.Now);
             }
 
@@ -149,7 +149,7 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         public bool IsBasalRateVisibility =>
             GlobalParameters.User.IsPump &&
-            GlobalParameters.Settings.IsActiveBasal;
+            GlobalParameters.User.IsActiveBasal;
 
         /// <summary>
         /// Видно ли поля замены расходных материалов
@@ -161,7 +161,8 @@ namespace InsulinSensitivity.Eating
         /// Видно ли поле для ввода начала менструального цикла
         /// </summary>
         public bool IsMenstrualCycleStartVisibility =>
-            !GlobalParameters.User.Gender && 
+            GlobalParameters.IsCycleSettingsAccess &&
+            !GlobalParameters.User.IsPregnancy &&
             (LastMenstruationDate == null || LastMenstruationDate.Value.Date.AddDays(15) <= DateTime.Now.Date);
 
         /// <summary>
@@ -1224,27 +1225,27 @@ namespace InsulinSensitivity.Eating
                         var days = (DateTime.Now.Date - eating.DateCreated.Date).TotalDays;
 
                         if (eating.IsCannulaReplacement && messages[0] == null)
-                            messages[0] = days >= GlobalParameters.Settings.CannulaLifespan
+                            messages[0] = days >= GlobalParameters.User.CannulaLifespan
                                 ? $"Канюля используется уже {days} дней."
                                 : "";
 
                         if (eating.IsCatheterReplacement && messages[1] == null)
-                            messages[1] = days >= GlobalParameters.Settings.CatheterLifespan
+                            messages[1] = days >= GlobalParameters.User.CatheterLifespan
                                 ? $"Катетер используется уже {days} дней."
                                 : "";
 
                         if (eating.IsCartridgeReplacement && messages[2] == null)
-                            messages[2] = days >= GlobalParameters.Settings.CartridgeLifespan
+                            messages[2] = days >= GlobalParameters.User.CartridgeLifespan
                                 ? $"Картридж используется уже {days} дней."
                                 : "";
 
                         if (eating.IsBatteryReplacement && messages[3] == null)
-                             messages[3] = days >= GlobalParameters.Settings.BatteryLifespan
+                             messages[3] = days >= GlobalParameters.User.BatteryLifespan
                                 ? $"Батарейка используется уже {days} дней."
                                 : "";
 
                         if (eating.IsMonitoringReplacement && messages[4] == null)
-                            messages[4] = days >= GlobalParameters.Settings.MonitoringLifespan
+                            messages[4] = days >= GlobalParameters.User.MonitoringLifespan
                                ? $"Сенсор используется уже {days} дней."
                                : "";
                     }
@@ -1477,7 +1478,7 @@ namespace InsulinSensitivity.Eating
             // Рассчёт ФЧИ по первой формуле
             InsulinSensitivityAutoOne = null;
             bool check =
-                GlobalParameters.Settings.IsAverageCalculateActive &&
+                GlobalParameters.User.IsAverageCalculateActive &&
                 (PreviousEatings?.Count ?? 0) > 0 &&
                 PreviousEatings[0].InsulinSensitivityFact != null &&
                 (PreviousAverageEatingTypeSensitivity ?? 0) != 0 &&
@@ -1527,7 +1528,7 @@ namespace InsulinSensitivity.Eating
             // Расчёт ФЧИ по второй формуле
             InsulinSensitivityAutoTwo = null;
             var check =
-                GlobalParameters.Settings.IsExerciseCalculateActive &&
+                GlobalParameters.User.IsExerciseCalculateActive &&
                 (PreviousEatings?.Count ?? 0) == 3 &&
                 PreviousEatings.All(x => x.InsulinSensitivityFact != null) &&
                 (PreviousAverageExerciseTypeSensitivitys?.Count ?? 0) == 3 &&
@@ -1597,7 +1598,7 @@ namespace InsulinSensitivity.Eating
 
                     // Учёт базы
                     decimal basal = 1;
-                    if (!GlobalParameters.User.IsPump && !GlobalParameters.Settings.IsActiveBasal)
+                    if (!GlobalParameters.User.IsPump && !GlobalParameters.User.IsActiveBasal)
                     {
                         if (GlobalParameters.User.BasalType.Duration > 12)
                         {
@@ -1663,7 +1664,7 @@ namespace InsulinSensitivity.Eating
             // Рассчёт ФЧИ по третьей формуле
             InsulinSensitivityAutoThree = null;
             var check =
-                GlobalParameters.Settings.IsCycleCalculateActive &&
+                GlobalParameters.User.IsCycleCalculateActive &&
                 !GlobalParameters.User.Gender &&
                 EatingType != null;
 
@@ -1698,7 +1699,7 @@ namespace InsulinSensitivity.Eating
         {
             InsulinSensitivityAutoFour = null;
 
-            if (GlobalParameters.Settings.IsCannulaCalculateActive && GlobalParameters.User.IsPump)
+            if (GlobalParameters.User.IsCannulaCalculateActive && GlobalParameters.User.IsPump)
             {
                 var days = EatingsWithoutIgnored
                     .GroupBy(x =>
@@ -2132,7 +2133,7 @@ namespace InsulinSensitivity.Eating
             if (Eating.InsulinSensitivityFact == null || Eating.AccuracyAuto == null || Eating.AccuracyAuto > 85)
                 return null;
 
-            if (Eating.InsulinSensitivityAutoTwo == null && GlobalParameters.Settings.IsExerciseCalculateActive)
+            if (Eating.InsulinSensitivityAutoTwo == null && GlobalParameters.User.IsExerciseCalculateActive)
                 return "Новая активность";
 
             var values = new List<decimal>()

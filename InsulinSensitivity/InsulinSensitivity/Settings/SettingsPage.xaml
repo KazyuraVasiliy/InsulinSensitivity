@@ -19,7 +19,7 @@
                         Spacing="0">
 
                         <Label
-                            Text="Базальный инсулин"
+                            Text="Расчёты"
                             FontAttributes="Bold"
                             FontSize="16"
                             HorizontalOptions="CenterAndExpand"/>
@@ -47,81 +47,49 @@
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=IsActiveBasal}"/>
                         </Grid>
-                    </StackLayout>
-                </Frame>
-
-                <Frame
-                    Style="{StaticResource Frame}">
-
-                    <StackLayout
-                        Spacing="0">
-
-                        <Label
-                            Text="Расчёт ФЧИ"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
 
                         <Grid
                             IsVisible="False">
-                            
+
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
                             </Grid.ColumnDefinitions>
 
                             <Label
                                 Grid.Column="0"
                                 Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
-                                Text="По средним значениям:"/>
-                            
+                                Text="По средним значениям:" />
+
                             <Switch
                                 Grid.Column="1"
                                 VerticalOptions="Center"
-                                IsToggled="{Binding Path=IsAverageCalculateActive}"/>
+                                IsToggled="{Binding Path=IsAverageCalculateActive}" />
                         </Grid>
 
                         <Grid
                             IsVisible="False">
-                            
+
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
                             </Grid.ColumnDefinitions>
 
                             <Label
                                 Grid.Column="0"
                                 Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
-                                Text="По нагрузкам:"/>
+                                Text="По нагрузкам:" />
 
                             <Switch
                                 Grid.Column="1"
                                 VerticalOptions="Center"
-                                IsToggled="{Binding Path=IsExerciseCalculateActive}"/>
+                                IsToggled="{Binding Path=IsExerciseCalculateActive}" />
                         </Grid>
-
-                        <Grid
-                            IsVisible="{Binding Path=IsCycleVisibility}">
-                            
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Label
-                                Grid.Column="0"
-                                Margin="0, 0, 0, 5"
-                                VerticalOptions="Center"
-                                Text="По дню цикла:"/>
-
-                            <Switch
-                                Grid.Column="1"
-                                VerticalOptions="Center"
-                                IsToggled="{Binding Path=IsCycleCalculateActive}"/>
-                        </Grid>
-
+                        
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
@@ -132,60 +100,90 @@
                                 Grid.Column="0"
                                 Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
-                                Text="По дню использования канюли:"/>
+                                Text="Расчёт ФЧИ по дню использования канюли:"/>
 
                             <Switch
                                 Grid.Column="1"
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=IsCannulaCalculateActive}"/>
                         </Grid>
-                    </StackLayout>
-                </Frame>
-
-                <Frame
-                    Style="{StaticResource Frame}">
-
-                    <StackLayout
-                        Spacing="0">
 
                         <Label
-                            Text="Приём пищи"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
-
-                        <Label
-                            Text="Продолжительность приёма пищи по умолчанию:"/>
+                            Text="Продолжительность приёма пищи по умолчанию:" />
 
                         <Entry
                             Keyboard="Numeric"
                             view:Tag.Tag="EatingDuration"
                             Unfocused="Entry_Unfocused"
-                            Text="{Binding Path=EatingDuration}"/>
+                            Text="{Binding Path=EatingDuration}" />
                     </StackLayout>
                 </Frame>
 
                 <Frame
                     Style="{StaticResource Frame}"
-                    IsVisible="{Binding Path=IsCycleVisibility}">
+                    IsVisible="{Binding Path=IsCycleSettingsVisibility}">
 
                     <StackLayout
                         Spacing="0">
 
                         <Label
-                            Text="Статистика"
+                            Text="Менструальный цикл и беременность"
                             FontAttributes="Bold"
                             FontSize="16"
-                            HorizontalOptions="CenterAndExpand"/>
+                            HorizontalOptions="CenterAndExpand" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="Расчёт ФЧИ по дню цикла:" />
+
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsCycleCalculateActive}" />
+                        </Grid>
 
                         <Label
-                            Text="Размерность графика ФЧИ по дням цикла:"/>
+                            Text="Размерность графика ФЧИ по дням цикла:" />
 
                         <Entry
                             Keyboard="Numeric"
                             view:Tag.Tag="LengthGraph"
                             Unfocused="Entry_Unfocused"
-                            Text="{Binding Path=LengthGraph}"/>
+                            Text="{Binding Path=LengthGraph}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="Беременность: ?">
+
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{x:Static global:GlobalMethods.ToolTipCommand}"
+                                        CommandParameter="Срок беременность вычисляется от даты последних месячных; расчёт ФЧИ по дню цикла отключён." />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Switch
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=IsPregnancy}" />
+                        </Grid>
                     </StackLayout>
                 </Frame>
 
@@ -249,6 +247,12 @@
                             Text="{Binding Path=MonitoringLifespan}"/>
                     </StackLayout>
                 </Frame>
+
+                <Button
+                    Text="Сохранить"
+                    Margin="5"
+                    BackgroundColor="LightSeaGreen"
+                    Command="{Binding Path=OkCommand}" />
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

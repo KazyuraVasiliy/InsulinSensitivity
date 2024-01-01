@@ -182,7 +182,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип приёма пищи (Навигационное свойство)
         /// </summary>
-        public EatingType EatingType { get; set; }
+        public virtual EatingType EatingType { get; set; }
 
         /// <summary>
         /// Комментарий
@@ -197,7 +197,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип нагрузки (Навигационное свойство)
         /// </summary>
-        public Exercise Exercise { get; set; }
+        public virtual Exercise Exercise { get; set; }
 
         /// <summary>
         /// Пользователь
@@ -207,7 +207,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Пользователь (Навигационное свойство)
         /// </summary>
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
         /// <summary>
         /// Игнорируется ли приём пищи
@@ -252,7 +252,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
         /// </summary>
-        public InsulinType BasalType { get; set; }
+        public virtual InsulinType BasalType { get; set; }
 
         /// <summary>
         /// Тип болюсного инсулина
@@ -262,16 +262,16 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип болюсного инсулина (Навигационное свойство)
         /// </summary>
-        public InsulinType BolusType { get; set; }
+        public virtual InsulinType BolusType { get; set; }
 
         /// <summary>
         /// Инъекции (Навигационное свойство)
         /// </summary>
-        public List<Injection> Injections { get; set; }
+        public virtual List<Injection> Injections { get; set; }
 
         /// <summary>
         /// Промежуточные измерения (Навигационное свойство)
         /// </summary>
-        public List<IntermediateDimension> IntermediateDimensions { get; set; }
+        public virtual List<IntermediateDimension> IntermediateDimensions { get; set; }
     }
 }

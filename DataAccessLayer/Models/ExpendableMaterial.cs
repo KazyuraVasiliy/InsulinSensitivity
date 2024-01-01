@@ -32,7 +32,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Тип расходных материалов (Навигационное свойство)
         /// </summary>
-        public ExpendableMaterialType ExpendableMaterialType { get; set; }
+        public virtual ExpendableMaterialType ExpendableMaterialType { get; set; }
 
         /// <summary>
         /// Сравнивает экземпляры

@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.ViewModel;
+﻿using BusinessLogicLayer.Service;
+using BusinessLogicLayer.ViewModel;
 using DataAccessLayer.Contexts;
 using Microcharts;
 using Microsoft.EntityFrameworkCore;
@@ -31,9 +32,17 @@ namespace InsulinSensitivity.Statistic
         /// <summary>
         /// Видна ли статистика по циклам
         /// </summary>
-        public bool IsCycleVisibility =>
-            !GlobalParameters.User.Gender &&
+        public bool IsCycleChartVisibility =>
+            GlobalParameters.IsCycleSettingsAccess &&
+            !GlobalParameters.User.IsPregnancy &&
             !string.IsNullOrWhiteSpace(Cycle);
+
+        /// <summary>
+        /// Видна ли статистика по беременности
+        /// </summary>
+        public bool IsPregnancyChartVisibility =>
+            GlobalParameters.IsCycleSettingsAccess &&
+            GlobalParameters.User.IsPregnancy;
 
         private bool isRefreshing;
         /// <summary>
@@ -91,6 +100,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private double pregnancyWidthRequest;
+        /// <summary>
+        /// Ширина графика ФЧИ по беременности
+        /// </summary>
+        public double PregnancyWidthRequest
+        {
+            get => pregnancyWidthRequest;
+            set
+            {
+                pregnancyWidthRequest = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string insulinSensitivity;
         /// <summary>
         /// ФЧИ
@@ -131,7 +154,7 @@ namespace InsulinSensitivity.Statistic
                 cycle = value;
                 OnPropertyChanged();
 
-                OnPropertyChanged(nameof(IsCycleVisibility));
+                OnPropertyChanged(nameof(IsCycleChartVisibility));
             }
         }
 
@@ -149,11 +172,45 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private int pregnancyWeek;
+        /// <summary>
+        /// Неделя беременности
+        /// </summary>
+        public int PregnancyWeek
+        {
+            get => pregnancyWeek;
+            set
+            {
+                pregnancyWeek = value;
+                OnPropertyChanged(nameof(IncPregnancyWeek));
+            }
+        }
+
+        private DateTime lastMenstruationDate;
+        /// <summary>
+        /// Неделя беременности
+        /// </summary>
+        public DateTime LastMenstruationDate
+        {
+            get => lastMenstruationDate;
+            set
+            {
+                lastMenstruationDate = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// День цикла в расчёте от 1
         /// </summary>
         public int IncCycleDay =>
             CycleDay + 1;
+
+        /// <summary>
+        /// Неделя беременности в расчёте от 1
+        /// </summary>
+        public int IncPregnancyWeek =>
+            PregnancyWeek + 1;
 
         private string exercise;
         /// <summary>
@@ -225,6 +282,20 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 cycleChart = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LineChart pregnancyChart;
+        /// <summary>
+        /// График ФЧИ по беременности
+        /// </summary>
+        public LineChart PregnancyChart
+        {
+            get => pregnancyChart;
+            set
+            {
+                pregnancyChart = value;
                 OnPropertyChanged();
             }
         }
@@ -450,7 +521,7 @@ namespace InsulinSensitivity.Statistic
                     }
 
                     // Цикл
-                    if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
+                    if (GlobalParameters.IsCycleSettingsAccess && !GlobalParameters.User.IsPregnancy && (cycles?.Count ?? 0) > 0)
                     {
                         CycleDay = (int)Math.Round((DateTime.Now.Date - cycles.Last().DateStart.Date).TotalDays, 0, MidpointRounding.AwayFromZero);
                         List<DateTime> dates = new List<DateTime>();
@@ -483,11 +554,11 @@ namespace InsulinSensitivity.Statistic
                     }
 
                     // График ФЧИ по циклу
-                    if (!GlobalParameters.User.Gender && (cycles?.Count ?? 0) > 0)
+                    if (GlobalParameters.IsCycleSettingsAccess && !GlobalParameters.User.IsPregnancy && (cycles?.Count ?? 0) > 0)
                     {
                         var values = new List<(int day, decimal value, decimal baseDose)>();
 
-                        for (int i = -10; i < GlobalParameters.Settings.LengthGraph; i++)
+                        for (int i = -10; i < GlobalParameters.User.LengthGraph; i++)
                         {
                             List<DateTime> dates = new List<DateTime>();
 
@@ -569,6 +640,59 @@ namespace InsulinSensitivity.Statistic
                                 ? new SkiaSharp.SKColor(29, 29, 29)
                                 : SkiaSharp.SKColors.White,
                             MinValue = (float)values.Min(x => x.value) - 0.5f
+                        };
+                    }
+
+                    // График ФЧИ по беременности
+                    if (GlobalParameters.IsCycleSettingsAccess && GlobalParameters.User.IsPregnancy && (cycles?.Count ?? 0) > 0)
+                    {
+                        // Дата последней менструации
+                        LastMenstruationDate = cycles.Last().DateStart.Date;
+
+                        var pregnancyBasalWeeks = basalsCalculate
+                            .Where(x => x.date.Date >= LastMenstruationDate)
+                            .GroupBy(x => (int)(x.date.Date - LastMenstruationDate).TotalDays / 7)
+                            .Select(x => (
+                                x.Key,
+                                x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
+
+                        PregnancyWeek = (int)(DateTime.Now.Date - LastMenstruationDate).TotalDays / 7;
+                        var pregnancyWeeks = eatings
+                            .Where(x => x.DateCreated.Date >= LastMenstruationDate)
+                            .GroupBy(x => (int)(x.DateCreated.Date - LastMenstruationDate).TotalDays / 7)
+                            .OrderBy(x => x.Key)
+                            .Select(x =>
+                                new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                                {
+                                    Label = (x.Key + 1).ToString(),
+                                    ValueLabel = $"{Methods.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2)} " +
+                                        $"({pregnancyBasalWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
+                                    ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                        ? SkiaSharp.SKColors.White
+                                        : SkiaSharp.SKColors.Black,
+
+                                    Color = PregnancyWeek == x.Key
+                                        ? SkiaSharp.SKColors.Red
+                                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                                            ? SkiaSharp.SKColors.LightSkyBlue
+                                            : SkiaSharp.SKColors.Blue
+                                })
+                            .ToList();
+
+                        PregnancyWidthRequest = (pregnancyWeeks?.Count() ?? 0) * 15;
+
+                        PregnancyChart = new LineChart()
+                        {
+                            LineMode = LineMode.Spline,
+                            LabelTextSize = 24,
+                            Entries = pregnancyWeeks,
+
+                            LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+                            BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? new SkiaSharp.SKColor(29, 29, 29)
+                                : SkiaSharp.SKColors.White,
                         };
                     }
 

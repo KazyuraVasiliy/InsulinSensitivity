@@ -135,7 +135,7 @@
 
                         <Frame
                             Style="{StaticResource Frame}"
-                            IsVisible="{Binding Path=IsCycleVisibility}">
+                            IsVisible="{Binding Path=IsCycleChartVisibility}">
 
                             <StackLayout
                                 Spacing="0">
@@ -162,6 +162,45 @@
                             </StackLayout>
                         </Frame>
 
+                        <Frame
+                            Style="{StaticResource Frame}"
+                            IsVisible="{Binding Path=IsPregnancyChartVisibility}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand">
+
+                                    <Label.Text>
+                                        <MultiBinding
+                                            StringFormat="{}Беременность: {0}-я неделя (от {1:dd.MM.yy})">
+                                            
+                                            <Binding
+                                                Path="IncPregnancyWeek"
+                                                FallbackValue="0" />
+                                            <Binding
+                                                Path="LastMenstruationDate"
+                                                FallbackValue="0" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+
+                                <ScrollView
+                                    HeightRequest="400"
+                                    HorizontalOptions="FillAndExpand"
+                                    HorizontalScrollBarVisibility="Always"
+                                    Orientation="Horizontal">
+
+                                    <microcharts:ChartView
+                                        WidthRequest="{Binding Path=PregnancyWidthRequest}"
+                                        Chart="{Binding Path=PregnancyChart}" />
+                                </ScrollView>
+                            </StackLayout>
+                        </Frame>
+                        
                         <Frame
                             Style="{StaticResource Frame}">
 

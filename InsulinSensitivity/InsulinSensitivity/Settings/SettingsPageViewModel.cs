@@ -1,29 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
+﻿using BusinessLogicLayer.Attributes;
+using BusinessLogicLayer.Service;
+using BusinessLogicLayer.ViewModel;
+using DataAccessLayer.Contexts;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
-
-using DataAccessLayer.Contexts;
-using BusinessLogicLayer.ViewModel;
-using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
 
 namespace InsulinSensitivity.Settings
 {
     public class SettingsPageViewModel : ObservableBase
     {
+        #region Constructors
+
+        public SettingsPageViewModel() =>
+            _ = InitSettings();
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        /// Видна ли настройка по циклам
+        /// Видны ли настройки менструального цикла и беременности
         /// </summary>
-        public bool IsCycleVisibility =>
-            !GlobalParameters.User.Gender;
+        public bool IsCycleSettingsVisibility =>
+            GlobalParameters.IsCycleSettingsAccess;
 
         /// <summary>
         /// Видна ли настройка по помпе
@@ -31,186 +35,165 @@ namespace InsulinSensitivity.Settings
         public bool IsPumpVisibility =>
             GlobalParameters.User.IsPump;
 
+        #region --Settings
+
         /// <summary>
         /// Учитывается ли активный базальный
         /// </summary>
-        public bool IsActiveBasal
-        {
-            get => GlobalParameters.Settings.IsActiveBasal;
-            set => _ = SetActiveBasal(value);
-        }
+        [Model]
+        public bool IsActiveBasal { get; set; }
 
         /// <summary>
         /// Активен ли расчёт ФЧИ по средним значениям
         /// </summary>
-        public bool IsAverageCalculateActive
-        {
-            get => GlobalParameters.Settings.IsAverageCalculateActive;
-            set
-            {
-                if (GlobalParameters.Settings.IsAverageCalculateActive != value)
-                {
-                    GlobalParameters.Settings.IsAverageCalculateActive = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [Model]
+        public bool IsAverageCalculateActive { get; set; }
 
         /// <summary>
         /// Активен ли расчёт ФЧИ по нагрузкам
         /// </summary>
-        public bool IsExerciseCalculateActive
-        {
-            get => GlobalParameters.Settings.IsExerciseCalculateActive;
-            set
-            {
-                if (GlobalParameters.Settings.IsExerciseCalculateActive != value)
-                {
-                    GlobalParameters.Settings.IsExerciseCalculateActive = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [Model]
+        public bool IsExerciseCalculateActive { get; set; }
 
         /// <summary>
         /// Активен ли расчёт ФЧИ по дню цикла
         /// </summary>
-        public bool IsCycleCalculateActive
-        {
-            get => GlobalParameters.Settings.IsCycleCalculateActive;
-            set
-            {
-                if (GlobalParameters.Settings.IsCycleCalculateActive != value)
-                {
-                    GlobalParameters.Settings.IsCycleCalculateActive = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [Model]
+        public bool IsCycleCalculateActive { get; set; }
+
+        /// <summary>
+        /// Беременность
+        /// </summary>
+        [Model]
+        public bool IsPregnancy { get; set; }
 
         /// <summary>
         /// Активен ли расчёт ФЧИ по дню использования канюли
         /// </summary>
-        public bool IsCannulaCalculateActive
-        {
-            get => GlobalParameters.Settings.IsCannulaCalculateActive;
-            set
-            {
-                if (GlobalParameters.Settings.IsCannulaCalculateActive != value)
-                {
-                    GlobalParameters.Settings.IsCannulaCalculateActive = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        [Model]
+        public bool IsCannulaCalculateActive { get; set; }
 
+        private int eatingDuration;
         /// <summary>
         /// Длительность приёма пищи
         /// </summary>
+        [Model]
         public int EatingDuration
         {
-            get => GlobalParameters.Settings.EatingDuration;
+            get => eatingDuration;
             set
             {
-                if (GlobalParameters.Settings.EatingDuration != value && value > 0)
+                if (eatingDuration != value && value > 0)
                 {
-                    GlobalParameters.Settings.EatingDuration = value;
+                    eatingDuration = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int lengthGraph;
         /// <summary>
         /// Размерность графика ФЧИ по циклу
         /// </summary>
+        [Model]
         public int LengthGraph
         {
-            get => GlobalParameters.Settings.LengthGraph;
+            get => lengthGraph;
             set
             {
-                if (GlobalParameters.Settings.LengthGraph != value && value > 0)
+                if (lengthGraph != value && value > 0)
                 {
-                    GlobalParameters.Settings.LengthGraph = value;
+                    lengthGraph = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int cannulaLifespan;
         /// <summary>
         /// Продолжительность жизни канюли
         /// </summary>
+        [Model]
         public int CannulaLifespan
         {
-            get => GlobalParameters.Settings.CannulaLifespan;
+            get => cannulaLifespan;
             set
             {
-                if (GlobalParameters.Settings.CannulaLifespan != value && value > 0)
+                if (cannulaLifespan != value && value > 0)
                 {
-                    GlobalParameters.Settings.CannulaLifespan = value;
+                    cannulaLifespan = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int catheterLifespan;
         /// <summary>
         /// Продолжительность жизни катетера
         /// </summary>
+        [Model]
         public int CatheterLifespan
         {
-            get => GlobalParameters.Settings.CatheterLifespan;
+            get => catheterLifespan;
             set
             {
-                if (GlobalParameters.Settings.CatheterLifespan != value && value > 0)
+                if (catheterLifespan != value && value > 0)
                 {
-                    GlobalParameters.Settings.CatheterLifespan = value;
+                    catheterLifespan = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int cartridgeLifespan;
         /// <summary>
         /// Продолжительность жизни картриджа
         /// </summary>
+        [Model]
         public int CartridgeLifespan
         {
-            get => GlobalParameters.Settings.CartridgeLifespan;
+            get => cartridgeLifespan;
             set
             {
-                if (GlobalParameters.Settings.CartridgeLifespan != value && value > 0)
+                if (cartridgeLifespan != value && value > 0)
                 {
-                    GlobalParameters.Settings.CartridgeLifespan = value;
+                    cartridgeLifespan = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int batteryLifespan;
         /// <summary>
         /// Продолжительность жизни батарейки
         /// </summary>
+        [Model]
         public int BatteryLifespan
         {
-            get => GlobalParameters.Settings.BatteryLifespan;
+            get => batteryLifespan;
             set
             {
-                if (GlobalParameters.Settings.BatteryLifespan != value && value > 0)
+                if (batteryLifespan != value && value > 0)
                 {
-                    GlobalParameters.Settings.BatteryLifespan = value;
+                    batteryLifespan = value;
                     OnPropertyChanged();
                 }
             }
         }
 
+        private int monitoringLifespan;
         /// <summary>
         /// Продолжительность жизни сенсора
         /// </summary>
+        [Model]
         public int MonitoringLifespan
         {
-            get => GlobalParameters.Settings.MonitoringLifespan;
+            get => monitoringLifespan;
             set
             {
-                if (GlobalParameters.Settings.MonitoringLifespan != value && value > 0)
+                if (monitoringLifespan != value && value > 0)
                 {
-                    GlobalParameters.Settings.MonitoringLifespan = value;
+                    monitoringLifespan = value;
                     OnPropertyChanged();
                 }
             }
@@ -218,48 +201,108 @@ namespace InsulinSensitivity.Settings
 
         #endregion
 
+        #endregion
+
         #region Methods
 
-        private async Task SetActiveBasal(bool value)
+        /// <summary>
+        /// Инициализирует настройки
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitSettings()
         {
-            if (value == GlobalParameters.Settings.IsActiveBasal)
+            AsyncBase.Open("Инициализация настроек");
+
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+            {
+                var user = await db.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == GlobalParameters.User.Id);
+
+                CopyService.Copy(user, this,
+                    destinationModel: "");
+            }
+
+            AsyncBase.Close();
+        }
+
+        #endregion
+
+        #region Commands
+
+        #region --Ok
+
+        private async void OkExecute()
+        {
+            if (!OkCanExecute())
+            {
+                await GlobalMethods.ShowError("Продолжительности жизни расходных материалов, длительность приёма пищи и размерность графика ФЧИ должны быть положительными");
                 return;
+            }
 
-            bool question = await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
-                "Запрос",
-                "Пересчитать пищевые коэффициенты при переходе на новую формулу расчёта?",
-                "Да",
-                "Нет");
+            AsyncBase.Open();
 
-            if (question)
-                await AsyncBase.NewTask(() =>
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+            {
+                var user = db.Users.Find(GlobalParameters.User.Id);
+
+                if (user.IsActiveBasal != IsActiveBasal)
                 {
-                    using (var db = new ApplicationContext(GlobalParameters.DbPath))
-                    {
-                        var entity = db.Users.Find(GlobalParameters.User.Id);
-                        if (entity != null)
-                        {
-                            if (value)
-                            {
-                                entity.CarbohydrateCoefficient = Math.Round(entity.CarbohydrateCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
-                                entity.ProteinCoefficient = Math.Round(entity.ProteinCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
-                                entity.FatCoefficient = Math.Round(entity.FatCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
-                            }
-                            else
-                            {
-                                entity.CarbohydrateCoefficient = Math.Round(entity.CarbohydrateCoefficient / 1.15M, 2, MidpointRounding.AwayFromZero);
-                                entity.ProteinCoefficient = Math.Round(entity.ProteinCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
-                                entity.FatCoefficient = Math.Round(entity.FatCoefficient * 1.15M, 2, MidpointRounding.AwayFromZero);
-                            }
+                    var question = "Пересчитать пищевые коэффициенты при переходе на новую формулу расчёта?";
+                    var answer = await GlobalMethods.AskAQuestion(question);
 
-                            db.SaveChanges();
+                    if (answer)
+                    {
+                        if (IsActiveBasal)
+                        {
+                            user.CarbohydrateCoefficient = Methods.Round(user.CarbohydrateCoefficient * 1.15M, 2);
+                            user.ProteinCoefficient = Methods.Round(user.ProteinCoefficient / 1.15M, 2);
+                            user.FatCoefficient = Methods.Round(user.FatCoefficient / 1.15M, 2);
+                        }
+                        else
+                        {
+                            user.CarbohydrateCoefficient = Methods.Round(user.CarbohydrateCoefficient / 1.15M, 2);
+                            user.ProteinCoefficient = Methods.Round(user.ProteinCoefficient * 1.15M, 2);
+                            user.FatCoefficient = Methods.Round(user.FatCoefficient * 1.15M, 2);
                         }
                     }
-                }, "Применение опции");
+                }
 
-            GlobalParameters.Settings.IsActiveBasal = value;
-            OnPropertyChanged(nameof(IsActiveBasal));
+                if (IsPregnancy)
+                    IsCycleCalculateActive = false;
+
+                CopyService.Copy(this, user,
+                    sourceModel: "");
+
+                await db.SaveChangesAsync();
+                GlobalParameters.User = db.Users
+                    .Include(x => x.BasalType)
+                    .Include(x => x.BolusType)
+                    .FirstOrDefault();
+
+                MessagingCenter.Send(this, "User");
+                await GlobalParameters.Navigation.PopAsync();
+            }
+
+            AsyncBase.Close();
         }
+
+        private bool OkCanExecute() =>
+            // Длительность приёма пищи и размерность графика ФЧИ
+            EatingDuration > 0 &&
+            LengthGraph > 0 &&
+            // Продолжительности жизни
+            CannulaLifespan > 0 &&
+            CatheterLifespan > 0 &&
+            CartridgeLifespan > 0 &&
+            BatteryLifespan > 0 &&
+            MonitoringLifespan > 0;
+
+        public ICommand OkCommand =>
+            new Command(OkExecute);
+
+        #endregion
 
         #endregion
     }

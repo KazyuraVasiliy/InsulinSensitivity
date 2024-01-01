@@ -32,6 +32,6 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Приём пищи (Навигационное свойство)
         /// </summary>
-        public Eating Eating { get; set; }
+        public virtual Eating Eating { get; set; }
     }
 }
