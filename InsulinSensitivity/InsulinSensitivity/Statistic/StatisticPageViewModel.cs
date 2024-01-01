@@ -438,7 +438,7 @@ namespace InsulinSensitivity.Statistic
                                     : SkiaSharp.SKColors.Black,
 
                                 Color = currentWeek == x.Key
-                                    ? SkiaSharp.SKColors.Red
+                                    ? SkiaSharp.SKColors.Green
                                     : App.Current.RequestedTheme == OSAppTheme.Dark
                                         ? SkiaSharp.SKColors.LightSkyBlue
                                         : SkiaSharp.SKColors.Blue
@@ -672,7 +672,7 @@ namespace InsulinSensitivity.Statistic
                                         : SkiaSharp.SKColors.Black,
 
                                     Color = PregnancyWeek == x.Key
-                                        ? SkiaSharp.SKColors.Red
+                                        ? SkiaSharp.SKColors.Green
                                         : App.Current.RequestedTheme == OSAppTheme.Dark
                                             ? SkiaSharp.SKColors.LightSkyBlue
                                             : SkiaSharp.SKColors.Blue

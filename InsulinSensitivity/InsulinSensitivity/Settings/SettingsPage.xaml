@@ -176,7 +176,7 @@
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                        CommandParameter="Срок беременность вычисляется от даты последних месячных; расчёт ФЧИ по дню цикла отключён." />
+                                        CommandParameter="Акушерский срок беременности вычисляется от первого дня последней менструации.&#10;Расчёт ФЧИ по дню цикла отключён." />
                                 </Label.GestureRecognizers>
                             </Label>
                             <Switch
