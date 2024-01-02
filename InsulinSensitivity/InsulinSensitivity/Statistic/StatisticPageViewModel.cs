@@ -604,43 +604,45 @@ namespace InsulinSensitivity.Statistic
                                         : 0));
                         }
 
-
-                        CycleWidthRequest = (values?.Count() ?? 0) * 15;
-
-                        CycleChart = new LineChart()
+                        if (values.Count > 0)
                         {
-                            LineMode = LineMode.Spline,
-                            LabelTextSize = 24,
-                            Entries = values
-                                .Select(x =>
-                                    new ChartEntry((float)x.value)
-                                    {
-                                        Label = x.day.ToString("D2"),
-                                        ValueLabel = $"{x.value} " +
-                                            $"({x.baseDose})",
-                                        ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                            ? SkiaSharp.SKColors.White
-                                            : SkiaSharp.SKColors.Black,
+                            CycleWidthRequest = (values?.Count() ?? 0) * 15;
 
-                                        Color = x.day == CycleDay + 1
-                                            ? SkiaSharp.SKColors.Green
-                                            : x.day >= 1 && x.day <= 3
-                                                ? SkiaSharp.SKColors.Red
-                                                : x.day == 15
-                                                    ? SkiaSharp.SKColors.Pink
-                                                    : App.Current.RequestedTheme == OSAppTheme.Dark
-                                                        ? SkiaSharp.SKColors.LightSkyBlue
-                                                        : SkiaSharp.SKColors.Blue
-                                    }),
+                            CycleChart = new LineChart()
+                            {
+                                LineMode = LineMode.Spline,
+                                LabelTextSize = 24,
+                                Entries = values
+                                    .Select(x =>
+                                        new ChartEntry((float)x.value)
+                                        {
+                                            Label = x.day.ToString("D2"),
+                                            ValueLabel = $"{x.value} " +
+                                                $"({x.baseDose})",
+                                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                                ? SkiaSharp.SKColors.White
+                                                : SkiaSharp.SKColors.Black,
 
-                            LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                ? SkiaSharp.SKColors.White
-                                : SkiaSharp.SKColors.Black,
-                            BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                ? new SkiaSharp.SKColor(29, 29, 29)
-                                : SkiaSharp.SKColors.White,
-                            MinValue = (float)values.Min(x => x.value) - 0.5f
-                        };
+                                            Color = x.day == CycleDay + 1
+                                                ? SkiaSharp.SKColors.Green
+                                                : x.day >= 1 && x.day <= 3
+                                                    ? SkiaSharp.SKColors.Red
+                                                    : x.day == 15
+                                                        ? SkiaSharp.SKColors.Pink
+                                                        : App.Current.RequestedTheme == OSAppTheme.Dark
+                                                            ? SkiaSharp.SKColors.LightSkyBlue
+                                                            : SkiaSharp.SKColors.Blue
+                                        }),
+
+                                LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.White
+                                    : SkiaSharp.SKColors.Black,
+                                BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? new SkiaSharp.SKColor(29, 29, 29)
+                                    : SkiaSharp.SKColors.White,
+                                MinValue = (float)values.Min(x => x.value) - 0.5f
+                            };
+                        }
                     }
 
                     // График ФЧИ по беременности

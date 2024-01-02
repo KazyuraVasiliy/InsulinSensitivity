@@ -260,7 +260,7 @@ namespace InsulinSensitivity
         /// </summary>
         private void RemoveCycle()
         {
-            if (GlobalParameters.IsCycleSettingsAccess)
+            if (!GlobalParameters.IsCycleSettingsAccess)
             {
                 var master = ((MasterDetailPage)App.Current.MainPage).Master as MainPageMaster;
                 var context = master.BindingContext as MainPageMasterViewModel;
