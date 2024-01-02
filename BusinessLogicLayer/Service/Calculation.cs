@@ -199,7 +199,7 @@ namespace BusinessLogicLayer.Service
             (213 * ((-25 * Math.Pow(x, 3D / 2) - 1875 * Math.Sqrt(x)) * Math.Exp(-x / 50) + (9375 * Math.Sqrt(Math.PI) * Erf(Math.Sqrt(x) / (5 * Math.Sqrt(2)))) / Math.Sqrt(2))) / 2500000;
 
         /// <summary>
-        /// Возвращает значение интеграла функции 3.31 * 10^(-4) * x * e^(-x / 55)
+        /// Возвращает значение интеграла функции 3.31 * 10^(-4) * x * e^(-x / 55), from x = 0 to infinity+
         /// </summary>
         /// <remarks>
         /// https://github.com/LoopKit/Loop/issues/388
@@ -209,7 +209,7 @@ namespace BusinessLogicLayer.Service
         /// <param name="x">Аргумент</param>
         /// <returns></returns>
         private static double InsulinActivityCurvesIntegrateFiasp(double x) =>
-            -(3641 * (x + 55) * Math.Exp(-x / 55)) / 200000;
+            -(3641 * (x + 55) * Math.Exp(-x / 55)) / 200000 + 1.001275;
 
         /// <summary>
         /// Выбор профиля инсулина
