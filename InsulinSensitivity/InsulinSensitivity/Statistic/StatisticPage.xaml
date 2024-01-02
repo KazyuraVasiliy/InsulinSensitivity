@@ -49,11 +49,16 @@
                         IsVisible="{Binding Path=AsyncBase.Inactive}">
 
                         <Frame
-                            Style="{StaticResource Frame}"
-                            Padding="4">
+                            Style="{StaticResource Frame}">
 
                             <StackLayout
                                 Spacing="0">
+
+                                <Label
+                                    Text="ФЧИ по дням"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
 
                                 <ScrollView
                                     x:Name="sv"
@@ -67,20 +72,6 @@
                                         WidthRequest="{Binding Path=WidthRequest}"
                                         Chart="{Binding Path=Chart}" />
                                 </ScrollView>
-                            </StackLayout>
-                        </Frame>
-
-                        <Frame
-                            Style="{StaticResource Frame}">
-
-                            <StackLayout
-                                Spacing="0">
-
-                                <Label
-                                    Text="ФЧИ"
-                                    FontAttributes="Bold"
-                                    FontSize="16"
-                                    HorizontalOptions="CenterAndExpand" />
 
                                 <Label
                                     Text="{Binding Path=InsulinSensitivity}" />
@@ -117,23 +108,6 @@
                         </Frame>
 
                         <Frame
-                            Style="{StaticResource Frame}">
-
-                            <StackLayout
-                                Spacing="0">
-
-                                <Label
-                                    Text="Соотношение углеводов к инсулину (г/ед)"
-                                    FontAttributes="Bold"
-                                    FontSize="16"
-                                    HorizontalOptions="CenterAndExpand" />
-
-                                <Label
-                                    Text="{Binding Path=CarbohydrateCoefficient}" />
-                            </StackLayout>
-                        </Frame>
-
-                        <Frame
                             Style="{StaticResource Frame}"
                             IsVisible="{Binding Path=IsCycleChartVisibility}">
 
@@ -141,9 +115,10 @@
                                 Spacing="0">
 
                                 <Label
-                                    Text="{Binding Path=IncCycleDay, StringFormat='{}Цикл: {0}-й день'}"
+                                    Text="{Binding Path=IncCycleDay, StringFormat='{}ФЧИ по дню цикла&#10;{0}-й день'}"
                                     FontAttributes="Bold"
                                     FontSize="16"
+                                    HorizontalTextAlignment="Center"
                                     HorizontalOptions="CenterAndExpand" />
 
                                 <ScrollView
@@ -172,11 +147,12 @@
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="16"
+                                    HorizontalTextAlignment="Center"
                                     HorizontalOptions="CenterAndExpand">
 
                                     <Label.Text>
                                         <MultiBinding
-                                            StringFormat="{}Беременность: {0}-я неделя (от {1:dd.MM.yy})">
+                                            StringFormat="{}ФЧИ по неделям беременности&#10;{0}-я неделя (от {1:dd.MM.yy})">
                                             
                                             <Binding
                                                 Path="IncPregnancyWeek"
@@ -200,7 +176,24 @@
                                 </ScrollView>
                             </StackLayout>
                         </Frame>
-                        
+
+                        <Frame
+                            Style="{StaticResource Frame}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
+                                    Text="Соотношение углеводов к инсулину (г/ед)"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
+
+                                <Label
+                                    Text="{Binding Path=CarbohydrateCoefficient}" />
+                            </StackLayout>
+                        </Frame>
+
                         <Frame
                             Style="{StaticResource Frame}">
 
