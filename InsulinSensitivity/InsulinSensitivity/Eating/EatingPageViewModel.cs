@@ -88,7 +88,7 @@ namespace InsulinSensitivity.Eating
             if (eating == null)
             {
                 Eating.InjectionTime = Calculation.TimeSpanWithoutSeconds(DateTime.Now.TimeOfDay);
-                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(GlobalParameters.User.EatingDuration));
+                Eating.EndEating = Calculation.DateTimeWithoutSeconds(DateTime.Now.AddHours(2));
                 Eating.BasalInjectionTime = Calculation.DateTimeWithoutSeconds(DateTime.Now);
             }
 

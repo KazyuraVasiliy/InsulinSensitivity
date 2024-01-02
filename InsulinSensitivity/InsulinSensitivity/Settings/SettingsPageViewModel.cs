@@ -73,24 +73,6 @@ namespace InsulinSensitivity.Settings
         [Model]
         public bool IsCannulaCalculateActive { get; set; }
 
-        private int eatingDuration;
-        /// <summary>
-        /// Длительность приёма пищи
-        /// </summary>
-        [Model]
-        public int EatingDuration
-        {
-            get => eatingDuration;
-            set
-            {
-                if (eatingDuration != value && value > 0)
-                {
-                    eatingDuration = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         private int lengthGraph;
         /// <summary>
         /// Размерность графика ФЧИ по циклу
@@ -289,8 +271,7 @@ namespace InsulinSensitivity.Settings
         }
 
         private bool OkCanExecute() =>
-            // Длительность приёма пищи и размерность графика ФЧИ
-            EatingDuration > 0 &&
+            // Размерность графика ФЧИ
             LengthGraph > 0 &&
             // Продолжительности жизни
             CannulaLifespan > 0 &&

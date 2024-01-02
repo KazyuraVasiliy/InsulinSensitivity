@@ -32,7 +32,7 @@ namespace InsulinSensitivity.User
             else User = new Models.User() 
             { 
                 BirthDate = DateTime.Now.AddYears(-20),
-                DosingAccuracy = 1M,
+                //DosingAccuracy = 1M,
 
                 Hypoglycemia = 3.8M,
                 LowSugar = 4M,
@@ -56,7 +56,7 @@ namespace InsulinSensitivity.User
                 IsCycleCalculateActive = true,
                 IsCannulaCalculateActive = true,
 
-                EatingDuration = 5,
+                //EatingDuration = 5,
                 LengthGraph = 45,
 
                 CannulaLifespan = 3,
@@ -414,7 +414,7 @@ namespace InsulinSensitivity.User
                 user.BolusTypeId = User.BolusType.Id;
                 user.BasalTypeId = User.BasalType.Id;
 
-                user.DosingAccuracy = User.DosingAccuracy;
+                //user.DosingAccuracy = User.DosingAccuracy;
                 user.IsPump = User.IsPump;
                 user.IsMonitoring = User.IsMonitoring;
 
@@ -481,8 +481,6 @@ namespace InsulinSensitivity.User
             User.TargetGlucose > User.LowSugar &&
             User.HighSugar > User.TargetGlucose &&
             User.Hyperglycemia > User.HighSugar &&
-            // Точность дозирования
-            User.DosingAccuracy > 0 &&
             // Кол-во дней для расчёта
             User.PeriodOfCalculation >= 0 &&
             // Скорость абсорбции

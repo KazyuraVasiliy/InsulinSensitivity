@@ -89,33 +89,25 @@
                                 VerticalOptions="Center"
                                 IsToggled="{Binding Path=IsExerciseCalculateActive}" />
                         </Grid>
-                        
+
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
                             </Grid.ColumnDefinitions>
 
                             <Label
                                 Grid.Column="0"
                                 Margin="0, 0, 0, 5"
                                 VerticalOptions="Center"
-                                Text="Расчёт ФЧИ по дню использования канюли:"/>
+                                Text="Расчёт ФЧИ по дню использования канюли:" />
 
                             <Switch
                                 Grid.Column="1"
                                 VerticalOptions="Center"
-                                IsToggled="{Binding Path=IsCannulaCalculateActive}"/>
+                                IsToggled="{Binding Path=IsCannulaCalculateActive}" />
                         </Grid>
-
-                        <Label
-                            Text="Продолжительность приёма пищи по умолчанию:" />
-
-                        <Entry
-                            Keyboard="Numeric"
-                            view:Tag.Tag="EatingDuration"
-                            Unfocused="Entry_Unfocused"
-                            Text="{Binding Path=EatingDuration}" />
                     </StackLayout>
                 </Frame>
 

@@ -78,6 +78,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Точность дозирования инсулина
         /// </summary>
+        [Obsolete]
         public decimal DosingAccuracy { get; set; }
 
         /// <summary>
@@ -168,6 +169,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// Длительность приёма пищи
         /// </summary>
+        [Obsolete]
         public int EatingDuration { get; set; }
 
         /// <summary>
