@@ -40,5 +40,10 @@ namespace BusinessLogicLayer.Service.Models
         /// Наименование инсулина
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Профиль
+        /// </summary>
+        public int Profile { get; set; }
     }
 }

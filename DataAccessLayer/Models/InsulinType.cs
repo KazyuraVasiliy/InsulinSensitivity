@@ -31,6 +31,11 @@ namespace DataAccessLayer.Models
         public int Offset { get; set; }
 
         /// <summary>
+        /// Профиль
+        /// </summary>
+        public int Profile { get; set; }
+
+        /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
         /// </summary>
         public virtual List<User> BasalUsers { get; set; }

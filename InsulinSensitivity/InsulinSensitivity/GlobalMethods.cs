@@ -131,6 +131,7 @@ namespace InsulinSensitivity
                     End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                     Dose = eating.BolusDoseFact,
                     Duration = bolusDuration,
+                    Profile = eating.BolusType?.Profile ?? 0,
                     Name = eating.BolusType?.Name ?? ""
                 });
 
@@ -148,6 +149,7 @@ namespace InsulinSensitivity
                         End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                         Dose = injection.BolusDose,
                         Duration = bolusDuration,
+                        Profile = injection.BolusType?.Profile ?? 0,
                         Name = injection.BolusType?.Name ?? ""
                     });
                 }
@@ -174,7 +176,7 @@ namespace InsulinSensitivity
                     if (injection.End <= beginPeriod || injection.Dose <= 0 || injection.Start >= beginPeriod || injection.IsBasal)
                         continue;
 
-                    decimal value = Math.Round(injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod.Value, injection.Duration),
+                    decimal value = Math.Round(injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod.Value, injection.Duration, injection.Profile),
                         2, MidpointRounding.AwayFromZero);
 
                     result.insulin += value;
@@ -211,7 +213,7 @@ namespace InsulinSensitivity
                     if (injection.Start <= localBeginPeriod.Value && injection.End <= localEndPeriod.Value)
                     {
                         value = injection.Duration <= 12
-                            ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration)
+                            ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration, injection.Profile)
                             : (decimal)(injection.End - localBeginPeriod.Value).TotalHours * insulinPerHours;
                     }
 
@@ -220,8 +222,8 @@ namespace InsulinSensitivity
                     else if (injection.Start <= localBeginPeriod.Value && injection.End > localEndPeriod.Value)
                     {
                         value = injection.Duration <= 12
-                            ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration) -
-                                (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration))
+                            ? injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localBeginPeriod.Value, injection.Duration, injection.Profile) -
+                                (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration, injection.Profile))
                             : (decimal)(localEndPeriod.Value - localBeginPeriod.Value).TotalHours * insulinPerHours;
                     }
 
@@ -235,7 +237,7 @@ namespace InsulinSensitivity
                     else if (injection.Start > localBeginPeriod.Value && injection.End > localEndPeriod.Value)
                     {
                         value = injection.Duration <= 12
-                            ? injection.Dose - (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration))
+                            ? injection.Dose - (injection.Dose * (decimal)Calculation.GetActiveInsulinPercent(injection.Start, localEndPeriod.Value, injection.Duration, injection.Profile))
                             : (decimal)(localEndPeriod.Value - injection.Start).TotalHours * insulinPerHours;
                     }
 
@@ -335,6 +337,7 @@ namespace InsulinSensitivity
                     End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                     Dose = eating.BolusDoseFact,
                     Duration = bolusDuration,
+                    Profile = eating.BolusType?.Profile ?? 0,
                     Name = eating.BolusType?.Name ?? ""
                 });
 
@@ -352,6 +355,7 @@ namespace InsulinSensitivity
                         End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
                         Dose = injection.BolusDose,
                         Duration = bolusDuration,
+                        Profile = injection.BolusType?.Profile ?? 0,
                         Name = injection.BolusType?.Name ?? ""
                     });
                 }
@@ -364,7 +368,7 @@ namespace InsulinSensitivity
                 if (injection.End <= beginPeriod || injection.Dose <= 0 || injection.Start >= beginPeriod || injection.IsBasal)
                     continue;
 
-                decimal value = Math.Round(injection.Dose * (decimal)BusinessLogicLayer.Service.Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod, injection.Duration),
+                decimal value = Math.Round(injection.Dose * (decimal)BusinessLogicLayer.Service.Calculation.GetActiveInsulinPercent(injection.Start, beginPeriod, injection.Duration, injection.Profile),
                     2, MidpointRounding.AwayFromZero);
 
                 insulin += value;

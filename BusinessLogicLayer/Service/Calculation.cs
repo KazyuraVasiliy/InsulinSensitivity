@@ -12,7 +12,7 @@ namespace BusinessLogicLayer.Service
         /// <param name="height">Рост</param>
         /// <param name="weight">Вес</param>
         /// <returns></returns>
-        public static int GetBodyMassIndex(int height, int weight) =>
+        private static int GetBodyMassIndex(int height, int weight) =>
             (int)Math.Round((decimal)(weight / (height * height)), 0, MidpointRounding.AwayFromZero);
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace BusinessLogicLayer.Service
         /// <param name="height">Рост</param>
         /// <param name="weight">Вес</param>
         /// <returns></returns>
-        public static int GetBloodFactor(DateTime birthDate, bool gender, int height, int weight)
+        private static int GetBloodFactor(DateTime birthDate, bool gender, int height, int weight)
         {
             DateTime date = DateTime.Now;
             int bmi = GetBodyMassIndex(height, weight);
@@ -162,7 +162,7 @@ namespace BusinessLogicLayer.Service
         /// https://www.johndcook.com/blog/csharp_erf/
         /// </remarks>
         /// <returns></returns>
-        public static double Erf(double x)
+        private static double Erf(double x)
         {
             // constants
             double a1 = 0.254829592;
@@ -195,8 +195,31 @@ namespace BusinessLogicLayer.Service
         /// </remarks>
         /// <param name="x">Аргумент</param>
         /// <returns></returns>
-        public static double InsulinActivityCurvesIntegrate(double x) =>
+        private static double InsulinActivityCurvesIntegrateNovolog(double x) =>
             (213 * ((-25 * Math.Pow(x, 3D / 2) - 1875 * Math.Sqrt(x)) * Math.Exp(-x / 50) + (9375 * Math.Sqrt(Math.PI) * Erf(Math.Sqrt(x) / (5 * Math.Sqrt(2)))) / Math.Sqrt(2))) / 2500000;
+
+        /// <summary>
+        /// Возвращает значение интеграла функции 3.31 * 10^(-4) * x * e^(-x / 55)
+        /// </summary>
+        /// <remarks>
+        /// https://github.com/LoopKit/Loop/issues/388
+        /// Fiasp (6H)
+        /// https://www.integral-calculator.com
+        /// </remarks>
+        /// <param name="x">Аргумент</param>
+        /// <returns></returns>
+        private static double InsulinActivityCurvesIntegrateFiasp(double x) =>
+            -(3641 * (x + 55) * Math.Exp(-x / 55)) / 200000;
+
+        /// <summary>
+        /// Выбор профиля инсулина
+        /// </summary>
+        private static Dictionary<int, Func<double, double>> InsulinActivityCurvesIntegrate =
+            new Dictionary<int, Func<double, double>>()
+            {
+                [0] = InsulinActivityCurvesIntegrateNovolog,
+                [1] = InsulinActivityCurvesIntegrateFiasp
+            };
 
         /// <summary>
         /// Возвращает количество минут прошедшее после инъекции
@@ -204,7 +227,7 @@ namespace BusinessLogicLayer.Service
         /// <param name="start">Время инъекции</param>
         /// <param name="now">Текущее время</param>
         /// <returns></returns>
-        public static double GetMinutesAfterInjection(DateTime start, DateTime now) =>
+        private static double GetMinutesAfterInjection(DateTime start, DateTime now) =>
             (now - start).TotalMinutes;
 
         /// <summary>
@@ -239,7 +262,7 @@ namespace BusinessLogicLayer.Service
         /// <param name="now">Текущая дата и время</param>
         /// <param name="duration">Длительность инсулина в часах</param>
         /// <returns></returns>
-        public static double GetActiveInsulinPercent(DateTime start, DateTime now, int duration)
+        public static double GetActiveInsulinPercent(DateTime start, DateTime now, int duration, int profile)
         {
             if (now == start)
                 return 1;
@@ -247,7 +270,7 @@ namespace BusinessLogicLayer.Service
             var minutes = GetMinutesAfterInjection(start, now);
             return minutes >= duration * 60 || now < start
                 ? 0
-                : 1 - InsulinActivityCurvesIntegrate(minutes * 6 / duration);
+                : 1 - InsulinActivityCurvesIntegrate[profile](minutes * 6 / duration);
         }
     }
 }

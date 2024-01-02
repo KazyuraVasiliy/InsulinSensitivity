@@ -9,6 +9,10 @@
     <ContentPage.Resources>
         <converters:BorderColorInsulinTypeConverter x:Key="BorderColorInsulinTypeConverter"/>
         <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+        <converters:ProfileToStringConverter
+            x:Key="ProfileToStringConverter" />
+        <converters:IntToVisibilityConverter
+            x:Key="IntToVisibilityConverter" />
         <Style TargetType="Frame" BasedOn="{StaticResource Frame}" x:Key="Frame">
             
             <Setter Property="BorderColor">
@@ -80,12 +84,26 @@
                                             Text="{Binding Path=Name}"/>
                                         <Label>
                                             <Label.Text>
-                                                <MultiBinding StringFormat="{}Продолжительность: {0:N0} ч.&#10;Начало действия: {1:N0} мин.">
-                                                    <Binding Path="Duration"/>
-                                                    <Binding Path="Offset"/>
+                                                <MultiBinding
+                                                    StringFormat="{}Продолжительность: {0:N0} ч.&#10;Начало действия: {1:N0} мин.">
+                                                    <Binding
+                                                        Path="Duration" />
+                                                    <Binding
+                                                        Path="Offset" />
                                                 </MultiBinding>
                                             </Label.Text>
-                                        </Label>                                        
+                                        </Label>
+                                        <Label
+                                            IsVisible="{Binding Path=Profile, Converter={StaticResource IntToVisibilityConverter}}">
+                                            <Label.Text>
+                                                <MultiBinding
+                                                    StringFormat="{}Профиль: {0}">
+                                                    <Binding
+                                                        Path="Profile"
+                                                        Converter="{StaticResource ProfileToStringConverter}" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
                                     </StackLayout>
                                 </Frame>
                             </ViewCell.View>

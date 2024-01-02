@@ -469,6 +469,19 @@ namespace DataAccessLayer.Contexts
 
                     db.SaveChanges();
                 }
+
+                // Инициализация профилей
+                if (!db.InsulinTypes.Any(x => x.Profile == 1))
+                {
+                    var type = db.InsulinTypes
+                        .FirstOrDefault(x => 
+                            x.Name == "Фиасп");
+
+                    if (type != null)
+                        type.Profile = 1;
+
+                    db.SaveChanges();
+                }
             }
         }
     }
