@@ -38,6 +38,12 @@ namespace InsulinSensitivity.Settings
         #region --Settings
 
         /// <summary>
+        /// Расчёт ФЧИ как средневзвешенного
+        /// </summary>
+        [Model]
+        public bool IsWeightedAverageInsulinSensitivity { get; set; }
+
+        /// <summary>
         /// Учитывается ли активный базальный
         /// </summary>
         [Model]

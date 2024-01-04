@@ -208,6 +208,11 @@ namespace DataAccessLayer.Models
         public bool IsPregnancy { get; set; }
 
         /// <summary>
+        /// Расчёт ФЧИ как средневзвешенного
+        /// </summary>
+        public bool IsWeightedAverageInsulinSensitivity { get; set; }
+
+        /// <summary>
         /// Тип базального инсулина (Навигационное свойство)
         /// </summary>
         public virtual InsulinType BasalType { get; set; }

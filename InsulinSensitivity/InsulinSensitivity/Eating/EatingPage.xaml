@@ -1,18 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="InsulinSensitivity.Eating.EatingPage"
-             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
-             xmlns:global="clr-namespace:InsulinSensitivity"
-             xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
-             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
-             Title="Период усвоения"
-             IsEnabled="{Binding Path=AsyncBase.Inactive}">
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="InsulinSensitivity.Eating.EatingPage"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:global="clr-namespace:InsulinSensitivity"
+    xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+    xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
+    Title="Период усвоения"
+    IsEnabled="{Binding Path=AsyncBase.Inactive}">
 
     <ContentPage.Resources>
-        <converters:CommentToVisibilityConverter x:Key="CommentToVisibilityConverter"/>
-        <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:CommentToVisibilityConverter
+            x:Key="CommentToVisibilityConverter" />
+        <converters:DecimalToStringConverter
+            x:Key="DecimalToStringConverter" />
+        <converters:NullToVisibilityConverter
+            x:Key="NullToVisibilityConverter" />
         <converters:BorderInjectionConverter
             x:Key="BorderInjectionConverter" />
     </ContentPage.Resources>
@@ -23,7 +27,7 @@
 
             <ToolbarItem.IconImageSource>
                 <FileImageSource
-                    File="nightscout.png"/>
+                    File="nightscout.png" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
@@ -55,16 +59,19 @@
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition
+                                        Width="3*" />
+                                    <ColumnDefinition
+                                        Width="auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Label
-                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
                                     Text="Сахар"
                                     FontAttributes="Bold"
                                     FontSize="16"
-                                    HorizontalOptions="CenterAndExpand"/>
+                                    HorizontalOptions="CenterAndExpand" />
 
                                 <Button
                                     Grid.Column="1"
@@ -72,13 +79,13 @@
                                     HeightRequest="20"
                                     WidthRequest="50"
                                     Text="+"
-                                    Command="{Binding Path=AddDimensionCommand}"/>
+                                    Command="{Binding Path=AddDimensionCommand}" />
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -86,14 +93,14 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="Исходный сахар:"/>
+                                        Text="Исходный сахар:" />
                                     <Entry
                                         x:Name="glucoseStart"
                                         Margin="0"
                                         view:Tag.Tag="GlucoseStart"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=GlucoseStart, Converter={StaticResource DecimalToStringConverter}}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -106,7 +113,7 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Это значение глюкозы крови НЕ нужно вводить сразу при создании нового приёма пищи: вы сможете ввести его позже. Отработка - это замер сахара через 4.5 - 5 часов после приёма пищи. При вводе этого числа приём пищи будет считаться закрытым и вы не сможете его редактировать"/>
+                                                CommandParameter="Это значение глюкозы крови НЕ нужно вводить сразу при создании нового приёма пищи: вы сможете ввести его позже. Отработка - это замер сахара через 4.5 - 5 часов после приёма пищи. При вводе этого числа приём пищи будет считаться закрытым и вы не сможете его редактировать" />
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
@@ -114,47 +121,49 @@
                                         view:Tag.Tag="GlucoseEnd"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=GlucoseEnd, Converter={StaticResource DecimalToStringConverter}}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="0">
 
-                                    <Label                                
-                                        Text="Время закрытия:"/>
+                                    <Label
+                                        Text="Время закрытия:" />
                                     <TimePicker
                                         HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
                                         view:Tag.Tag="EndEatingTime"
                                         Unfocused="Element_Unfocused"
-                                        Time="{Binding Path=EndEatingTime}"/>
+                                        Time="{Binding Path=EndEatingTime}" />
                                 </StackLayout>
 
                                 <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
-                                <Grid 
+                                <Grid
                                     Grid.Column="1"
                                     RowSpacing="0">
 
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition
+                                            Height="auto" />
+                                        <RowDefinition
+                                            Height="auto" />
                                     </Grid.RowDefinitions>
 
                                     <Label
                                         Grid.Row="0"
-                                        Text="Дата закрытия:"/>
+                                        Text="Дата закрытия:" />
 
                                     <DatePicker
                                         Grid.Row="1"
                                         HeightRequest="{Binding Source={x:Reference glucoseStart}, Path=Height}"
-                                        Date="{Binding Source={x:Reference materialDatePickerEndEating}, Path=Date}"/>
+                                        Date="{Binding Source={x:Reference materialDatePickerEndEating}, Path=Date}" />
 
                                     <DatePicker
                                         x:Name="materialDatePickerEndEating"
@@ -164,7 +173,7 @@
                                         HeightRequest="0"
                                         view:Tag.Tag="EndEatingDate"
                                         Unfocused="Element_Unfocused"
-                                        Date="{Binding Path=EndEatingDate}"/>
+                                        Date="{Binding Path=EndEatingDate}" />
                                 </Grid>
                             </Grid>
 
@@ -174,19 +183,22 @@
                                 Padding="5, 0">
 
                                 <StackLayout.Style>
-                                    <Style TargetType="StackLayout">
+                                    <Style
+                                        TargetType="StackLayout">
                                         <Style.Triggers>
-                                            <DataTrigger 
-                                                TargetType="StackLayout" 
+                                            <DataTrigger
+                                                TargetType="StackLayout"
                                                 Binding="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IntermediateDimensions.Count, TargetNullValue=0, FallbackValue=0}"
                                                 Value="0">
-                                                
-                                                <Setter Property="IsVisible" Value="False"/>
+
+                                                <Setter
+                                                    Property="IsVisible"
+                                                    Value="False" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </StackLayout.Style>
-                                
+
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
                                         <Frame
@@ -197,23 +209,28 @@
                                             <Frame.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditDimensionCommand}"
-                                                    CommandParameter="{Binding .}"/>
+                                                    CommandParameter="{Binding .}" />
                                             </Frame.GestureRecognizers>
 
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition
+                                                        Width="auto" />
                                                 </Grid.ColumnDefinitions>
 
                                                 <Label
                                                     Grid.Column="0">
 
                                                     <Label.Text>
-                                                        <MultiBinding StringFormat="{}Время: {0:00}:{1:00} - Сахар: {2} ммол/л">
-                                                            <Binding Path="DimensionTime.Hours"/>
-                                                            <Binding Path="DimensionTime.Minutes"/>
-                                                            <Binding Path="Glucose"/>
+                                                        <MultiBinding
+                                                            StringFormat="{}Время: {0:00}:{1:00} - Сахар: {2} ммол/л">
+                                                            <Binding
+                                                                Path="DimensionTime.Hours" />
+                                                            <Binding
+                                                                Path="DimensionTime.Minutes" />
+                                                            <Binding
+                                                                Path="Glucose" />
                                                         </MultiBinding>
                                                     </Label.Text>
                                                 </Label>
@@ -224,7 +241,8 @@
                                                     Spacing="0">
 
                                                     <Button
-                                                        Padding="0" Margin="0, 2, 0, 1"
+                                                        Padding="0"
+                                                        Margin="0, 2, 0, 1"
                                                         HeightRequest="15"
                                                         WidthRequest="20"
                                                         BackgroundColor="Transparent"
@@ -232,7 +250,7 @@
                                                         Text="&#xe122;"
                                                         FontFamily="Typicons"
                                                         Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveDimensionCommand}"
-                                                        CommandParameter="{Binding .}"/>
+                                                        CommandParameter="{Binding .}" />
                                                 </StackLayout>
                                             </Grid>
                                         </Frame>
@@ -251,16 +269,19 @@
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition
+                                        Width="3*" />
+                                    <ColumnDefinition
+                                        Width="auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Label
-                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
                                     Text="Пища"
                                     FontAttributes="Bold"
                                     FontSize="16"
-                                    HorizontalOptions="CenterAndExpand"/>
+                                    HorizontalOptions="CenterAndExpand" />
 
                                 <Button
                                     Grid.Column="1"
@@ -268,14 +289,14 @@
                                     HeightRequest="20"
                                     WidthRequest="50"
                                     Text="+"
-                                    Command="{Binding Path=AddSnackCommand}"/>
+                                    Command="{Binding Path=AddSnackCommand}" />
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -283,12 +304,12 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="Белки:"/>
+                                        Text="Белки:" />
                                     <Entry
                                         view:Tag.Tag="Protein"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Protein}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -296,12 +317,12 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Жиры:"/>
+                                        Text="Жиры:" />
                                     <Entry
                                         view:Tag.Tag="Fat"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Fat}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -309,12 +330,12 @@
                                     Grid.Column="2">
 
                                     <Label
-                                        Text="{Binding Path=CarbohydrateTitle}"/>
+                                        Text="{Binding Path=CarbohydrateTitle}" />
                                     <Entry
                                         view:Tag.Tag="Carbohydrate"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Carbohydrate}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
                             </Grid>
 
@@ -323,9 +344,12 @@
                                 TextColor="Orange">
 
                                 <Label.Text>
-                                    <MultiBinding StringFormat="{}Полное усвоение БЖУ в: {0:00}:{1:00}">
-                                        <Binding Path="DateTimeWorkingTime.Hour"/>
-                                        <Binding Path="DateTimeWorkingTime.Minute"/>
+                                    <MultiBinding
+                                        StringFormat="{}Полное усвоение БЖУ в: {0:00}:{1:00}">
+                                        <Binding
+                                            Path="DateTimeWorkingTime.Hour" />
+                                        <Binding
+                                            Path="DateTimeWorkingTime.Minute" />
                                     </MultiBinding>
                                 </Label.Text>
                             </Label>
@@ -334,19 +358,19 @@
                                 Text="{Binding Path=AssimilatedNutritionalWithAbsorptionRate}"
                                 TextColor="Green"
                                 HorizontalOptions="Start"
-                                IsVisible="{Binding Path=AssimilatAssimilatedNutritionalWithAbsorptionRateedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                                IsVisible="{Binding Path=AssimilatAssimilatedNutritionalWithAbsorptionRateedNutritional, Converter={StaticResource CommentToVisibilityConverter}}" />
 
                             <Label
                                 Text="{Binding Path=AssimilatedNutritional}"
                                 TextColor="Green"
                                 HorizontalOptions="Start"
-                                IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                                IsVisible="{Binding Path=AssimilatedNutritional, Converter={StaticResource CommentToVisibilityConverter}}" />
 
                             <Label
                                 Text="{Binding Path=AssimilatedNutritionalStartTime}"
                                 TextColor="Blue"
                                 HorizontalOptions="Start"
-                                IsVisible="{Binding Path=AssimilatedNutritionalStartTime, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                                IsVisible="{Binding Path=AssimilatedNutritionalStartTime, Converter={StaticResource CommentToVisibilityConverter}}" />
                         </StackLayout>
                     </Frame>
 
@@ -359,16 +383,19 @@
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition
+                                        Width="3*" />
+                                    <ColumnDefinition
+                                        Width="auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Label
-                                    Grid.Column="0" Grid.ColumnSpan="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
                                     Text="Инъекции"
                                     FontAttributes="Bold"
                                     FontSize="16"
-                                    HorizontalOptions="CenterAndExpand"/>
+                                    HorizontalOptions="CenterAndExpand" />
 
                                 <Button
                                     Grid.Column="1"
@@ -376,17 +403,17 @@
                                     HeightRequest="20"
                                     WidthRequest="50"
                                     Text="+"
-                                    Command="{Binding Path=AddInjectionCommand}"/>
+                                    Command="{Binding Path=AddInjectionCommand}" />
                             </Grid>
 
                             <Label
-                                Text="{Binding Path=EatingType.Name, StringFormat='Тип: {0}', FallbackValue='Не определён'}"/>
+                                Text="{Binding Path=EatingType.Name, StringFormat='Тип: {0}', FallbackValue='Не определён'}" />
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -394,10 +421,10 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="Время:"/>
+                                        Text="Время:" />
                                     <TimePicker
                                         HeightRequest="{Binding Source={x:Reference entryDose}, Path=Height}"
-                                        Time="{Binding Path=InjectionTime, Mode=TwoWay}"/>
+                                        Time="{Binding Path=InjectionTime, Mode=TwoWay}" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -405,13 +432,13 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Доза:"/>
+                                        Text="Доза:" />
                                     <Entry
                                         x:Name="entryDose"
                                         view:Tag.Tag="BolusDoseFact"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=BolusDoseFact, Converter={StaticResource DecimalToStringConverter}}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -419,21 +446,21 @@
                                     Grid.Column="2">
 
                                     <Label
-                                        Text="Пауза:"/>
+                                        Text="Пауза:" />
                                     <Entry
                                         view:Tag.Tag="Pause"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Pause}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
                             </Grid>
 
                             <Label
-                                Text="Тип инсулина:"/>
+                                Text="Тип инсулина:" />
                             <Picker
-                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemDisplayBinding="{Binding Path=Name}"
                                 ItemsSource="{Binding Path=BolusInsulinTypes}"
-                                SelectedItem="{Binding Path=Eating.BolusType, Mode=TwoWay}"/>
+                                SelectedItem="{Binding Path=Eating.BolusType, Mode=TwoWay}" />
 
                             <StackLayout
                                 BindableLayout.ItemsSource="{Binding Injections}"
@@ -441,14 +468,17 @@
                                 Padding="5, 0">
 
                                 <StackLayout.Style>
-                                    <Style TargetType="StackLayout">
+                                    <Style
+                                        TargetType="StackLayout">
                                         <Style.Triggers>
-                                            <DataTrigger 
-                                                TargetType="StackLayout" 
+                                            <DataTrigger
+                                                TargetType="StackLayout"
                                                 Binding="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.Injections.Count, TargetNullValue=0, FallbackValue=0}"
                                                 Value="0">
 
-                                                <Setter Property="IsVisible" Value="False"/>
+                                                <Setter
+                                                    Property="IsVisible"
+                                                    Value="False" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -469,8 +499,9 @@
 
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition
+                                                        Width="auto" />
                                                 </Grid.ColumnDefinitions>
 
                                                 <!--<Grid.Style>
@@ -493,16 +524,21 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Grid.Style>-->
-                                                
+
                                                 <Label
                                                     Grid.Column="0">
 
                                                     <Label.Text>
-                                                        <MultiBinding StringFormat="{}Время: {0:00}:{1:00} - Доза: {2} - Инсулин: {3}">
-                                                            <Binding Path="InjectionTime.Hours"/>
-                                                            <Binding Path="InjectionTime.Minutes"/>
-                                                            <Binding Path="BolusDose"/>
-                                                            <Binding Path="BolusType.Name"/>
+                                                        <MultiBinding
+                                                            StringFormat="{}Время: {0:00}:{1:00} - Доза: {2} - Инсулин: {3}">
+                                                            <Binding
+                                                                Path="InjectionTime.Hours" />
+                                                            <Binding
+                                                                Path="InjectionTime.Minutes" />
+                                                            <Binding
+                                                                Path="BolusDose" />
+                                                            <Binding
+                                                                Path="BolusType.Name" />
                                                         </MultiBinding>
                                                     </Label.Text>
                                                 </Label>
@@ -530,7 +566,8 @@
                                                         BackgroundColor="LightGray"/>-->
 
                                                     <Button
-                                                        Padding="0" Margin="0, 2, 0, 1"
+                                                        Padding="0"
+                                                        Margin="0, 2, 0, 1"
                                                         HeightRequest="15"
                                                         WidthRequest="20"
                                                         BackgroundColor="Transparent"
@@ -538,7 +575,7 @@
                                                         Text="&#xe122;"
                                                         FontFamily="Typicons"
                                                         Command="{Binding Source={x:RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveInjectionCommand}"
-                                                        CommandParameter="{Binding .}"/>
+                                                        CommandParameter="{Binding .}" />
                                                 </StackLayout>
                                             </Grid>
                                         </Frame>
@@ -564,21 +601,21 @@
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                        CommandParameter="Укажите здесь свою плановую активность. Выберите Тип, укажите продолжительность в минутах и через сколько часов после инъекции начнётся эта активность. Редактировать список активностей можно в соответствующем пункте Меню"/>
+                                        CommandParameter="Укажите здесь свою плановую активность. Выберите Тип, укажите продолжительность в минутах и через сколько часов после инъекции начнётся эта активность. Редактировать список активностей можно в соответствующем пункте Меню" />
                                 </Label.GestureRecognizers>
                             </Label>
 
                             <Label
-                                Text="Тип:"/>
+                                Text="Тип:" />
                             <Picker
-                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemDisplayBinding="{Binding Path=Name}"
                                 ItemsSource="{Binding Path=ExerciseTypes}"
-                                SelectedItem="{Binding Path=ExerciseType, Mode=TwoWay}"/>
+                                SelectedItem="{Binding Path=ExerciseType, Mode=TwoWay}" />
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -586,12 +623,12 @@
                                     Grid.Column="0">
 
                                     <Label
-                                        Text="Продолжительность:"/>
+                                        Text="Продолжительность:" />
                                     <Entry
                                         view:Tag.Tag="Duration"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Duration}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -599,12 +636,12 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Часов после инъекции:"/>
+                                        Text="Часов после инъекции:" />
                                     <Entry
                                         view:Tag.Tag="HoursAfterInjection"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=HoursAfterInjection}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
                             </Grid>
                         </StackLayout>
@@ -622,64 +659,66 @@
                                 Text="Базальный инсулин"
                                 FontAttributes="Bold"
                                 FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                HorizontalOptions="CenterAndExpand" />
 
                             <Label
                                 Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
                                 TextColor="Green"
                                 HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}"/>
-                            
+                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}" />
+
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>                                
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="0">
 
-                                    <Label                                
-                                        Text="Время:"/>
+                                    <Label
+                                        Text="Время:" />
                                     <TimePicker
                                         HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
-                                        Time="{Binding Path=BasalInjectionTime}"/>
+                                        Time="{Binding Path=BasalInjectionTime}" />
                                 </StackLayout>
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="1">
 
-                                    <Label                                
-                                        Text="Доза:"/>
+                                    <Label
+                                        Text="Доза:" />
                                     <Entry
                                         x:Name="basalDose"
                                         Keyboard="Numeric"
                                         view:Tag.Tag="BasalDose"
                                         Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}"/>
+                                        Text="{Binding Path=BasalDose, Converter={StaticResource DecimalToStringConverter}}" />
                                 </StackLayout>
 
                                 <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
-                                <Grid 
+                                <Grid
                                     Grid.Column="2"
                                     RowSpacing="0">
 
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition
+                                            Height="auto" />
+                                        <RowDefinition
+                                            Height="auto" />
                                     </Grid.RowDefinitions>
 
                                     <Label
                                         Grid.Row="0"
-                                        Text="Дата:"/>
+                                        Text="Дата:" />
 
                                     <DatePicker
                                         Grid.Row="1"
                                         HeightRequest="{Binding Source={x:Reference basalDose}, Path=Height}"
-                                        Date="{Binding Source={x:Reference materialDatePickerBasalDose}, Path=Date}"/>
+                                        Date="{Binding Source={x:Reference materialDatePickerBasalDose}, Path=Date}" />
 
                                     <DatePicker
                                         x:Name="materialDatePickerBasalDose"
@@ -687,16 +726,16 @@
                                         Visual="Material"
                                         Opacity="0"
                                         HeightRequest="0"
-                                        Date="{Binding Path=BasalInjectionDate}"/>
+                                        Date="{Binding Path=BasalInjectionDate}" />
                                 </Grid>
                             </Grid>
 
                             <Label
-                                Text="Тип инсулина:"/>
+                                Text="Тип инсулина:" />
                             <Picker
-                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemDisplayBinding="{Binding Path=Name}"
                                 ItemsSource="{Binding Path=InsulinTypes}"
-                                SelectedItem="{Binding Path=Eating.BasalType, Mode=TwoWay}"/>
+                                SelectedItem="{Binding Path=Eating.BasalType, Mode=TwoWay}" />
                         </StackLayout>
                     </Frame>
 
@@ -712,48 +751,48 @@
                                 Text="Базальная скорость"
                                 FontAttributes="Bold"
                                 FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                HorizontalOptions="CenterAndExpand" />
 
                             <Label
                                 Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
                                 TextColor="Green"
                                 HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}"/>
-                            
+                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}" />
+
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="0">
 
-                                    <Label                                
-                                        Text="БС:"/>
+                                    <Label
+                                        Text="БС:" />
                                     <Entry
                                         x:Name="basalRate"
                                         Keyboard="Numeric"
                                         view:Tag.Tag="BasalRate"
                                         Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=BasalRate, Converter={StaticResource DecimalToStringConverter}}"/>
+                                        Text="{Binding Path=BasalRate, Converter={StaticResource DecimalToStringConverter}}" />
                                 </StackLayout>
 
                                 <StackLayout
                                     Spacing="0"
                                     Grid.Column="1">
 
-                                    <Label                                
-                                        Text="ВБС:"/>
+                                    <Label
+                                        Text="ВБС:" />
                                     <Entry
                                         x:Name="basalRateCoefficient"
                                         Keyboard="Numeric"
                                         view:Tag.Tag="BasalRateCoefficient"
                                         Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=BasalRateCoefficient}"/>
+                                        Text="{Binding Path=BasalRateCoefficient}" />
                                 </StackLayout>
-                            </Grid>                            
+                            </Grid>
                         </StackLayout>
                     </Frame>
 
@@ -768,39 +807,40 @@
                                 Text="Дополнительно"
                                 FontAttributes="Bold"
                                 FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                HorizontalOptions="CenterAndExpand" />
 
                             <Label
                                 Text="{Binding Path=PumpMessages}"
                                 TextColor="Red"
                                 HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=PumpMessages, Converter={StaticResource CommentToVisibilityConverter}}"/>
+                                IsVisible="{Binding Path=PumpMessages, Converter={StaticResource CommentToVisibilityConverter}}" />
 
                             <Grid
                                 IsVisible="{Binding Path=IsMenstrualCycleStartVisibility, Mode=OneWay}">
 
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition
+                                        Width="auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Label
                                     Grid.Column="0"
                                     Margin="0, 0, 0, 5"
                                     VerticalOptions="Center"
-                                    Text="Начало менструального цикла:"/>
+                                    Text="Начало менструального цикла:" />
                                 <Switch
                                     Grid.Column="1"
                                     VerticalOptions="Center"
-                                    IsToggled="{Binding Path=IsMenstrualCycleStart}"/>
+                                    IsToggled="{Binding Path=IsMenstrualCycleStart}" />
                             </Grid>
 
                             <Label
-                                Text="Комментарий:"/>
+                                Text="Комментарий:" />
                             <Editor
                                 Keyboard="Chat"
                                 AutoSize="TextChanges"
-                                Text="{Binding Path=Comment}"/>
+                                Text="{Binding Path=Comment}" />
 
                             <!--<Label
                                 Text="Информация:"/>
@@ -821,8 +861,9 @@
                             <xct:Expander.Header>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
@@ -830,7 +871,7 @@
                                         Text="Замена расходных материалов"
                                         FontAttributes="Bold"
                                         FontSize="16"
-                                        HorizontalOptions="CenterAndExpand"/>
+                                        HorizontalOptions="CenterAndExpand" />
 
                                     <Label
                                         Grid.Column="1"
@@ -842,17 +883,19 @@
                                         FontFamily="Typicons">
 
                                         <Label.Triggers>
-                                            <DataTrigger 
+                                            <DataTrigger
                                                 TargetType="Label"
                                                 Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
                                                 Value="True">
 
-                                                <Setter Property="Text" Value="&#xe01e;"/>
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
                                 </Grid>
-                                
+
                             </xct:Expander.Header>
 
                             <StackLayout
@@ -860,87 +903,92 @@
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена канюли:"/>
+                                        Text="Замена канюли:" />
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"
-                                        IsToggled="{Binding Path=Eating.IsCannulaReplacement}"/>
+                                        IsToggled="{Binding Path=Eating.IsCannulaReplacement}" />
                                 </Grid>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена катетера:"/>
+                                        Text="Замена катетера:" />
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"
-                                        IsToggled="{Binding Path=Eating.IsCatheterReplacement}"/>
+                                        IsToggled="{Binding Path=Eating.IsCatheterReplacement}" />
                                 </Grid>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена картриджа:"/>
+                                        Text="Замена картриджа:" />
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"
-                                        IsToggled="{Binding Path=Eating.IsCartridgeReplacement}"/>
+                                        IsToggled="{Binding Path=Eating.IsCartridgeReplacement}" />
                                 </Grid>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена батарейки:"/>
+                                        Text="Замена батарейки:" />
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"
-                                        IsToggled="{Binding Path=Eating.IsBatteryReplacement}"/>
+                                        IsToggled="{Binding Path=Eating.IsBatteryReplacement}" />
                                 </Grid>
 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
                                     </Grid.ColumnDefinitions>
 
                                     <Label
                                         Grid.Column="0"
                                         Margin="0, 0, 0, 5"
                                         VerticalOptions="Center"
-                                        Text="Замена сенсора:"/>
+                                        Text="Замена сенсора:" />
                                     <Switch
                                         Grid.Column="1"
                                         VerticalOptions="Center"
-                                        IsToggled="{Binding Path=Eating.IsMonitoringReplacement}"/>
+                                        IsToggled="{Binding Path=Eating.IsMonitoringReplacement}" />
                                 </Grid>
                             </StackLayout>
                         </xct:Expander>
@@ -957,18 +1005,18 @@
                                 Text="Расчёт"
                                 FontAttributes="Bold"
                                 FontSize="16"
-                                HorizontalOptions="CenterAndExpand"/>
+                                HorizontalOptions="CenterAndExpand" />
 
                             <Label
                                 Text="{Binding Path=AdditionallyInjection}"
                                 TextColor="Red"
                                 HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=AdditionallyInjection, Converter={StaticResource CommentToVisibilityConverter}}"/>
-                            
+                                IsVisible="{Binding Path=AdditionallyInjection, Converter={StaticResource CommentToVisibilityConverter}}" />
+
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -983,13 +1031,48 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как среднее арифметическое от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0}&#10;ФЧИ по нагрузкам: {1}&#10;ФЧИ по дню цикла: {2}&#10;ФЧИ по дню использования канюли: {3}&#10;&#10;Ограничение снизу: {4}&#10;Ограничение сверху: {5}">
-                                                        <Binding Path="InsulinSensitivityAutoOne" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
-                                                        <Binding Path="InsulinSensitivityAutoTwo" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
-                                                        <Binding Path="InsulinSensitivityAutoThree" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
-                                                        <Binding Path="InsulinSensitivityAutoFour" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
-                                                        <Binding Path="Infinum" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
-                                                        <Binding Path="Extremum" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="3"/>
+                                                    <MultiBinding
+                                                        StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как средневзвешенное от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0} (вес: {6})&#10;ФЧИ по нагрузкам: {1} (вес: {7})&#10;ФЧИ по дню цикла: {2} (вес: {8})&#10;ФЧИ по дню использования канюли: {3} (вес: {9})&#10;&#10;Ограничение снизу: {4}&#10;Ограничение сверху: {5}">
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoOne"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3"/>
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoTwo"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3"/>
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoThree"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3"/>
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoFour"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3"/>
+                                                        <Binding
+                                                            Path="Infinum"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3" />
+                                                        <Binding
+                                                            Path="Extremum"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoOneWeight"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="0" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoTwoWeight"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="0" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoThreeWeight"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="0" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoFourWeight"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="0" />
                                                     </MultiBinding>
                                                 </TapGestureRecognizer.CommandParameter>
                                             </TapGestureRecognizer>
@@ -997,7 +1080,7 @@
                                     </Label>
                                     <Entry
                                         Text="{Binding Path=InsulinSensitivityAuto, Converter={StaticResource DecimalToStringConverter}}"
-                                        IsReadOnly="True"/>
+                                        IsReadOnly="True" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -1012,10 +1095,16 @@
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}">
 
                                                 <TapGestureRecognizer.CommandParameter>
-                                                    <MultiBinding StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0} ед.&#10;На углеводы: {1} ед.&#10;На белки и жиры: {2} ед.">
-                                                        <Binding Path="BolusDoseCalculate" Converter="{StaticResource DecimalToStringConverter}" ConverterParameter="2"/>
-                                                        <Binding Path="BolusDoseCarbohydrate"/>
-                                                        <Binding Path="BolusDoseFatAndProtein"/>
+                                                    <MultiBinding
+                                                        StringFormat="{}Эта доза рассчитывается либо на основе рассчётного ФЧИ программы, либо на основе указанного пользователем ФЧИ (с учётом пищевых коэффициентов введённых в настройках профиля)&#10;&#10;Формула:&#10;((УК * (углеводы + БК * белки + ЖК * жиры) + Исходный_сахар - Целевой_сахар) / ФЧИ - Активный_до) / Доля_болюса&#10;&#10;Общая доза: {0} ед.&#10;На углеводы: {1} ед.&#10;На белки и жиры: {2} ед.">
+                                                        <Binding
+                                                            Path="BolusDoseCalculate"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="2" />
+                                                        <Binding
+                                                            Path="BolusDoseCarbohydrate" />
+                                                        <Binding
+                                                            Path="BolusDoseFatAndProtein" />
                                                     </MultiBinding>
                                                 </TapGestureRecognizer.CommandParameter>
                                             </TapGestureRecognizer>
@@ -1023,14 +1112,14 @@
                                     </Label>
                                     <Entry
                                         Text="{Binding Path=BolusDoseCalculate, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=2}"
-                                        IsReadOnly="True"/>
+                                        IsReadOnly="True" />
                                 </StackLayout>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -1043,14 +1132,14 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Если вы считаете, что рассчёт ФЧИ программой неверен, укажите более вероятный ФЧИ с учётом выше указанных параметров и своих предыдущих фактических ФЧИ"/>
+                                                CommandParameter="Если вы считаете, что рассчёт ФЧИ программой неверен, укажите более вероятный ФЧИ с учётом выше указанных параметров и своих предыдущих фактических ФЧИ" />
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
                                         view:Tag.Tag="InsulinSensitivityUser"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=InsulinSensitivityUser, Converter={StaticResource DecimalToStringConverter}}"
-                                        Keyboard="Numeric"/>
+                                        Keyboard="Numeric" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -1063,19 +1152,19 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="{Binding Path=ActiveInformation, StringFormat='{}Складывается из всех инъекций действующих в период активности данного приёма пищи:\&#10;\&#10;{0}'}"/>
+                                                CommandParameter="{Binding Path=ActiveInformation, StringFormat='{}Складывается из всех инъекций действующих в период активности данного приёма пищи:\&#10;\&#10;{0}'}" />
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
                                         IsReadOnly="True"
-                                        Text="{Binding Path=BolusDoseTotal, Converter={StaticResource DecimalToStringConverter}}"/>
+                                        Text="{Binding Path=BolusDoseTotal, Converter={StaticResource DecimalToStringConverter}}" />
                                 </StackLayout>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
 
                                 <StackLayout
@@ -1088,12 +1177,12 @@
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{x:Static global:GlobalMethods.ToolTipCommand}"
-                                                CommandParameter="Рассчитается автоматически при вводе сахара на отработке по окончании приёма пищи - это реальный ФЧИ, отражающий реальную чувствительность к инсулину в рамках данного приёма пищи"/>
+                                                CommandParameter="Рассчитается автоматически при вводе сахара на отработке по окончании приёма пищи - это реальный ФЧИ, отражающий реальную чувствительность к инсулину в рамках данного приёма пищи" />
                                         </Label.GestureRecognizers>
                                     </Label>
                                     <Entry
                                         IsReadOnly="True"
-                                        Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=3}"/>
+                                        Text="{Binding Path=InsulinSensitivityFact, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=3}" />
                                 </StackLayout>
 
                                 <StackLayout
@@ -1101,10 +1190,10 @@
                                     Grid.Column="1">
 
                                     <Label
-                                        Text="Ожидаемый сахар:"/>
+                                        Text="Ожидаемый сахар:" />
                                     <Entry
                                         IsReadOnly="True"
-                                        Text="{Binding Path=ExpectedGlucose, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=2}"/>
+                                        Text="{Binding Path=ExpectedGlucose, Converter={StaticResource DecimalToStringConverter}, ConverterParameter=2}" />
                                 </StackLayout>
                             </Grid>
                         </StackLayout>
@@ -1114,14 +1203,14 @@
                         Text="Сохранить"
                         Margin="5"
                         BackgroundColor="LightSeaGreen"
-                        Command="{Binding Path=OkCommand}"/>
+                        Command="{Binding Path=OkCommand}" />
 
                     <Button
                         Text="Удалить"
                         Margin="5, 0, 5, 5"
                         BackgroundColor="OrangeRed"
                         IsVisible="{Binding Path=IsRemoveVisibility, Mode=OneWay}"
-                        Command="{Binding Path=RemoveCommand}"/>
+                        Command="{Binding Path=RemoveCommand}" />
                 </StackLayout>
             </ScrollView>
 
@@ -1131,51 +1220,58 @@
                 IsVisible="{Binding Path=IsModalInjection, FallbackValue='False'}">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition/>
+                    <RowDefinition />
+                    <RowDefinition
+                        Height="auto" />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition />
+                    <ColumnDefinition
+                        Width="auto" />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
                 <Frame
                     Style="{StaticResource FrameBackgroundBase}"
-                    Grid.Row="1" Grid.Column="1">
+                    Grid.Row="1"
+                    Grid.Column="1">
 
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition
+                                Height="auto" />
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
                         <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
-                        <Grid 
-                            Grid.Row="0" Grid.Column="0"
+                        <Grid
+                            Grid.Row="0"
+                            Grid.Column="0"
                             RowSpacing="0">
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
+                                <RowDefinition
+                                    Height="auto" />
+                                <RowDefinition
+                                    Height="auto" />
                             </Grid.RowDefinitions>
 
                             <Label
                                 Grid.Row="0"
-                                Text="Дата:"/>
+                                Text="Дата:" />
 
                             <DatePicker
                                 Grid.Row="1"
-                                Date="{Binding Source={x:Reference materialDatePickerInjection}, Path=Date}"/>
+                                Date="{Binding Source={x:Reference materialDatePickerInjection}, Path=Date}" />
 
                             <DatePicker
                                 x:Name="materialDatePickerInjection"
@@ -1183,51 +1279,56 @@
                                 Visual="Material"
                                 Opacity="0"
                                 HeightRequest="0"
-                                Date="{Binding Path=SelectedInjection.InjectionDate}"/>
-                        </Grid>                        
+                                Date="{Binding Path=SelectedInjection.InjectionDate}" />
+                        </Grid>
 
                         <StackLayout
-                            Grid.Row="0" Grid.Column="1"
+                            Grid.Row="0"
+                            Grid.Column="1"
                             Spacing="0">
 
                             <Label
-                                Text="Время:"/>
+                                Text="Время:" />
                             <TimePicker
-                                Time="{Binding Path=SelectedInjection.InjectionTime}"/>
+                                Time="{Binding Path=SelectedInjection.InjectionTime}" />
                         </StackLayout>
 
                         <StackLayout
-                            Grid.Row="1" Grid.ColumnSpan="2"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
                             Spacing="0">
-                            
+
                             <Label
-                                Text="Доза болюсного:"/>
+                                Text="Доза болюсного:" />
                             <Entry
                                 Keyboard="Numeric"
-                                Text="{Binding Path=SelectedInjection.BolusDose, Converter={StaticResource DecimalToStringConverter}}"/>
+                                Text="{Binding Path=SelectedInjection.BolusDose, Converter={StaticResource DecimalToStringConverter}}" />
                         </StackLayout>
 
                         <StackLayout
-                            Grid.Row="2" Grid.ColumnSpan="2"
+                            Grid.Row="2"
+                            Grid.ColumnSpan="2"
                             Spacing="0">
 
                             <Label
-                                Text="Тип инсулина:"/>
+                                Text="Тип инсулина:" />
                             <Picker
-                                ItemDisplayBinding="{Binding Path=Name}"                            
+                                ItemDisplayBinding="{Binding Path=Name}"
                                 ItemsSource="{Binding Path=BolusInsulinTypes}"
-                                SelectedItem="{Binding Path=SelectedInjection.BolusType, Mode=TwoWay}"/>
+                                SelectedItem="{Binding Path=SelectedInjection.BolusType, Mode=TwoWay}" />
                         </StackLayout>
-                        
-                        <Button
-                            Grid.Row="3" Grid.Column="0"
-                            Text="Отмена"
-                            Command="{Binding Path=CancelInjectionCommand}"/>
 
                         <Button
-                            Grid.Row="3" Grid.Column="1"
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Text="Отмена"
+                            Command="{Binding Path=CancelInjectionCommand}" />
+
+                        <Button
+                            Grid.Row="3"
+                            Grid.Column="1"
                             Text="Сохранить"
-                            Command="{Binding Path=SaveInjectionCommand}"/>
+                            Command="{Binding Path=SaveInjectionCommand}" />
                     </Grid>
                 </Frame>
             </Grid>
@@ -1238,50 +1339,57 @@
                 IsVisible="{Binding Path=IsModalDimension, FallbackValue='False'}">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition/>
+                    <RowDefinition />
+                    <RowDefinition
+                        Height="auto" />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition />
+                    <ColumnDefinition
+                        Width="auto" />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
                 <Frame
                     Style="{StaticResource FrameBackgroundBase}"
-                    Grid.Row="1" Grid.Column="1">
+                    Grid.Row="1"
+                    Grid.Column="1">
 
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition
+                                Height="auto" />
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
                         <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
-                        <Grid 
-                            Grid.Row="0" Grid.Column="0"
+                        <Grid
+                            Grid.Row="0"
+                            Grid.Column="0"
                             RowSpacing="0">
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
+                                <RowDefinition
+                                    Height="auto" />
+                                <RowDefinition
+                                    Height="auto" />
                             </Grid.RowDefinitions>
 
                             <Label
                                 Grid.Row="0"
-                                Text="Дата:"/>
+                                Text="Дата:" />
 
                             <DatePicker
                                 Grid.Row="1"
-                                Date="{Binding Source={x:Reference materialDatePickerDimension}, Path=Date}"/>
+                                Date="{Binding Source={x:Reference materialDatePickerDimension}, Path=Date}" />
 
                             <DatePicker
                                 x:Name="materialDatePickerDimension"
@@ -1289,39 +1397,43 @@
                                 Visual="Material"
                                 Opacity="0"
                                 HeightRequest="0"
-                                Date="{Binding Path=SelectedDimension.DimensionDate}"/>
+                                Date="{Binding Path=SelectedDimension.DimensionDate}" />
                         </Grid>
 
                         <StackLayout
-                            Grid.Row="0" Grid.Column="1"
+                            Grid.Row="0"
+                            Grid.Column="1"
                             Spacing="0">
 
                             <Label
-                                Text="Время:"/>
+                                Text="Время:" />
                             <TimePicker
-                                Time="{Binding Path=SelectedDimension.DimensionTime}"/>
+                                Time="{Binding Path=SelectedDimension.DimensionTime}" />
                         </StackLayout>
 
                         <StackLayout
-                            Grid.Row="1" Grid.ColumnSpan="2"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
                             Spacing="0">
 
                             <Label
-                                Text="Сахар:"/>
+                                Text="Сахар:" />
                             <Entry
                                 Keyboard="Numeric"
-                                Text="{Binding Path=SelectedDimension.Glucose, Converter={StaticResource DecimalToStringConverter}}"/>
+                                Text="{Binding Path=SelectedDimension.Glucose, Converter={StaticResource DecimalToStringConverter}}" />
                         </StackLayout>
 
                         <Button
-                            Grid.Row="2" Grid.Column="0"
+                            Grid.Row="2"
+                            Grid.Column="0"
                             Text="Отмена"
-                            Command="{Binding Path=CancelDimensionCommand}"/>
+                            Command="{Binding Path=CancelDimensionCommand}" />
 
                         <Button
-                            Grid.Row="2" Grid.Column="1"
+                            Grid.Row="2"
+                            Grid.Column="1"
                             Text="Сохранить"
-                            Command="{Binding Path=SaveDimensionCommand}"/>
+                            Command="{Binding Path=SaveDimensionCommand}" />
                     </Grid>
                 </Frame>
             </Grid>
@@ -1332,40 +1444,44 @@
                 IsVisible="{Binding Path=IsModalSnack, FallbackValue='False'}">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition/>
+                    <RowDefinition />
+                    <RowDefinition
+                        Height="auto" />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition />
+                    <ColumnDefinition
+                        Width="auto" />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
                 <Frame
                     Style="{StaticResource FrameBackgroundBase}"
-                    Grid.Row="1" Grid.Column="1">
+                    Grid.Row="1"
+                    Grid.Column="1">
 
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition />
+                            <RowDefinition
+                                Height="auto" />
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
                         <Grid
                             Grid.Row="0"
                             Grid.ColumnSpan="2">
-                            
+
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
                             </Grid.ColumnDefinitions>
 
                             <StackLayout
@@ -1373,10 +1489,10 @@
                                 Grid.Column="0">
 
                                 <Label
-                                    Text="Белки:"/>
+                                    Text="Белки:" />
                                 <Entry
                                     Text="{Binding Path=ProteinSnack}"
-                                    Keyboard="Numeric"/>
+                                    Keyboard="Numeric" />
                             </StackLayout>
 
                             <StackLayout
@@ -1384,10 +1500,10 @@
                                 Grid.Column="1">
 
                                 <Label
-                                    Text="Жиры:"/>
+                                    Text="Жиры:" />
                                 <Entry
                                     Text="{Binding Path=FatSnack}"
-                                    Keyboard="Numeric"/>
+                                    Keyboard="Numeric" />
                             </StackLayout>
 
                             <StackLayout
@@ -1395,25 +1511,27 @@
                                 Grid.Column="2">
 
                                 <Label
-                                    Text="Углеводы:"/>
+                                    Text="Углеводы:" />
                                 <Entry
                                     Text="{Binding Path=CarbohydrateSnack}"
-                                    Keyboard="Numeric"/>
+                                    Keyboard="Numeric" />
                             </StackLayout>
                         </Grid>
 
                         <Button
-                            Grid.Row="1" Grid.Column="0"
+                            Grid.Row="1"
+                            Grid.Column="0"
                             Text="Отмена"
-                            Command="{Binding Path=CancelSnackCommand}"/>
+                            Command="{Binding Path=CancelSnackCommand}" />
 
                         <Button
-                            Grid.Row="1" Grid.Column="1"
+                            Grid.Row="1"
+                            Grid.Column="1"
                             Text="Сохранить"
-                            Command="{Binding Path=SaveSnackCommand}"/>
+                            Command="{Binding Path=SaveSnackCommand}" />
                     </Grid>
                 </Frame>
             </Grid>
-        </Grid>       
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

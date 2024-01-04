@@ -313,7 +313,7 @@ namespace InsulinSensitivity.Eating
             new List<Models.Eating>();
 
         /// <summary>
-        /// Приёмы пищи исключая не учитываемые для расчёта по циклу (включают только ФЧИ и тип приёма пищи)
+        /// Приёмы пищи исключая не учитываемые для расчёта по циклу (включают только ФЧИ фактический, ФЧИ по дню цикла и тип приёма пищи)
         /// </summary>
         private List<Models.Eating> EatingsWithoutIgnoredForCycle =
             new List<Models.Eating>();
@@ -495,6 +495,26 @@ namespace InsulinSensitivity.Eating
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Вес ФЧИ рассчитанный по средним
+        /// </summary>
+        public decimal InsulinSensitivityAutoOneWeight { get; private set; } = 1;
+
+        /// <summary>
+        /// Вес ФЧИ рассчитанный по нагрузкам
+        /// </summary>
+        public decimal InsulinSensitivityAutoTwoWeight { get; private set; } = 1;
+
+        /// <summary>
+        /// Вес ФЧИ рассчитанный по дню цикла
+        /// </summary>
+        public decimal InsulinSensitivityAutoThreeWeight { get; private set; } = 1;
+
+        /// <summary>
+        /// Вес ФЧИ рассчитанный по дню использования канюли
+        /// </summary>
+        public decimal InsulinSensitivityAutoFourWeight { get; private set; } = 1;
 
         #endregion
 
@@ -1462,10 +1482,104 @@ namespace InsulinSensitivity.Eating
                                 new Models.Eating()
                                 {
                                     InsulinSensitivityFact = x.InsulinSensitivityFact,
+                                    InsulinSensitivityAutoThree = x.InsulinSensitivityAutoThree,
                                     EatingTypeId = x.EatingTypeId
                                 })
                             .ToList();
                     }
+                }
+
+                // Расчёт весов ФЧИ
+                if (GlobalParameters.User.IsWeightedAverageInsulinSensitivity)
+                {
+                    // ... Формула 1
+                    var eatings = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.InsulinSensitivityAutoOne != null);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        eatings = eatings
+                            .Where(x =>
+                                x.DateCreated.Date >= Period.Date);
+
+                    if (eatings.Count() > 0)
+                        InsulinSensitivityAutoOneWeight = (decimal)eatings
+                            .Average(x =>
+                            {
+                                var divider = x.InsulinSensitivityFact.Value > x.InsulinSensitivityAutoOne.Value
+                                    ? x.InsulinSensitivityFact.Value
+                                    : x.InsulinSensitivityAutoOne.Value;
+
+                                return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoOne.Value) / divider * 100, 0);
+                            });
+
+                    InsulinSensitivityAutoOneWeight = Methods.Round(InsulinSensitivityAutoOneWeight, 0);
+
+                    // ... Формула 2
+                    eatings = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.InsulinSensitivityAutoTwo != null);
+
+                    if (GlobalParameters.User.PeriodOfCalculation > 0)
+                        eatings = eatings
+                            .Where(x =>
+                                x.DateCreated.Date >= Period.Date);
+
+                    if (eatings.Count() > 0)
+                        InsulinSensitivityAutoTwoWeight = (decimal)eatings
+                            .Average(x =>
+                            {
+                                var divider = x.InsulinSensitivityFact.Value > x.InsulinSensitivityAutoTwo.Value
+                                    ? x.InsulinSensitivityFact.Value
+                                    : x.InsulinSensitivityAutoTwo.Value;
+
+                                return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoTwo.Value) / divider * 100, 0);
+                            });
+
+                    InsulinSensitivityAutoTwoWeight = Methods.Round(InsulinSensitivityAutoTwoWeight, 0);
+
+                    // ... Формула 3
+                    eatings = EatingsWithoutIgnoredForCycle
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.InsulinSensitivityAutoThree != null);
+
+                    if (eatings.Count() > 0)
+                        InsulinSensitivityAutoThreeWeight = (decimal)eatings
+                            .Average(x =>
+                            {
+                                var divider = x.InsulinSensitivityFact.Value > x.InsulinSensitivityAutoThree.Value
+                                    ? x.InsulinSensitivityFact.Value
+                                    : x.InsulinSensitivityAutoThree.Value;
+
+                                return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoThree.Value) / divider * 100, 0);
+                            });
+
+                    InsulinSensitivityAutoThreeWeight = Methods.Round(InsulinSensitivityAutoThreeWeight, 0);
+
+                    // ... Формула 4
+                    var lastMonth = DateTime.Now.AddMonths(-1);
+
+                    eatings = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.InsulinSensitivityAutoFour != null &&
+                            x.DateCreated.Date >= lastMonth.Date);
+
+                    if (eatings.Count() > 0)
+                        InsulinSensitivityAutoFourWeight = (decimal)eatings
+                            .Average(x =>
+                            {
+                                var divider = x.InsulinSensitivityFact.Value > x.InsulinSensitivityAutoFour.Value
+                                    ? x.InsulinSensitivityFact.Value
+                                    : x.InsulinSensitivityAutoFour.Value;
+
+                                return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoFour.Value) / divider * 100, 0);
+                            });
+
+                    InsulinSensitivityAutoFourWeight = Methods.Round(InsulinSensitivityAutoFourWeight, 0);
                 }
             }
         }
@@ -1701,12 +1815,12 @@ namespace InsulinSensitivity.Eating
 
             if (GlobalParameters.User.IsCannulaCalculateActive && GlobalParameters.User.IsPump)
             {
+                var lastMonth = DateTime.Now.AddMonths(-1);
+
                 var days = EatingsWithoutIgnored
-                    .GroupBy(x =>
-                        x.DateCreated.Date)
-                    .OrderByDescending(x =>
-                        x.Key)
-                    .Take(30)
+                    .Where(x => x.DateCreated.Date >= lastMonth.Date)
+                    .GroupBy(x => x.DateCreated.Date)
+                    .OrderByDescending(x => x.Key)
                     .ToList();
 
                 // Средний ФЧИ за вчерашний день
@@ -1789,7 +1903,7 @@ namespace InsulinSensitivity.Eating
                 if (todayEquivalent.Count == 0 || yesterdayEquivalent.Count == 0)
                     return;
 
-                // Средний ФЧИ за последние 30 дней с днём канюли, как сегодня
+                // Средний ФЧИ за последний месяц с днём канюли, как сегодня
                 var averageTodayCollection = EatingsWithoutIgnored
                     .Where(x =>
                         x.InsulinSensitivityFact != null &&
@@ -1807,7 +1921,7 @@ namespace InsulinSensitivity.Eating
                 if (averageToday == null)
                     return;
 
-                // Средний ФЧИ за последние 30 дней с днём канюли, как вчера
+                // Средний ФЧИ за последний месяц с днём канюли, как вчера
                 var averageYesterdayCollection = EatingsWithoutIgnored
                     .Where(x =>
                         x.InsulinSensitivityFact != null &&
@@ -1834,34 +1948,33 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private void CalculateInsulinSensitivityAuto()
         {
-            var values = new List<decimal?>()
+            var values = new List<(decimal? insulinSensitivity, decimal weight)>()
             {
-                Eating.InsulinSensitivityAutoOne,
-                Eating.InsulinSensitivityAutoTwo,
-                Eating.InsulinSensitivityAutoThree,
-                Eating.InsulinSensitivityAutoFour
+                (Eating.InsulinSensitivityAutoOne, InsulinSensitivityAutoOneWeight),
+                (Eating.InsulinSensitivityAutoTwo, InsulinSensitivityAutoTwoWeight),
+                (Eating.InsulinSensitivityAutoThree, InsulinSensitivityAutoThreeWeight),
+                (Eating.InsulinSensitivityAutoFour, InsulinSensitivityAutoFourWeight)
             };
 
             values = values
-                .Where(x =>
-                    x != null)
+                .Where(x => x.insulinSensitivity != null)
                 .ToList();
 
             if (Infinum != null || Extremum != null)
             {
                 for (int i = 0; i < (values?.Count ?? 0); i++)
                 {
-                    if (Infinum != null)
-                        values[i] = values[i] < Infinum ? Infinum : values[i];
+                    if (Infinum != null && values[i].insulinSensitivity < Infinum)
+                        values[i] = (Infinum, values[i].weight);
 
-                    if (Extremum != null)
-                        values[i] = values[i] > Extremum ? Extremum : values[i];
+                    if (Extremum != null && values[i].insulinSensitivity > Extremum)
+                        values[i] = (Extremum, values[i].weight);
                 }
             }
 
-            InsulinSensitivityAuto = (values?.Count ?? 0) == 0
+            InsulinSensitivityAuto = (values?.Count ?? 0) == 0 && values.Sum(x => x.weight) > 0
                 ? (decimal?)null
-                : Math.Round(values.Average().Value, 3, MidpointRounding.AwayFromZero);
+                : Math.Round(values.Sum(x => x.insulinSensitivity.Value * x.weight) / values.Sum(x => x.weight), 3, MidpointRounding.AwayFromZero);
         }
 
         /// <summary>
