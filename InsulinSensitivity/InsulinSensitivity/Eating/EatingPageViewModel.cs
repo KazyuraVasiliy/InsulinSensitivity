@@ -256,18 +256,18 @@ namespace InsulinSensitivity.Eating
         /// </summary>
         private DateTime? LastMenstruationDate { get; set; }
 
-        private decimal? extremum;
+        private decimal? supremum;
         /// <summary>
         /// Верхняя граница
         /// </summary>
-        public decimal? Extremum
+        public decimal? Supremum
         {
-            get => extremum;
+            get => supremum;
             set
             {
-                if (extremum != value)
+                if (supremum != value)
                 {
-                    extremum = value;
+                    supremum = value;
                     OnPropertyChanged();
                 }
             }
@@ -339,8 +339,8 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Инфинум и Экстремум для текущего типа приёма пищи
         /// </summary>
-        private Dictionary<Guid, (decimal? infinum, decimal? extremum)> InfinumExtremumDictionary { get; set; } =
-            new Dictionary<Guid, (decimal? infinum, decimal? extremum)>();
+        private Dictionary<Guid, (decimal? infinum, decimal? supremum)> InfinumSupremumDictionary { get; set; } =
+            new Dictionary<Guid, (decimal? infinum, decimal? supremum)>();
 
         #endregion
 
@@ -1960,15 +1960,15 @@ namespace InsulinSensitivity.Eating
                 .Where(x => x.insulinSensitivity != null)
                 .ToList();
 
-            if (Infinum != null || Extremum != null)
+            if (Infinum != null || Supremum != null)
             {
                 for (int i = 0; i < (values?.Count ?? 0); i++)
                 {
                     if (Infinum != null && values[i].insulinSensitivity < Infinum)
                         values[i] = (Infinum, values[i].weight);
 
-                    if (Extremum != null && values[i].insulinSensitivity > Extremum)
-                        values[i] = (Extremum, values[i].weight);
+                    if (Supremum != null && values[i].insulinSensitivity > Supremum)
+                        values[i] = (Supremum, values[i].weight);
                 }
             }
 
@@ -2100,10 +2100,10 @@ namespace InsulinSensitivity.Eating
         /// <summary>
         /// Расчёт минимального и максимального отношения ФЧИ текущего типа приёма пищи к предыдущему
         /// </summary>
-        private void CalculateInfinumExtremum()
+        private void CalculateInfinumSupremum()
         {
             Infinum = null;
-            Extremum = null;
+            Supremum = null;
 
             bool check =
                 EatingType != null &&
@@ -2112,12 +2112,12 @@ namespace InsulinSensitivity.Eating
 
             if (check)
             {
-                if (InfinumExtremumDictionary.ContainsKey(EatingType.Id))
+                if (InfinumSupremumDictionary.ContainsKey(EatingType.Id))
                 {
-                    var value = InfinumExtremumDictionary[EatingType.Id];
+                    var value = InfinumSupremumDictionary[EatingType.Id];
 
                     Infinum = value.infinum;
-                    Extremum = value.extremum;
+                    Supremum = value.supremum;
                 }
                 else
                 {
@@ -2161,10 +2161,10 @@ namespace InsulinSensitivity.Eating
                             Infinum = PreviousEatings[0].InsulinSensitivityFact.Value * min;
 
                         if (max > 1.05M)
-                            Extremum = PreviousEatings[0].InsulinSensitivityFact.Value * max;
+                            Supremum = PreviousEatings[0].InsulinSensitivityFact.Value * max;
                     }
 
-                    InfinumExtremumDictionary.Add(EatingType.Id, (Infinum, Extremum));
+                    InfinumSupremumDictionary.Add(EatingType.Id, (Infinum, Supremum));
                 }
             }
         }
@@ -2462,7 +2462,7 @@ namespace InsulinSensitivity.Eating
                     x.TimeEnd >= Eating.InjectionTime);            
 
             // Минимальное и максимальное отношения ФЧИ текущего типа приёма пищи к предыдущему
-            CalculateInfinumExtremum();
+            CalculateInfinumSupremum();
 
             // Расчётное ФЧИ
             CalculateInsulinSensitivityOne();

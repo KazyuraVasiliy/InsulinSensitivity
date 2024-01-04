@@ -1054,7 +1054,7 @@
                                                             Converter="{StaticResource DecimalToStringConverter}"
                                                             ConverterParameter="3" />
                                                         <Binding
-                                                            Path="Extremum"
+                                                            Path="Supremum"
                                                             Converter="{StaticResource DecimalToStringConverter}"
                                                             ConverterParameter="3" />
                                                         <Binding
