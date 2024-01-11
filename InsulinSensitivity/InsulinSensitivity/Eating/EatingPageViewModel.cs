@@ -3254,8 +3254,8 @@ namespace InsulinSensitivity.Eating
                         if (injectionStartDateTime < dateStart)
                             injectionStartDateTime = dateStart;
 
-                        //if (Eating.EndEating != null && injectionEndDateTime > Eating.EndEating)
-                        //    injectionEndDateTime = Eating.EndEating.Value;
+                        if (injectionEndDateTime > date)
+                            injectionEndDateTime = date.DateTime;
 
                         var delta = (injectionEndDateTime - injectionStartDateTime).TotalSeconds;
                         var injectionDateTime = injectionStartDateTime.AddSeconds(delta / 2);
