@@ -1,27 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:InsulinSensitivity"
-             x:Class="InsulinSensitivity.MainPageMaster"
-             Title="Master">
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:InsulinSensitivity"
+    x:Class="InsulinSensitivity.MainPageMaster"
+    xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+    Title="Master">
+
+    <ContentPage.Resources>
+        <converters:NullToVisibilityConverter
+            x:Key="NullToVisibilityConverter" />
+        <converters:NullableBoolToVisibilityConverter
+            x:Key="NullableBoolToVisibilityConverter" />
+        <converters:InversionNullableBoolToVisibilityConverter
+            x:Key="InversionNullableBoolToVisibilityConverter" />
+    </ContentPage.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition
+                Height="auto" />
+            <RowDefinition />
+            <RowDefinition
+                Height="auto" />
         </Grid.RowDefinitions>
-        
-        <Frame 
+
+        <Frame
             Grid.Row="0"
             BackgroundColor="{AppThemeBinding Dark='#2196F3', Light='#2196F3'}"
             CornerRadius="0"
             Padding="12">
 
-            <Label 
-                Text="InsulinSensitivity" 
-                HorizontalTextAlignment="Start" 
-                TextColor="White" 
-                FontSize="24"/>
+            <Label
+                Text="InsulinSensitivity"
+                HorizontalTextAlignment="Start"
+                TextColor="White"
+                FontSize="24" />
         </Frame>
 
         <ListView
@@ -31,20 +45,23 @@
             SeparatorVisibility="None"
             ItemsSource="{Binding Path=Items}"
             ItemTapped="ListView_ItemTapped">
-            
+
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
-                        <Grid 
+                        <Grid
                             Padding="5, 5">
 
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition
+                                    Width="30" />
+                                <ColumnDefinition
+                                    Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition Height="auto"/>
+                                <RowDefinition />
+                                <RowDefinition
+                                    Height="auto" />
                             </Grid.RowDefinitions>
 
                             <Label
@@ -53,30 +70,71 @@
                                 FontSize="30"
                                 FontFamily="Typicons"
                                 VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"/>
-                            
-                            <Label 
+                                HorizontalTextAlignment="Center" />
+
+                            <Label
                                 Grid.Column="1"
                                 FontSize="16"
                                 Text="{Binding Path=Name}"
                                 VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Start"/>
+                                HorizontalTextAlignment="Start" />
 
                             <BoxView
-                                Grid.Row="1" Grid.ColumnSpan="2"
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
                                 HeightRequest="1"
                                 IsVisible="{Binding Path=IsSeparator}"
-                                BackgroundColor="Black"/>
+                                BackgroundColor="Black" />
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <Label 
-            Grid.Row="2"
-            Padding="5"
-            Text="{Binding Path=Version}" 
-            HorizontalTextAlignment="Start"/>
+        <Grid
+            Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Label
+                Grid.Column="0"
+                Padding="5"
+                Text="{Binding Path=Version}"
+                VerticalOptions="CenterAndExpand"
+                HorizontalTextAlignment="Start" />
+
+            <StackLayout
+                Grid.Column="2"
+                HorizontalOptions="End"
+                Orientation="Horizontal"
+                IsVisible="{Binding Path=IsNightscoutEnabled, Converter={StaticResource NullToVisibilityConverter}}">
+
+                <Ellipse
+                    IsVisible="{Binding Path=IsNightscoutEnabled, Converter={StaticResource InversionNullableBoolToVisibilityConverter}}"
+                    HorizontalOptions="CenterAndExpand"
+                    VerticalOptions="CenterAndExpand"
+                    HeightRequest="10"
+                    WidthRequest="10"
+                    Fill="Red" />
+
+                <Ellipse
+                    IsVisible="{Binding Path=IsNightscoutEnabled, Converter={StaticResource NullableBoolToVisibilityConverter}}"
+                    HorizontalOptions="CenterAndExpand"
+                    VerticalOptions="CenterAndExpand"
+                    HeightRequest="10"
+                    WidthRequest="10"
+                    Fill="Green" />
+                
+                <Label
+                    Padding="0, 5, 5, 5"
+                    Text="Nightscout"
+                    VerticalOptions="CenterAndExpand"
+                    HorizontalTextAlignment="Start" />
+            </StackLayout>
+        </Grid>
     </Grid>
 </ContentPage>

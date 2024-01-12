@@ -14,15 +14,36 @@ using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using BusinessLogicLayer.Service.Interfaces;
 using Models = DataAccessLayer.Models;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace InsulinSensitivity
 {
     public class MainPageMasterViewModel : ObservableBase
     {
+        #region Fields
+
+        /// <summary>
+        /// Отмена асинхронной операции
+        /// </summary>
+        private CancellationTokenSource token =
+            new CancellationTokenSource();
+
+        /// <summary>
+        /// Семафор
+        /// </summary>
+        private Semaphore semaphore =
+            new Semaphore(1, 1);
+
+        #endregion
+
         #region Constructor
 
         public MainPageMasterViewModel()
         {
+            // Инициализация
             Items = new ObservableCollection<MainPageMasterItemModel>()
             {
                 new MainPageMasterItemModel("\xe12c", "Пользователь", EditUserCommand),
@@ -39,6 +60,16 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe0be", "Информация", InformationCommand),
                 new MainPageMasterItemModel("\xe09d", "Помощь", HelpCommand),
             };
+
+            // Задачи
+            _ = UpdateNightscoutStatusProcess(token);
+
+            // Подписки на события
+            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
+                async x => await UpdateNightscoutStatus());
+
+            MessagingCenter.Subscribe<MainPageDetailViewModel>(this, "Init",
+                async x => await UpdateNightscoutStatus());
         }
 
         #endregion
@@ -65,6 +96,20 @@ namespace InsulinSensitivity
         public string Version =>
             VersionTracking.CurrentVersion;
 
+        private bool? isNightscoutEnabled;
+        /// <summary>
+        /// Статус Nightscout
+        /// </summary>
+        public bool? IsNightscoutEnabled
+        {
+            get => isNightscoutEnabled;
+            set
+            {
+                isNightscoutEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool? theme;
         /// <summary>
         /// Тема
@@ -87,6 +132,68 @@ namespace InsulinSensitivity
         /// Меню
         /// </summary>
         public ObservableCollection<MainPageMasterItemModel> Items { get; private set; }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Получает статус Nightscout
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateNightscoutStatus()
+        {
+            semaphore.WaitOne();
+
+            if (GlobalParameters.User == null || string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutUri))
+                IsNightscoutEnabled = null;
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutUri))
+                {                    
+                    try
+                    {
+                        var baseUri = GlobalParameters.User.NightscoutUri.TrimEnd('/');
+                        using (var client = new HttpClient())
+                        {
+                            client.Timeout = TimeSpan.FromSeconds(5);
+
+                            if (!string.IsNullOrWhiteSpace(GlobalParameters.User.NightscoutApiKey))
+                            {
+                                var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(GlobalParameters.User.NightscoutApiKey));
+                                var hashStr = string.Concat(hash.Select(b => b.ToString("x2")));
+
+                                client.DefaultRequestHeaders.Add("api-secret", hashStr);
+                            }
+
+                            var result = await client.GetAsync(baseUri + "/status");
+                            IsNightscoutEnabled = result.IsSuccessStatusCode;
+                        }
+                    }
+                    catch
+                    {
+                        IsNightscoutEnabled = false;
+                    }
+                }
+            }
+
+            semaphore.Release();
+        }
+
+        /// <summary>
+        /// Периодически проверяет статус Nightscout
+        /// </summary>
+        private async Task UpdateNightscoutStatusProcess(CancellationTokenSource token)
+        {
+            while (true)
+            {
+                if (token.IsCancellationRequested)
+                    return;
+
+                await UpdateNightscoutStatus();
+                await Task.Delay(1000 * 30);
+            }
+        }
 
         #endregion
 

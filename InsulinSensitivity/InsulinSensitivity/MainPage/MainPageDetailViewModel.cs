@@ -172,6 +172,8 @@ namespace InsulinSensitivity
 
                 MessagingCenter.Subscribe<MainPageMasterViewModel>(this, "RestoreBackup",
                     (sender) => Init());
+
+                MessagingCenter.Send(this, "Init");
             }, "Инициализация\nПожалуйста, подождите");
 
         /// <summary>
