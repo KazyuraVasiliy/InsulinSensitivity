@@ -1032,7 +1032,7 @@
 
                                                 <TapGestureRecognizer.CommandParameter>
                                                     <MultiBinding
-                                                        StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как средневзвешенное от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0} (вес: {6})&#10;ФЧИ по нагрузкам: {1} (вес: {7})&#10;ФЧИ по дню цикла: {2} (вес: {8})&#10;ФЧИ по дню использования канюли: {3} (вес: {9})&#10;&#10;Ограничение снизу: {4}&#10;Ограничение сверху: {5}">
+                                                        StringFormat="{}Это значение является предположением программы о вашей чувствительности к инсулину. Оно учитывает ВСЕ исходные данные введённые выше и считается как средневзвешенное от следующих значений:&#10;&#10;ФЧИ по средним значениям: {0} (вес: {6})&#10;ФЧИ по нагрузкам: {1} (вес: {7})&#10;ФЧИ по дню цикла: {2} (вес: {8})&#10;ФЧИ по дню использования канюли: {3} (вес: {9})&#10;ФЧИ по часам: {10} (вес: {11})&#10;&#10;Ограничение снизу: {4}&#10;Ограничение сверху: {5}">
                                                         <Binding
                                                             Path="InsulinSensitivityAutoOne"
                                                             Converter="{StaticResource DecimalToStringConverter}"
@@ -1071,6 +1071,14 @@
                                                             ConverterParameter="0" />
                                                         <Binding
                                                             Path="InsulinSensitivityAutoFourWeight"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="0" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoFive"
+                                                            Converter="{StaticResource DecimalToStringConverter}"
+                                                            ConverterParameter="3" />
+                                                        <Binding
+                                                            Path="InsulinSensitivityAutoFiveWeight"
                                                             Converter="{StaticResource DecimalToStringConverter}"
                                                             ConverterParameter="0" />
                                                     </MultiBinding>

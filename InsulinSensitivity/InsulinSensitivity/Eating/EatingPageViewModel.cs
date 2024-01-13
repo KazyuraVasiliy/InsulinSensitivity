@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using DataAccessLayer.Migrations;
+using DataAccessLayer.Models;
 
 namespace InsulinSensitivity.Eating
 {
@@ -342,6 +343,11 @@ namespace InsulinSensitivity.Eating
         private Dictionary<Guid, (decimal? infinum, decimal? supremum)> InfinumSupremumDictionary { get; set; } =
             new Dictionary<Guid, (decimal? infinum, decimal? supremum)>();
 
+        /// <summary>
+        /// ФЧИ по часам
+        /// </summary>
+        private Dictionary<int, decimal?> InsulinSensitivityPerHours { get; set; }
+
         #endregion
 
         #region --Selected
@@ -482,6 +488,19 @@ namespace InsulinSensitivity.Eating
             }
         }
 
+        /// <summary>
+        /// ФЧИ рассчитанный по часам
+        /// </summary>
+        public decimal? InsulinSensitivityAutoFive
+        {
+            get => Eating.InsulinSensitivityAutoFive;
+            set
+            {
+                Eating.InsulinSensitivityAutoFive = value;
+                OnPropertyChanged();
+            }
+        }
+
         private decimal? insulinSensitivityAuto;
         /// <summary>
         /// ФЧИ рассчитанный (средний)
@@ -515,6 +534,11 @@ namespace InsulinSensitivity.Eating
         /// Вес ФЧИ рассчитанный по дню использования канюли
         /// </summary>
         public decimal InsulinSensitivityAutoFourWeight { get; private set; } = 1;
+
+        /// <summary>
+        /// Вес ФЧИ рассчитанный по часам
+        /// </summary>
+        public decimal InsulinSensitivityAutoFiveWeight { get; private set; } = 1;
 
         #endregion
 
@@ -1513,6 +1537,7 @@ namespace InsulinSensitivity.Eating
 
                                 return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoOne.Value) / divider * 100, 0);
                             });
+                    else InsulinSensitivityAutoOneWeight = 100;
 
                     InsulinSensitivityAutoOneWeight = Methods.Round(InsulinSensitivityAutoOneWeight, 0);
 
@@ -1537,6 +1562,7 @@ namespace InsulinSensitivity.Eating
 
                                 return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoTwo.Value) / divider * 100, 0);
                             });
+                    else InsulinSensitivityAutoTwoWeight = 100;
 
                     InsulinSensitivityAutoTwoWeight = Methods.Round(InsulinSensitivityAutoTwoWeight, 0);
 
@@ -1556,6 +1582,7 @@ namespace InsulinSensitivity.Eating
 
                                 return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoThree.Value) / divider * 100, 0);
                             });
+                    else InsulinSensitivityAutoThreeWeight = 100;
 
                     InsulinSensitivityAutoThreeWeight = Methods.Round(InsulinSensitivityAutoThreeWeight, 0);
 
@@ -1578,8 +1605,32 @@ namespace InsulinSensitivity.Eating
 
                                 return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoFour.Value) / divider * 100, 0);
                             });
+                    else InsulinSensitivityAutoFourWeight = 100;
 
                     InsulinSensitivityAutoFourWeight = Methods.Round(InsulinSensitivityAutoFourWeight, 0);
+
+                    // ... Формула 5
+                    var lastFiveDays = DateTime.Now.AddDays(-5);
+
+                    eatings = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.InsulinSensitivityAutoFive != null &&
+                            x.DateCreated.Date >= lastFiveDays.Date);
+
+                    if (eatings.Count() > 0)
+                        InsulinSensitivityAutoFiveWeight = (decimal)eatings
+                            .Average(x =>
+                            {
+                                var divider = x.InsulinSensitivityFact.Value > x.InsulinSensitivityAutoFive.Value
+                                    ? x.InsulinSensitivityFact.Value
+                                    : x.InsulinSensitivityAutoFive.Value;
+
+                                return (int)Methods.Round(100 - Math.Abs(x.InsulinSensitivityFact.Value - x.InsulinSensitivityAutoFive.Value) / divider * 100, 0);
+                            });
+                    else InsulinSensitivityAutoFiveWeight = 100;
+
+                    InsulinSensitivityAutoFiveWeight = Methods.Round(InsulinSensitivityAutoFiveWeight, 0);
                 }
             }
         }
@@ -1944,6 +1995,89 @@ namespace InsulinSensitivity.Eating
         }
 
         /// <summary>
+        /// Рассчитывает автоматический ФЧИ по часам
+        /// </summary>
+        private void CalculateInsulinSensitivityFive()
+        {
+            InsulinSensitivityAutoFive = null;
+            var check = 
+                GlobalParameters.User.IsHoursCalculateActive &&
+                Eating.EndEating != null &&
+                PreviousEatings.Count >= 1;
+
+            if (check)
+            {
+                if (InsulinSensitivityPerHours == null)
+                {
+                    var data = new Dictionary<int, List<decimal>>();
+                    for (int i = 0; i < 24; i++)
+                        data.Add(i, new List<decimal>());
+
+                    var lastFiveDays = DateTime.Now.AddDays(-5);
+
+                    var eatings = EatingsWithoutIgnored
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.DateCreated.Date >= lastFiveDays.Date &&
+                            x.EndEating != null)
+                        .OrderBy(x => x.DateCreated)
+                        .ThenBy(x => x.InjectionTime)
+                        .ToList();
+
+                    for (int i = 0; i < eatings.Count; i++)
+                    {
+                        if (i + 1 > eatings.Count - 1)
+                            continue;
+
+                        var begin = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatings[i].DateCreated, eatings[i].InjectionTime);
+                        var end = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatings[i + 1].DateCreated, eatings[i + 1].InjectionTime);
+
+                        do
+                        {
+                            data[begin.Hour].Add(eatings[i].InsulinSensitivityFact.Value);
+                            begin = begin.AddHours(1);
+
+                        } while (begin < end);
+                    }
+
+                    InsulinSensitivityPerHours = new Dictionary<int, decimal?>();
+                    foreach (var hour in data)
+                        InsulinSensitivityPerHours.Add(hour.Key, hour.Value.Count > 0
+                            ? hour.Value.Average()
+                            : (decimal?)null);
+                }
+
+                var currentEatingBegin = Calculation.DateTimeUnionTimeSpanWithoutMinutes(Eating.DateCreated, Eating.InjectionTime);
+                var currentEatingEnd = Calculation.DateTimeUnionTimeSpanWithoutMinutes(Eating.EndEating.Value, Eating.EndEating.Value.TimeOfDay);
+
+                var hours = new List<int>();
+
+                do
+                {
+                    hours.Add(currentEatingBegin.Hour);
+                    currentEatingBegin = currentEatingBegin.AddHours(1);
+
+                } while (currentEatingBegin < currentEatingEnd);
+
+                var insulinSensitivityPerHours = InsulinSensitivityPerHours
+                    .Where(x => 
+                        hours.Contains(x.Key) &&
+                        x.Value != null)
+                    .ToList();
+
+                var insulinSensitivity = insulinSensitivityPerHours.Count() > 0
+                    ? insulinSensitivityPerHours.Average(x => x.Value)
+                    : null;
+
+                var coefficient = (PreviousEatings[0].InsulinSensitivityAutoFive ?? 0) != 0
+                    ? PreviousEatings[0].InsulinSensitivityFact / PreviousEatings[0].InsulinSensitivityAutoFive
+                    : 1;
+
+                InsulinSensitivityAutoFive = coefficient * insulinSensitivity;
+            }
+        }
+
+        /// <summary>
         /// Рассчитывает автоматический ФЧИ (средний)
         /// </summary>
         private void CalculateInsulinSensitivityAuto()
@@ -1953,7 +2087,8 @@ namespace InsulinSensitivity.Eating
                 (Eating.InsulinSensitivityAutoOne, InsulinSensitivityAutoOneWeight),
                 (Eating.InsulinSensitivityAutoTwo, InsulinSensitivityAutoTwoWeight),
                 (Eating.InsulinSensitivityAutoThree, InsulinSensitivityAutoThreeWeight),
-                (Eating.InsulinSensitivityAutoFour, InsulinSensitivityAutoFourWeight)
+                (Eating.InsulinSensitivityAutoFour, InsulinSensitivityAutoFourWeight),
+                (Eating.InsulinSensitivityAutoFive, InsulinSensitivityAutoFiveWeight),
             };
 
             values = values
@@ -2459,7 +2594,13 @@ namespace InsulinSensitivity.Eating
             EatingType = EatingTypes
                 .FirstOrDefault(x =>
                     x.TimeStart <= Eating.InjectionTime &&
-                    x.TimeEnd >= Eating.InjectionTime);            
+                    x.TimeEnd >= Eating.InjectionTime);
+
+            // Время отработки пищи
+            var properties = new string[] { nameof(Carbohydrate), nameof(Protein), nameof(Fat), nameof(Pause), nameof(InjectionTime), nameof(SaveSnackCommand) };
+
+            if (properties.Contains(prop) || IsFirstCalculation)
+                SetWorkingTime();
 
             // Минимальное и максимальное отношения ФЧИ текущего типа приёма пищи к предыдущему
             CalculateInfinumSupremum();
@@ -2468,15 +2609,10 @@ namespace InsulinSensitivity.Eating
             CalculateInsulinSensitivityOne();
             CalculateInsulinSensitivityTwo();
             CalculateInsulinSensitivityThree();
+            CalculateInsulinSensitivityFive();
 
             // Расчётное ФЧИ (средний)
             CalculateInsulinSensitivityAuto();
-
-            // Время отработки пищи
-            var properties = new string[] { nameof(Carbohydrate), nameof(Protein), nameof(Fat), nameof(Pause), nameof(InjectionTime), nameof(SaveSnackCommand) };
-
-            if (properties.Contains(prop) || IsFirstCalculation)
-                SetWorkingTime();
 
             var active = GlobalMethods.GetActiveInsulin(Eating, Injections,
                 startEating, Eating.EndEating, Eating.Id, false,

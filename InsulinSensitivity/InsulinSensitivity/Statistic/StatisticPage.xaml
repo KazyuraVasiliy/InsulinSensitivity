@@ -85,6 +85,35 @@
                                 Spacing="0">
 
                                 <Label
+                                    Text="ФЧИ по часам"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="CenterAndExpand" />
+
+                                <StackLayout
+                                    Spacing="0">
+
+                                    <ScrollView
+                                        HeightRequest="300"
+                                        HorizontalOptions="FillAndExpand"
+                                        HorizontalScrollBarVisibility="Always"
+                                        Orientation="Horizontal">
+
+                                        <microcharts:ChartView
+                                            WidthRequest="{Binding Path=WidthRequestHours}"
+                                            Chart="{Binding Path=ChartHours}" />
+                                    </ScrollView>
+                                </StackLayout>
+                            </StackLayout>
+                        </Frame>
+                        
+                        <Frame
+                            Style="{StaticResource Frame}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
                                     Text="ФЧИ по неделям года"
                                     FontAttributes="Bold"
                                     FontSize="16"
@@ -206,8 +235,31 @@
                                     FontSize="16"
                                     HorizontalOptions="CenterAndExpand" />
 
-                                <Label
-                                    Text="{Binding Path=Exercise}" />
+                                <StackLayout
+                                    Spacing="0"
+                                    BindableLayout.ItemsSource="{Binding Exercise}">
+
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition
+                                                        Width="90"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Label
+                                                    Grid.Column="0"
+                                                    Text="{Binding Key}" />
+
+                                                <Label
+                                                    Grid.Column="1"
+                                                    HorizontalTextAlignment="Start"
+                                                    Text="{Binding Value}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </StackLayout>
                             </StackLayout>
                         </Frame>
 
@@ -218,7 +270,7 @@
                                 Spacing="0">
 
                                 <Label
-                                    Text="Точность"
+                                    Text="Точность прогнозов"
                                     FontAttributes="Bold"
                                     FontSize="16"
                                     HorizontalOptions="CenterAndExpand" />

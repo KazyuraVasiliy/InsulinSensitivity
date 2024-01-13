@@ -86,6 +86,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        private double widthRequestHours;
+        /// <summary>
+        /// Ширина часового графика
+        /// </summary>
+        public double WidthRequestHours
+        {
+            get => widthRequestHours;
+            set
+            {
+                widthRequestHours = value;
+                OnPropertyChanged();
+            }
+        }
+
         private double cycleWidthRequest;
         /// <summary>
         /// Ширина графика ФЧИ по циклу
@@ -212,11 +226,11 @@ namespace InsulinSensitivity.Statistic
         public int IncPregnancyWeek =>
             PregnancyWeek + 1;
 
-        private string exercise;
+        private Dictionary<string, string> exercise = new Dictionary<string, string>();
         /// <summary>
         /// Упражнения
         /// </summary>
-        public string Exercise
+        public Dictionary<string, string> Exercise
         {
             get => exercise;
             set
@@ -268,6 +282,20 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 chartWeeks = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public LineChart chartHours;
+        /// <summary>
+        /// График часовой
+        /// </summary>
+        public LineChart ChartHours
+        {
+            get => chartHours;
+            set
+            {
+                chartHours = value;
                 OnPropertyChanged();
             }
         }
@@ -452,6 +480,67 @@ namespace InsulinSensitivity.Statistic
                         LineMode = LineMode.Spline,
                         LabelTextSize = 24,
                         Entries = entriesWeeks,
+
+                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? SkiaSharp.SKColors.White
+                            : SkiaSharp.SKColors.Black,
+                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? new SkiaSharp.SKColor(29, 29, 29)
+                            : SkiaSharp.SKColors.White,
+                    };
+
+                    // График по часам
+                    var dataForHours = new Dictionary<int, List<decimal>>();
+                    for (int i = 0; i < 24; i++)
+                        dataForHours.Add(i, new List<decimal>());
+
+                    var lastFiveDays = DateTime.Now.AddDays(-5);
+
+                    var eatingsForHours = eatings
+                        .Where(x =>
+                            x.InsulinSensitivityFact != null &&
+                            x.DateCreated.Date >= lastFiveDays.Date)
+                        .OrderBy(x => x.DateCreated)
+                            .ThenBy(x => x.InjectionTime)
+                        .ToList();
+
+                    for (int i = 0; i < eatingsForHours.Count; i++)
+                    {
+                        if (i + 1 > eatingsForHours.Count - 1)
+                            continue;
+
+                        var begin = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i].DateCreated, eatingsForHours[i].InjectionTime);
+                        var end = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i + 1].DateCreated, eatingsForHours[i + 1].InjectionTime);
+
+                        do
+                        {
+                            dataForHours[begin.Hour].Add(eatingsForHours[i].InsulinSensitivityFact.Value);
+                            begin = begin.AddHours(1);
+
+                        } while (begin < end);
+                    }
+
+                    WidthRequestHours = 24 * 15;
+
+                    ChartHours = new LineChart()
+                    {
+                        LineMode = LineMode.Spline,
+                        LabelTextSize = 24,
+                        Entries = dataForHours
+                            .Where(x => x.Value.Count > 0)
+                            .Select(x =>
+                                new ChartEntry((float)x.Value.Average())
+                                {
+                                    Label = x.Key.ToString(),
+                                    ValueLabel = $"{Methods.Round(x.Value.Average(), 2)}",
+                                    ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                        ? SkiaSharp.SKColors.White
+                                        : SkiaSharp.SKColors.Black,
+
+                                    Color = App.Current.RequestedTheme == OSAppTheme.Dark
+                                        ? SkiaSharp.SKColors.LightSkyBlue
+                                        : SkiaSharp.SKColors.Blue
+                                }),
 
                         LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                             ? SkiaSharp.SKColors.White
@@ -728,18 +817,17 @@ namespace InsulinSensitivity.Statistic
                                 x.Count == exercises.Max(y => y.Count))
                         : null;
 
-                    StringBuilder exercisesInformation = new StringBuilder(exercises.Count);
                     for (int i = 0; i < (exercises?.Count ?? 0); i++)
                     {
                         if (exercises[i] != maxElement)
                         {
                             var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
-                            exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
+                            Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
                         }
-                        else exercisesInformation.AppendLine($"{exercises[i].ExerciseType} - {Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
+                        else Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
                     }
 
-                    Exercise = exercisesInformation.ToString();
+                    Exercise = new Dictionary<string, string>(Exercise);
 
                     // Точность
                     StringBuilder accuracyInformation = new StringBuilder(9);

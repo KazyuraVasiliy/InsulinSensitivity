@@ -167,6 +167,11 @@ namespace DataAccessLayer.Models
         public bool IsCannulaCalculateActive { get; set; }
 
         /// <summary>
+        /// Активен ли расчёт ФЧИ по часам
+        /// </summary>
+        public bool IsHoursCalculateActive { get; set; }
+
+        /// <summary>
         /// Длительность приёма пищи
         /// </summary>
         [Obsolete]

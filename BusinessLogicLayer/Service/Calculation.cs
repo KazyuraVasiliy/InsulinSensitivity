@@ -231,13 +231,22 @@ namespace BusinessLogicLayer.Service
             (now - start).TotalMinutes;
 
         /// <summary>
-        /// Объединяет DateTime и TimeSpan
+        /// Объединяет DateTime и TimeSpan без секунд
         /// </summary>
         /// <param name="d">DateTime</param>
         /// <param name="t">TimeSpan</param>
         /// <returns>DateTime, где TimeOfDay = t</returns>
         public static DateTime DateTimeUnionTimeSpan(DateTime d, TimeSpan t) =>
             new DateTime(d.Year, d.Month, d.Day, t.Hours, t.Minutes, 0);
+
+        /// <summary>
+        /// Объединяет DateTime и TimeSpan без минут и секунд
+        /// </summary>
+        /// <param name="d">DateTime</param>
+        /// <param name="t">TimeSpan</param>
+        /// <returns>DateTime, где TimeOfDay = t</returns>
+        public static DateTime DateTimeUnionTimeSpanWithoutMinutes(DateTime d, TimeSpan t) =>
+            new DateTime(d.Year, d.Month, d.Day, t.Hours, 0, 0);
 
         /// <summary>
         /// Создаёт новый DateTime исключая секунды

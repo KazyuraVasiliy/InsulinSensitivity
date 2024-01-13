@@ -79,6 +79,12 @@ namespace InsulinSensitivity.Settings
         [Model]
         public bool IsCannulaCalculateActive { get; set; }
 
+        /// <summary>
+        /// Активен ли расчёт ФЧИ по часам
+        /// </summary>
+        [Model]
+        public bool IsHoursCalculateActive { get; set; }
+
         private int lengthGraph;
         /// <summary>
         /// Размерность графика ФЧИ по циклу
