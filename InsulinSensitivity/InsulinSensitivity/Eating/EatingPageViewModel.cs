@@ -2861,6 +2861,7 @@ namespace InsulinSensitivity.Eating
                 eating.InsulinSensitivityAutoTwo = Eating.InsulinSensitivityAutoTwo;
                 eating.InsulinSensitivityAutoThree = Eating.InsulinSensitivityAutoThree;
                 eating.InsulinSensitivityAutoFour = Eating.InsulinSensitivityAutoFour;
+                eating.InsulinSensitivityAutoFive = Eating.InsulinSensitivityAutoFive;
 
                 eating.InsulinSensitivityUser = Eating.InsulinSensitivityUser;
                 eating.InsulinSensitivityFact = Eating.InsulinSensitivityFact;
