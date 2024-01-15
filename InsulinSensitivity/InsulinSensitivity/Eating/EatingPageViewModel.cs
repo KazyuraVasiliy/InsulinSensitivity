@@ -1520,7 +1520,8 @@ namespace InsulinSensitivity.Eating
                     var eatings = EatingsWithoutIgnored
                         .Where(x =>
                             x.InsulinSensitivityFact != null &&
-                            x.InsulinSensitivityAutoOne != null);
+                            x.InsulinSensitivityAutoOne != null &&
+                            x.InsulinSensitivityAutoOne != 0);
 
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
                         eatings = eatings
@@ -1545,7 +1546,8 @@ namespace InsulinSensitivity.Eating
                     eatings = EatingsWithoutIgnored
                         .Where(x =>
                             x.InsulinSensitivityFact != null &&
-                            x.InsulinSensitivityAutoTwo != null);
+                            x.InsulinSensitivityAutoTwo != null &&
+                            x.InsulinSensitivityAutoTwo != 0);
 
                     if (GlobalParameters.User.PeriodOfCalculation > 0)
                         eatings = eatings
@@ -1570,7 +1572,8 @@ namespace InsulinSensitivity.Eating
                     eatings = EatingsWithoutIgnoredForCycle
                         .Where(x =>
                             x.InsulinSensitivityFact != null &&
-                            x.InsulinSensitivityAutoThree != null);
+                            x.InsulinSensitivityAutoThree != null &&
+                            x.InsulinSensitivityAutoThree != 0);
 
                     if (eatings.Count() > 0)
                         InsulinSensitivityAutoThreeWeight = (decimal)eatings
@@ -1593,6 +1596,7 @@ namespace InsulinSensitivity.Eating
                         .Where(x =>
                             x.InsulinSensitivityFact != null &&
                             x.InsulinSensitivityAutoFour != null &&
+                            x.InsulinSensitivityAutoFour != 0 &&
                             x.DateCreated.Date >= lastMonth.Date);
 
                     if (eatings.Count() > 0)
@@ -1616,6 +1620,7 @@ namespace InsulinSensitivity.Eating
                         .Where(x =>
                             x.InsulinSensitivityFact != null &&
                             x.InsulinSensitivityAutoFive != null &&
+                            x.InsulinSensitivityAutoFive != 0 &&
                             x.DateCreated.Date >= lastFiveDays.Date);
 
                     if (eatings.Count() > 0)
