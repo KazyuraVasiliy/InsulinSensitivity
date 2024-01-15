@@ -2112,7 +2112,7 @@ namespace InsulinSensitivity.Eating
                 }
             }
 
-            InsulinSensitivityAuto = (values?.Count ?? 0) == 0 && values.Sum(x => x.weight) > 0
+            InsulinSensitivityAuto = (values?.Count ?? 0) == 0 || values.Sum(x => x.weight) == 0
                 ? (decimal?)null
                 : Math.Round(values.Sum(x => x.insulinSensitivity.Value * x.weight) / values.Sum(x => x.weight), 3, MidpointRounding.AwayFromZero);
         }
@@ -2734,7 +2734,6 @@ namespace InsulinSensitivity.Eating
 
         private async void OkExecute()
         {
-            AsyncBase.Open();
             if (!OkCanExecute())
             {
                 await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
@@ -2743,6 +2742,8 @@ namespace InsulinSensitivity.Eating
                     "Ok");
                 return;
             }
+
+            AsyncBase.Open();
 
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
