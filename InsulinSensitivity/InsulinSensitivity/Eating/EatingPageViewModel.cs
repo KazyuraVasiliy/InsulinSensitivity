@@ -2074,11 +2074,11 @@ namespace InsulinSensitivity.Eating
                     ? insulinSensitivityPerHours.Average(x => x.Value)
                     : null;
 
-                var coefficient = (PreviousEatings[0].InsulinSensitivityAutoFive ?? 0) != 0
-                    ? PreviousEatings[0].InsulinSensitivityFact / PreviousEatings[0].InsulinSensitivityAutoFive
-                    : 1;
+                //var coefficient = (PreviousEatings[0].InsulinSensitivityAutoFive ?? 0) != 0
+                //    ? PreviousEatings[0].InsulinSensitivityFact / PreviousEatings[0].InsulinSensitivityAutoFive
+                //    : 1;
 
-                InsulinSensitivityAutoFive = coefficient * insulinSensitivity;
+                InsulinSensitivityAutoFive = /*coefficient * */insulinSensitivity;
             }
         }
 
