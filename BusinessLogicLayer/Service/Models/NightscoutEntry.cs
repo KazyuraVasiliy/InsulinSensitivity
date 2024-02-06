@@ -12,7 +12,7 @@ namespace BusinessLogicLayer.Service.Models
         /// <summary>
         /// Дата
         /// </summary>
-        public DateTimeOffset dateString { get; set; }
+        public DateTimeOffset created_at { get; set; }
     }
 
     public class NightscoutBasal

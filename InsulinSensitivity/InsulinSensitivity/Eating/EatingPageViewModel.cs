@@ -1340,7 +1340,7 @@ namespace InsulinSensitivity.Eating
                                 throw new Exception("Нет доступа к серверу");
 
                             // Получение текущего сахара
-                            result = client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
+                            result = client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[created_at][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
                             if (!result.IsSuccessStatusCode)
                                 throw new Exception("Не удалось получить данные о текущем сахаре");
 
@@ -1350,7 +1350,7 @@ namespace InsulinSensitivity.Eating
                             if (glucose == null)
                                 throw new Exception("Нет данных о текущем сахаре");
 
-                            if (Math.Abs((date - glucose.dateString).TotalMinutes) > 10)
+                            if (Math.Abs((date - glucose.created_at).TotalMinutes) > 10)
                                 throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
 
                             Eating.GlucoseStart = Math.Round(glucose.sgv / 18, 1);
@@ -3322,7 +3322,7 @@ namespace InsulinSensitivity.Eating
                     if (glucose == null)
                         throw new Exception("Нет данных о текущем сахаре");
 
-                    if (Math.Abs((date - glucose.dateString).TotalMinutes) > 10)
+                    if (Math.Abs((date - glucose.created_at).TotalMinutes) > 10)
                         throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
 
                     // Получение подколок
