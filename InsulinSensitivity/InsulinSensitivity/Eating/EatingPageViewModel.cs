@@ -3312,7 +3312,7 @@ namespace InsulinSensitivity.Eating
                         throw new Exception("Нет доступа к серверу");
 
                     // Получение текущего сахара
-                    result = await client.GetAsync(baseUri + $"/entries.json?find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1");
+                    result = await client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[created_at][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1");
                     if (!result.IsSuccessStatusCode)
                         throw new Exception("Не удалось получить данные о текущем сахаре");
 
