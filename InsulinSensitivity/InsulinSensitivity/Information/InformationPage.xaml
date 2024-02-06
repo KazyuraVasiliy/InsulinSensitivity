@@ -3,9 +3,48 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    xmlns:math="clr-namespace:CSharpMath.Forms;assembly=CSharpMath.Forms"
     x:Class="InsulinSensitivity.Information.InformationPage"
     Title="Информация"
     x:Name="Page">
+
+    <ContentPage.Resources>
+        <Style
+            TargetType="Frame"
+            x:Key="FrameTable">
+
+            <Setter
+                Property="CornerRadius"
+                Value="0" />
+            <Setter
+                Property="Margin"
+                Value="0" />
+            <Setter
+                Property="Padding"
+                Value="0" />
+            <Setter
+                Property="BorderColor"
+                Value="DimGray" />
+        </Style>
+
+        <Style
+            TargetType="Label"
+            x:Key="LabelTable">
+
+            <Setter
+                Property="Margin"
+                Value="0" />
+            <Setter
+                Property="Padding"
+                Value="0" />
+            <Setter
+                Property="VerticalTextAlignment"
+                Value="Center" />
+            <Setter
+                Property="HorizontalTextAlignment"
+                Value="Center" />
+        </Style>
+    </ContentPage.Resources>
 
     <ContentPage.Content>
 
@@ -348,6 +387,806 @@
                                 ]]>
                                 </Label.Text>
                             </Label>
+                        </xct:Expander>
+                    </Frame>
+
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        Margin="5, 0, 5, 0">
+                        <xct:Expander>
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition
+                                            Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label
+                                        Grid.ColumnSpan="2"
+                                        Text="Расширенная информация"
+                                        FontAttributes="Bold"
+                                        FontSize="16"
+                                        HorizontalOptions="CenterAndExpand" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center"
+                                        Margin="0, 2, 10, 0"
+                                        FontSize="16"
+                                        Text="&#xe01d;"
+                                        FontFamily="Typicons">
+
+                                        <Label.Triggers>
+                                            <DataTrigger
+                                                TargetType="Label"
+                                                Binding="{Binding Source={RelativeSource AncestorType={x:Type xct:Expander}}, Path=IsExpanded}"
+                                                Value="True">
+
+                                                <Setter
+                                                    Property="Text"
+                                                    Value="&#xe01e;" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <ContentView>
+                                <StackLayout>
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <strong>Пользователь и настройки</strong>
+                                            <p>&nbsp;</p>
+                                            <p>При инициализации, а также при изменении веса, роста, пола, даты рождения пересчитывается Углеводный коэффициент (УК).</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            УК=\frac{750}{Вес*ФК}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>ФК – коэффициент для расчёта объёма крови, рассчитывается по следующей таблице:</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <Frame
+                                        Style="{StaticResource FrameTable}"
+                                        Padding="1"
+                                        Margin="5,0,5,0">
+                                        
+                                        <ListView
+                                            RowHeight="20"
+                                            VerticalScrollBarVisibility="Never"
+                                            SelectionMode="None"
+                                            SeparatorVisibility="None"
+                                            ItemsSource="{Binding Path=BloodFactors, Mode=OneWay}">
+
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <ViewCell>
+                                                        <ViewCell.View>
+
+                                                            <Grid
+                                                                ColumnSpacing="0"
+                                                                RowSpacing="0">
+
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition />
+                                                                    <ColumnDefinition />
+                                                                    <ColumnDefinition />
+                                                                    <ColumnDefinition />
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Frame
+                                                                    Style="{StaticResource FrameTable}"
+                                                                    Grid.Column="0">
+                                                                    <Label
+                                                                        Style="{StaticResource LabelTable}"
+                                                                        Text="{Binding Path=Age, Mode=OneWay}" />
+                                                                </Frame>
+
+                                                                <Frame
+                                                                    Style="{StaticResource FrameTable}"
+                                                                    Grid.Column="1">
+                                                                    <Label
+                                                                        Style="{StaticResource LabelTable}"
+                                                                        Text="{Binding Path=IMT, Mode=OneWay}" />
+                                                                </Frame>
+
+                                                                <Frame
+                                                                    Style="{StaticResource FrameTable}"
+                                                                    Grid.Column="2">
+                                                                    <Label
+                                                                        Style="{StaticResource LabelTable}"
+                                                                        Text="{Binding Path=Man, Mode=OneWay}" />
+                                                                </Frame>
+
+                                                                <Frame
+                                                                    Style="{StaticResource FrameTable}"
+                                                                    Grid.Column="3">
+                                                                    <Label
+                                                                        Style="{StaticResource LabelTable}"
+                                                                        Text="{Binding Path=Woman, Mode=OneWay}" />
+                                                                </Frame>
+                                                            </Grid>
+
+                                                        </ViewCell.View>
+                                                    </ViewCell>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Frame>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>ИМТ (индекс массы тела) – рассчитывается по следующей формуле:</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ИМТ=\frac{Вес}{Рост^{2}}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>При включении учёта активного базального инсулина углеводный (УК), жировой (ЖК) и белковый (БК) коэффициенты пересчитываются:</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            УК=УК*1.15 \\
+                                            ЖК=ЖК/1.15 \\
+                                            БК=БК/1.15
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>При отключении идёт обратный пересчёт:</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            УК=УК/1.15 \\
+                                            ЖК=ЖК*1.15 \\
+                                            БК=БК*1.15
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <strong>Период усвоения</strong>
+                                            <p>&nbsp;</p>
+                                            <p>Введём сокращения:</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            AVG_{сут} - \text{Среднесуточное значение} \\
+                                            ФЧИ_{-1} - \text{ФЧИ предыдущего приёма пищи} \\
+                                            ФЧИ(тип/нагрузка) - \text{ФЧИ аналогичных по типу/нагрузке и т.п. приёмов пищи} \\
+                                            ФЧИ(тип,цикл) - \text{ФЧИ аналогичных по типу и дню цикла приёмов пищи} \\
+                                            База_{вчера[0]} - \text{первая инъекция базального инсулина введённая вчера} \\
+                                            AVG(ФЧИ_{вчера \ факт}(канюля)) - \text{средний ФЧИ приёмов пищи аналогичных по вчерашнему дню использования канюли}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Рекомендация по суточной дозе базы</strong> рассчитывается по данным за последние 20 дней включая игнорируемые приёмы пищи для расчёта суточной базальной дозы и исключая для расчёта ФЧИ.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \text{Рекомендация по суточной дозе базы}= \\
+                                            \frac{AVG_{сут}(База_{суточная}*AVG_{сут}(ФЧИ_{факт})}{ФЧИ_{\text{-1 факт}}} \\
+                                            База_{суточная}=\sumБаза+AVG_{сут}(БС)*24
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Исходный сахар</strong> равен сахару на отработке предыдущего приёма пищи. Если подключен Nightscout данные будут загружены из последнего измерения не старше 10 минут.</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Базальная скорость</strong> загружается из предыдущего приёма пищи, или из Nightscout (если он подключен).</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Временная базальная скорость</strong> загружается из профиля пользователя, или из Nightscout (если он подключен).</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ по средним значениям</strong> рассчитывается по данным за кол-во дней в профиле пользователя исключая игнорируемые приёмы пищи.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{\text{по средним значениям}}=\\
+                                            ФЧИ_{-1}*\frac{AVG(ФЧИ_{факт}(тип))}{AVG(ФЧИ_{\text{-1 факт}}(тип))}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ по нагрузке</strong> рассчитывается по данным за кол-во дней в профиле пользователя исключая игнорируемые приёмы пищи.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{\text{по нагрузке}}=AVG(ФЧИ_{факт}(нагрузка))*\\
+                                            \frac{\sum_{i=1}^{3}\frac{ФЧИ_{\text{-1 факт}}}{AVG(ФЧИ_{\text{-i факт}}(нагрузка))}}{3}*БК
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>Если помпа не используется и учёт активного базального инсулина отключён БК вычисляется по алгоритму, описанному ниже, иначе - равен 1.</p>
+                                            <p>&nbsp;</p>
+                                            <p><em>Для базальных инсулинов длительностью более 12 часов:</em></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            if \ База \neq 0 \ and \ База_{-1} \neq 0 \\ 
+                                            then \ БК=\frac{База}{База_{-1}} \\
+                                            else \ if \ База_{-1} \neq 0 \ and \ База_{-2} \neq 0 \\
+                                            then \ БК=\frac{База_{-1}}{База_{-2}}
+                                            \\\\\\
+                                            if \ 12 &lt; База_{duration} \leqslant 24 \\ 
+                                            then \ БК=(БК+1)/2 \\
+                                            else \ if \ База_{duration} > 24 \\
+                                            then \ БК=(БК+2)/3
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><em>Для базальных инсулинов длительностью менее 12 часов:</em></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            if \ База_{сегодня[0]} \neq 0 \ and \ База_{вчера[0]} \neq 0 \\
+                                            then \ БК=\frac{База_{сегодня[0]}}{База_{вчера[0]}} \\
+                                            else \ if \ База_{вчера[0]} \neq 0 \ and \ База_{позавчера[0]} \neq 0 \\
+                                            then \ БК=\frac{База_{вчера[0]}}{База_{позавчера[0]}}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ по дню цикла</strong> рассчитывается по всем данным исключая игнорируемые приёмы пищи.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{\text{по дню цикла}}=AVG(ФЧИ_{факт}(тип, цикл))
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ по дню использования канюли</strong> рассчитывается по данным за последний месяц исключая игнорируемые приёмы пищи.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{\text{ по дню использования канюли}}=\\
+                                            AVG(ФЧИ_{вчера \ факт})*\frac{AVG(ФЧИ_{факт}(канюля))}{AVG(ФЧИ_{вчера \ факт}(канюля))}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ по часам</strong> рассчитывается по данным за последний 5 дней исключая игнорируемые приёмы пищи.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{\text{по часам}}=AVG_{i=begin}^{end}(AVG_{час \ i}(ФЧИ_{факт}))\\
+                                            if \ ФЧИ_{-1 \ факт} \neq 0 \ and \ ФЧИ_{-1 \ по \ часам} \neq 0 \\
+                                            then \ ФЧИ_{\text{по часам}} = \frac{ФЧИ_{-1 \ факт}}{ФЧИ_{-1 \ по \ часам}}*ФЧИ_{\text{по часам}}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ расчётный</strong> рассчитывается как средневзвешенное или среднее арифметическое (в зависимости от настроек), где веса равны точности каждого ФЧИ в сравнении с фактическим (за период соответствующий периоду расчёта каждого ФЧИ).</p>
+                                            <p>&nbsp;</p>
+                                            <p>Каждый ФЧИ ограничен сверху (Sup) и снизу (Inf) для исключения выбросов (если Sup и Inf рассчитаны). Ограничения рассчитывается по данным за кол-во дней в профиле пользователя исключая игнорируемые приёмы пищи и текущий день.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            K_{min}=MIN(\frac{ФЧИ_{факт}(тип)}{ФЧИ_{\text{-1 (относительно числителя) факт}}})\\
+                                            K_{max}=MAX(\frac{ФЧИ_{факт}(тип)}{ФЧИ_{\text{-1 (относительно числителя) факт}}})\\\\
+                                            if \ K_{min} &lt; 0.95 \\ 
+                                            then \ Inf = K_{min} * ФЧИ_{-1 \ факт} \\ 
+                                            else \ Inf = null\\\\
+                                            if \ K_{max} &gt; 1.05 \\ 
+                                            then \ Sup = K_{max} * ФЧИ_{-1 \ факт} \\ 
+                                            else \ Sup= null
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Ожидаемый сахар</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \text{Ожидаемый сахар} = \text{Исходный сахар}-\\
+                                            COALESCE(ФЧИ_{пользователя},ФЧИ_{расчётный})*\\
+                                            \text{Доза фактическая}+УК*(БЖ+У)\\\\
+                                            БЖ=БК*Белки+ЖК*Жиры
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>ФЧИ фактический / ФЧИ пользователя</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            ФЧИ_{факт}=(\text{Исходный сахар}-\text{Итоговый сахар}+\\
+                                            УК*(БЖ+У))/\text{Доза фактическая}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>ФЧИ пользователя рассчитывается аналогично (если не введено), но вместо "Итоговый сахар" используется "Целевая глюкоза".</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Точность рассчётов / Точность пользователя</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            Точность=100-\\
+                                            \frac{ABS(ФЧИ_{факт}-ФЧИ_{рассчётный})}{MAX(ФЧИ_{факт},ФЧИ_{рассчётный})}*100
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p>Точность пользователя рассчитывается аналогично, но вместо ФЧИ рассчётный используется ФЧИ пользователя.</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>% Активного инсулина</strong></p>
+                                            <p>&nbsp;</p>
+                                            <p>Рассчитывается на момент времени (minutes) от начала инъекции (в минутах).</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \text{\% Активного инсулина}(t)=1-if \ Bolus \ then \\ 
+                                            (\int_{0}^{t}if \ Fiasp \ then \ (3.31*10^{-4}*t*e^{\frac{-t}{55}}) \ else \\
+                                            (4.26*10^{-5}*t^{\frac{3}{2}}*e^{-\frac{t}{50}})) \ else \ t/Basal_{duration}\\\\
+                                            \text{\% Активного инсулина}\in [0;1]\\
+                                            t_{мин}=minutes*6/Basal_{duration}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Активный инсулин</strong> рассчитывается по данным за последний 3 дня т.к. наибольшая продолжительность действия инсулина 48 часов.</p>
+                                            <p>Для расчёта на период, или момент (базальный инсулин не учитывается) времени необходимо умножить дозу на % Активного инсулина учитывая пересечение расчётного периода и периода действия инсулина.</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Доза расчётная</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \text{Доза расчётная}=\\
+                                            (\frac{\text{Исходный сахар}-\text{Целевая глюкоза}+УК*(БЖ+У)}{COALESCE(ФЧИ_{пользователя},ФЧИ_{расчётный})}-\\
+                                            \text{Активный инсулин}_{начало \ периода})/\\
+                                            (1 - \% \ \text{Активного инсулина}(Время \ закрытия))\\\\
+                                            \text{Доза расчётная на У}=if \ БЖ+У=0 \\ 
+                                            then \ 0 \\ 
+                                            else \ \frac{\text{Доза расчётная}*У}{БЖ+У}\\\\
+                                            \text{Доза расчётная на БЖ}=if \ БЖ+У=0 \\ 
+                                            then \ 0 \\ 
+                                            else \ \frac{\text{Доза расчётная}*БЖ}{БЖ+У}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Доза фактическая</strong> равна активному инсулину на период усвоения включая текущую инъекцию и подколки.</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Время отработки</strong> (полное усвоение БЖУ)</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \text{Время отработки}=-15+\\
+                                            Пауза+(\frac{У}{АУ}+\frac{Ж}{АЖ}+\frac{Б}{АБ})*60
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Дробление дозы</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            T=\text{Время отработки}-Bolus_{duration}-Bolus_{offset}\\
+                                            if \ T-\text{Время инъекции}\geqslant \text{15 минут} \\ 
+                                            then \ \text{Доза на эту еду должна вводиться дробно.} \\
+                                            \text{Последняя инъекция в T.}
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Кол-во усвоенных БЖУ по скорости абсорбции</strong></p>
+                                            <p>&nbsp;</p>
+                                            <p>Параметр h представляет разность в целых и дробных часах.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            h=\text{Текущее время}-(\text{Время инъекции}+\text{Пауза})\\\\
+                                            hУ=У/АУ\\
+                                            \text{Усвоено У}=if \ h\ge hУ \\ 
+                                            then \ У \ else \ (if \ h &gt; 0 \ then \ АУ*h \ else \ 0)\\\\
+                                            h=h-hУ\\
+                                            hБ=Б/АБ\\
+                                            \text{Усвоено Б}=if \ h\ge hБ \\ 
+                                            then \ Б \ else \ (if \ h &gt; 0 \ then \ АБ*h \ else \ 0)\\\\
+                                            h=h-hБ\\
+                                            hЖ=Ж/АЖ\\
+                                            \text{Усвоено Ж}=if \ h\ge hЖ \\ 
+                                            then \ Ж \ else \ (if \ h &gt; 0 \ then \ АЖ*h \ else \ 0)
+                                        </math:MathView>
+                                    </ScrollView>
+                                    
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Кол-во усвоенных БЖУ по последнему промежуточному сахару</strong></p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            \Delta =\text{Доза фактическая}-\\
+                                            \text{Активный инсулин}(\text{t последнего измерения})*\\
+                                            COALESCE(ФЧИ_{пользователя},ФЧИ_{рассчётный})+\\
+                                            \text{Измеренный сахар}-\text{Исходный сахар}\\\\
+                                            УУ=У*УК-\Delta\\
+                                            \text{Усвоено У}=if \ УУ &gt; 0 \ then \ \Delta/УК \ else \ У\\\\
+                                            УБ=Б*БК*УК-(\Delta-У*УК)\\
+                                            \text{Усвоено Б}=if \ УУ &gt; 0 \ then \ 0 \\ 
+                                            else \ (if \ УБ &gt; 0 \ then \ \frac{\Delta-У*УК}{БК*УК} \ else \ Б\\\\
+                                            УЖ=Ж*ЖК*УК-\\
+                                            (\Delta-У*УК-Б*БК*УК)\\
+                                            \text{Усвоено Ж}=if \ УБ &gt; 0 \ then \ 0 \\ 
+                                            else \ (if \ УЖ &gt; 0 \\ 
+                                            then \ \frac{\Delta-У*УК-Б*БК*УК}{ЖК*УК} \ else \ Ж
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Время подколок</strong></p>
+                                            <p>&nbsp;</p>
+                                            <p>Параметр h представляется в целых и дробных часах.</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+
+                                    <ScrollView
+                                        Orientation="Horizontal"
+                                        HorizontalOptions="FillAndExpand">
+
+                                        <math:MathView
+                                            TextColor="DimGray"
+                                            FontSize="12">
+                                            h=У/АУ\\
+                                            hБ=(\text{Время иъекции}+\text{Пауза})+(if \ h &lt; 0.5 \ then \ 0.5 \ else \ h)\\
+                                            h=Б/АБ\\
+                                            hЖ=hБ+(if \ h &lt; 1 \ then \ 0 \ else \ h)\\\\
+                                            \text{Внести в xDrip:}\\
+                                            if \ У &gt; 0 \ then \ \text{Время иъекции}+\text{Пауза}-У\\
+                                            if \ Б &gt; 0 \ then \ hБ-Б*БК+(if \ h &lt; 1 \ then \ Ж*ЖК \ else \ 0)\\
+                                            if \ Ж &gt; 0 \ and \ h \ge 1 \ then \ hЖ-Ж*ЖК
+                                        </math:MathView>
+                                    </ScrollView>
+
+                                    <Label
+                                        FontSize="16"
+                                        TextType="Html">
+
+                                        <Label.Text>
+                                            <![CDATA[
+                                            <p>&nbsp;</p>
+                                            <p><strong>Ошибка прогноза</strong></p>
+                                            <p>&nbsp;</p>
+                                            <p>Если ФЧИ по нагрузке не рассчитан - "Новая нагрузка".</p>
+                                            <p>&nbsp;</p>
+                                            <p>Находим максимальную разницу между ФЧИ фактический и ФЧИ по средним значениям / нагрузке / дню цикла:</p><br/>
+                                            <p>ФЧИ по средним значениям - "Резка смена потребности";</p><br/>
+                                            <p>ФЧИ по нагрузке - "Нетипичная активность";</p><br/>
+                                            <p>ФЧИ по дню цикла - "Чувствительность в текущий день цикла отличается от предыдущих".</p>
+                                            <p>&nbsp;</p>
+                                            <p><strong>Ошибка компенсации</strong></p>
+                                            <p>&nbsp;</p>
+                                            <p>&mdash; Если &laquo;Сахар на отработке&raquo; &gt;= &laquo;Гипергликемия&raquo;, то &laquo;Слишком мало инсулина&raquo;.<br />&mdash; Иначе Если &laquo;Сахар на отработке&raquo; &gt;= &laquo;Высокий сахар&raquo;, то:<br />&mdash;&mdash; Если (Белки * 4 + Жиры * 9) / 100 &ge; 4 и нет подколок, то &laquo;Отсутствует дополнительная инъекция на белки и жиры&raquo;; <br />&mdash;&mdash; Иначе &laquo;Мало инсулина&raquo;.<br />&mdash; Иначе Если &laquo;Сахар на отработке&raquo; &lt;= &laquo;Гипогликемия&raquo;, то &laquo;Слишком много инсулина&raquo;.<br />&mdash; Иначе Если &laquo;Сахар на отработке&raquo; &lt;= &laquo;Низкий сахар&raquo;, то &laquo;Много инсулина&raquo;.<br />&mdash; Иначе проходим по промежуточным измерениям сахара и если:<br />&mdash;&mdash; От начала приёма пищи до измерения прошло более 100 минут и:<br />&mdash;&mdash;&mdash; Если Промежуточный сахар &gt;= &laquo;Гипергликемия&raquo;, то:<br />&mdash;&mdash;&mdash;&mdash; Если &laquo;Сахар на отработке&raquo; &gt;= &laquo;Целевая глюкоза&raquo;, то &laquo;Мало инсулина&raquo;);<br />&mdash;&mdash;&mdash;&mdash; Иначе если есть подколки, то "Дробление инъекции было излишним".<br />&mdash;&mdash;&mdash; Иначе Если Промежуточный сахар &lt;= &laquo;Гипогликемия&raquo;, то "Слишком много инсулина"<br />&mdash;&mdash;&mdash; Иначе Если Промежуточный сахар &lt;= &laquo;Низкий сахар&raquo; и были подколки и (Белки * 4 + Жиры * 9) / 100 &ge; 4, то "Слишком много инсулина на белки и жиры"<br />&mdash;&mdash; Иначе <br />&mdash;&mdash;&mdash; Если Промежуточный сахар &gt;= &laquo;Высокий сахар&raquo; и (Промежуточный сахар &ndash; Исходный сахар) &gt; 3, то<br />&mdash;&mdash;&mdash;&mdash; Если пауза 0, то:<br />&mdash;&mdash;&mdash;&mdash;&mdash; Если (Промежуточный сахар &ndash; Исходный сахар) &gt;= 5, то &laquo;Отсутствует пауза на быстрые углеводы&raquo;;<br />&mdash;&mdash;&mdash;&mdash;&mdash; Иначе &laquo;Отсутствует пауза на углеводы&raquo;.<br />&mdash;&mdash;&mdash;&mdash; Иначе:<br />&mdash;&mdash;&mdash;&mdash;&mdash; Если (Промежуточный сахар &ndash; Исходный сахар) &gt;= 5, то &laquo;Недостаточно паузы на быстрые углеводы&raquo;;<br />&mdash;&mdash;&mdash;&mdash;&mdash; Иначе &laquo;Недостаточно паузы на углеводы&raquo;.<br />&mdash;&mdash;&mdash; Иначе если Промежуточный сахар &lt;= &laquo;Гипогликемия&raquo;, то "Слишком длинная пауза после инъекции".</p>
+                                            ]]>
+                                        </Label.Text>
+                                    </Label>
+                                </StackLayout>
+                            </ContentView>
                         </xct:Expander>
                     </Frame>
                 </StackLayout>
