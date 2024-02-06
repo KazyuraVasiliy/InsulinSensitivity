@@ -834,9 +834,7 @@
                                         <math:MathView
                                             TextColor="DimGray"
                                             FontSize="12">
-                                            ФЧИ_{\text{по часам}}=AVG_{i=begin}^{end}(AVG_{час \ i}(ФЧИ_{факт}))\\
-                                            if \ ФЧИ_{-1 \ факт} \neq 0 \ and \ ФЧИ_{-1 \ по \ часам} \neq 0 \\
-                                            then \ ФЧИ_{\text{по часам}} = \frac{ФЧИ_{-1 \ факт}}{ФЧИ_{-1 \ по \ часам}}*ФЧИ_{\text{по часам}}
+                                            ФЧИ_{\text{по часам}}=AVG_{i=begin}^{end}(AVG_{час \ i}(ФЧИ_{факт}))
                                         </math:MathView>
                                     </ScrollView>
 
