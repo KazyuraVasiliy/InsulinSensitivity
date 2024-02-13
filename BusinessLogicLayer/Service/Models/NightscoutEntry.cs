@@ -10,9 +10,14 @@ namespace BusinessLogicLayer.Service.Models
         public decimal sgv { get; set; }
 
         /// <summary>
-        /// Дата
+        /// Дата (new)
         /// </summary>
-        public DateTimeOffset created_at { get; set; }
+        public DateTimeOffset? created_at { get; set; }
+
+        /// <summary>
+        /// Дата (old)
+        /// </summary>
+        public DateTimeOffset? dateString { get; set; }
     }
 
     public class NightscoutBasal
