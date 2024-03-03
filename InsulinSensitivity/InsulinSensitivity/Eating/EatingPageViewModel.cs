@@ -2152,7 +2152,10 @@ namespace InsulinSensitivity.Eating
                     ? null 
                     : bolusDose / (decimal)(1 - Calculation.GetActiveInsulinPercent(
                         begin, Eating.EndEating.Value, (int)BolusType.Duration, BolusType.Profile));
-            }                
+            }
+
+            if ((BolusType?.Concentration ?? 1) != 0)
+                bolusDose = bolusDose / BolusType?.Concentration ?? 1;
 
             BolusDoseCalculate = bolusDose != null
                 ? bolusDose

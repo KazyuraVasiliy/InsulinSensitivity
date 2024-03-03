@@ -321,7 +321,8 @@ namespace DataAccessLayer.Contexts
                             IsBasal = false,
                             Duration = 4,
                             Offset = 1,
-                            Profile = 2
+                            Profile = 2,
+                            Concentration = 1
                         },
                         new Models.InsulinType()
                         {
@@ -365,6 +366,21 @@ namespace DataAccessLayer.Contexts
 
                         if (type.Name == "Тресиба")
                             type.Offset = 120;
+                    }
+
+                    db.SaveChanges();
+                }
+
+                // Инициализация концентраций
+                if (db.InsulinTypes.Any(x => x.Concentration == 0))
+                {
+                    var types = db.InsulinTypes
+                        .ToList();
+
+                    foreach (var type in types)
+                    {
+                        if (type.Name == "Люмжев")
+                            type.Concentration = 1;
                     }
 
                     db.SaveChanges();
