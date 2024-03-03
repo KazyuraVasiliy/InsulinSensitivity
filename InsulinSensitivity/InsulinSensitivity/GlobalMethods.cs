@@ -109,6 +109,8 @@ namespace InsulinSensitivity
                 var basalOffset = eating.BasalType?.Offset ?? GlobalParameters.User.BasalType.Offset;
                 var bolusOffset = eating.BolusType?.Offset ?? GlobalParameters.User.BolusType.Offset;
 
+                var concentration = eating.BolusType?.Concentration ?? 1;
+
                 // ... Базальный
                 if (eating.BasalInjectionTime != null && eating.BasalDose != 0)
                     injections.Add(new Injection()
@@ -117,7 +119,7 @@ namespace InsulinSensitivity
                         IsBasal = true,
                         Start = eating.BasalInjectionTime.Value.AddMinutes(basalOffset),
                         End = eating.BasalInjectionTime.Value.AddMinutes(basalOffset + basalDuration * 60),
-                        Dose = eating.BasalDose,
+                        Dose = eating.BasalDose * concentration,
                         Duration = basalDuration,
                         Name = eating.BasalType?.Name ?? ""
                     });
@@ -129,7 +131,7 @@ namespace InsulinSensitivity
                     InjectionTime = startInjection,
                     Start = startInjection.AddMinutes(bolusOffset),
                     End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
-                    Dose = eating.BolusDoseFact,
+                    Dose = eating.BolusDoseFact * concentration,
                     Duration = bolusDuration,
                     Profile = eating.BolusType?.Profile ?? 0,
                     Name = eating.BolusType?.Name ?? ""
@@ -141,13 +143,15 @@ namespace InsulinSensitivity
                     bolusDuration = (int)(injection.BolusType?.Duration ?? GlobalParameters.User.BolusType.Duration);
                     bolusOffset = injection.BolusType?.Offset ?? GlobalParameters.User.BolusType.Offset;
 
+                    concentration = injection.BolusType?.Concentration ?? 1;
+
                     startInjection = Calculation.DateTimeUnionTimeSpan(injection.InjectionDate, injection.InjectionTime);
                     injections.Add(new Injection()
                     {
                         InjectionTime = startInjection,
                         Start = startInjection.AddMinutes(bolusOffset),
                         End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
-                        Dose = injection.BolusDose,
+                        Dose = injection.BolusDose * concentration,
                         Duration = bolusDuration,
                         Profile = injection.BolusType?.Profile ?? 0,
                         Name = injection.BolusType?.Name ?? ""
@@ -315,6 +319,8 @@ namespace InsulinSensitivity
                 var basalOffset = eating.BasalType?.Offset ?? user.BasalType.Offset;
                 var bolusOffset = eating.BolusType?.Offset ?? user.BolusType.Offset;
 
+                var concentration = eating.BolusType?.Concentration ?? 1;
+
                 // ... Базальный
                 if (eating.BasalInjectionTime != null && eating.BasalDose != 0)
                     injections.Add(new BusinessLogicLayer.Service.Models.Injection()
@@ -323,7 +329,7 @@ namespace InsulinSensitivity
                         IsBasal = true,
                         Start = eating.BasalInjectionTime.Value.AddMinutes(basalOffset),
                         End = eating.BasalInjectionTime.Value.AddMinutes(basalOffset + basalDuration * 60),
-                        Dose = eating.BasalDose,
+                        Dose = eating.BasalDose * concentration,
                         Duration = basalDuration,
                         Name = eating.BasalType?.Name ?? ""
                     });
@@ -335,7 +341,7 @@ namespace InsulinSensitivity
                     InjectionTime = startInjection,
                     Start = startInjection.AddMinutes(bolusOffset),
                     End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
-                    Dose = eating.BolusDoseFact,
+                    Dose = eating.BolusDoseFact * concentration,
                     Duration = bolusDuration,
                     Profile = eating.BolusType?.Profile ?? 0,
                     Name = eating.BolusType?.Name ?? ""
@@ -347,13 +353,15 @@ namespace InsulinSensitivity
                     bolusDuration = (int)(injection.BolusType?.Duration ?? user.BolusType.Duration);
                     bolusOffset = injection.BolusType?.Offset ?? user.BolusType.Offset;
 
+                    concentration = injection.BolusType?.Concentration ?? 1;
+
                     startInjection = BusinessLogicLayer.Service.Calculation.DateTimeUnionTimeSpan(injection.InjectionDate, injection.InjectionTime);
                     injections.Add(new BusinessLogicLayer.Service.Models.Injection()
                     {
                         InjectionTime = startInjection,
                         Start = startInjection.AddMinutes(bolusOffset),
                         End = startInjection.AddMinutes(bolusOffset + bolusDuration * 60),
-                        Dose = injection.BolusDose,
+                        Dose = injection.BolusDose * concentration,
                         Duration = bolusDuration,
                         Profile = injection.BolusType?.Profile ?? 0,
                         Name = injection.BolusType?.Name ?? ""

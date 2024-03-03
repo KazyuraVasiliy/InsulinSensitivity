@@ -1234,7 +1234,7 @@ namespace InsulinSensitivity.Eating
                 var basalsCalculate = new List<(decimal dose, decimal insulinSensitivity)>();
                 foreach (var el in basals)
                 {
-                    var value = el.Sum(x => x.BasalDose);
+                    var value = el.Sum(x => x.BasalDose * x.BasalType?.Concentration ?? 1);
 
                     var rateCollection = el.Where(x =>
                         x.BasalRate != 0);
@@ -1783,9 +1783,9 @@ namespace InsulinSensitivity.Eating
                         if (GlobalParameters.User.BasalType.Duration > 12)
                         {
                             if (BasalDose != 0 && (Basals?.Count ?? 0) > 0 && Basals[0] != null)
-                                basal = BasalDose / Basals[0].BasalDose;
+                                basal = (BasalDose * BasalType?.Concentration ?? 1) / (Basals[0].BasalDose * Basals[0].BasalType?.Concentration ?? 1);
                             else if ((Basals?.Count ?? 0) >= 2)
-                                basal = Basals[0].BasalDose / Basals[1].BasalDose;
+                                basal = (Basals[0].BasalDose * Basals[0].BasalType?.Concentration ?? 1) / (Basals[1].BasalDose * Basals[1].BasalType?.Concentration ?? 1);
 
                             // ... 24 часовые инсулины
                             if (GlobalParameters.User.BasalType.Duration > 12 && GlobalParameters.User.BasalType.Duration <= 24)
@@ -1803,7 +1803,7 @@ namespace InsulinSensitivity.Eating
                             for (int i = 0; i < 3; i++)
                             {
                                 date = date.AddDays(-i);
-                                doses.Add(Basals
+                                var basalEntity = Basals
                                     ?.Where(x =>
                                         x.DateCreated.Day == date.Day &&
                                         x.DateCreated.Month == date.Month &&
@@ -1811,7 +1811,9 @@ namespace InsulinSensitivity.Eating
                                     .OrderBy(x =>
                                         x.InjectionTime)
                                     .Take(1)
-                                    .FirstOrDefault()?.BasalDose);
+                                    .FirstOrDefault();
+
+                                doses.Add(basalEntity?.BasalDose * (basalEntity?.BasalType?.Concentration ?? 1));
                             }
 
                             // ... Если сегодня не было инъекций

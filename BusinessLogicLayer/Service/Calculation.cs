@@ -212,13 +212,27 @@ namespace BusinessLogicLayer.Service
             -(3641 * (x + 55) * Math.Exp(-x / 55)) / 200000 + 1.001275;
 
         /// <summary>
+        /// Возвращает значение интеграла функции 4.96 * 10^(-4) * x * e^(-x / 45), from x = 0 to infinity+
+        /// </summary>
+        /// <remarks>
+        /// https://bionicwookiee.com/2022/12/04/insulin-timings-2022/
+        /// Lyumzhev
+        /// https://www.integral-calculator.com
+        /// </remarks>
+        /// <param name="x">Аргумент</param>
+        /// <returns></returns>
+        private static double InsulinActivityCurvesIntegrateLyumzhev(double x) =>
+            -(279 * (x + 45) * Math.Exp(-x / 45)) / 12500 + 1.0044;
+
+        /// <summary>
         /// Выбор профиля инсулина
         /// </summary>
         private static Dictionary<int, Func<double, double>> InsulinActivityCurvesIntegrate =
             new Dictionary<int, Func<double, double>>()
             {
                 [0] = InsulinActivityCurvesIntegrateNovolog,
-                [1] = InsulinActivityCurvesIntegrateFiasp
+                [1] = InsulinActivityCurvesIntegrateFiasp,
+                [2] = InsulinActivityCurvesIntegrateLyumzhev
             };
 
         /// <summary>

@@ -36,6 +36,11 @@ namespace DataAccessLayer.Models
         public int Profile { get; set; }
 
         /// <summary>
+        /// Концентрация
+        /// </summary>
+        public decimal Concentration { get; set; }
+
+        /// <summary>
         /// Пользователи с базальным инсулином (Навигационное свойство)
         /// </summary>
         public virtual List<User> BasalUsers { get; set; }

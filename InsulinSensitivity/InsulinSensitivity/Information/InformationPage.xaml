@@ -965,7 +965,8 @@
                                             TextColor="DimGray"
                                             FontSize="12">
                                             \text{\% Активного инсулина}(t)=1-if \ Bolus \ then \\ 
-                                            (\int_{0}^{t}if \ Fiasp \ then \ (3.31*10^{-4}*t*e^{\frac{-t}{55}}) \ else \\
+                                            (\int_{0}^{t}if \ Fiasp \ then \ (3.31*10^{-4}*t*e^{\frac{-t}{55}}) \\ 
+                                            else \ if \ Lyumzhev \ (4.96*10^{-4}*t*e^{-\frac{t}{45}})) \ else \\
                                             (4.26*10^{-5}*t^{\frac{3}{2}}*e^{-\frac{t}{50}})) \ else \ t/Basal_{duration}\\\\
                                             \text{\% Активного инсулина}\in [0;1]\\
                                             t_{мин}=minutes*6/Basal_{duration}

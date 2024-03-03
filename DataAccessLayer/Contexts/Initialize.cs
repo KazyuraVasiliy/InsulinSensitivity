@@ -310,6 +310,33 @@ namespace DataAccessLayer.Contexts
                     db.SaveChanges();
                 }
 
+                if (db.InsulinTypes.Count() == 18)
+                {
+                    db.InsulinTypes.AddRange(new List<Models.InsulinType>()
+                    {
+                        new Models.InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Люмжев",
+                            IsBasal = false,
+                            Duration = 4,
+                            Offset = 1,
+                            Profile = 2
+                        },
+                        new Models.InsulinType()
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "Люмжев (концентрат)",
+                            IsBasal = false,
+                            Duration = 4,
+                            Offset = 1,
+                            Profile = 2,
+                            Concentration = 2
+                        },
+                    });
+                    db.SaveChanges();
+                }
+
                 // Инициализация смещений
                 if (db.InsulinTypes.Any(x => x.Offset == 0))
                 {

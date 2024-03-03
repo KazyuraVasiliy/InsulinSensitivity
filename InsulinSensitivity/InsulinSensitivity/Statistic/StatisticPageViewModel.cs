@@ -385,7 +385,7 @@ namespace InsulinSensitivity.Statistic
                     var basalsCalculate = new List<(DateTime date, decimal dose)>();
                     foreach (var el in basals)
                     {
-                        var value = el.Sum(x => x.BasalDose);
+                        var value = el.Sum(x => x.BasalDose * (x.BasalType?.Concentration ?? 1));
 
                         var rateCollection = el.Where(x =>
                             x.BasalRate != 0);
