@@ -378,10 +378,7 @@ namespace DataAccessLayer.Contexts
                         .ToList();
 
                     foreach (var type in types)
-                    {
-                        if (type.Name == "Люмжев")
-                            type.Concentration = 1;
-                    }
+                        type.Concentration = 1;
 
                     db.SaveChanges();
                 }
