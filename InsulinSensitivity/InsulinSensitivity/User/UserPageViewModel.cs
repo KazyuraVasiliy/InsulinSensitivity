@@ -387,7 +387,24 @@ namespace InsulinSensitivity.User
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
                 var user = User.Id == Guid.Empty
-                    ? new Models.User() { Id = Guid.NewGuid() }
+                    ? new Models.User() 
+                    { 
+                        Id = Guid.NewGuid(),
+                        IsActiveBasal = false,
+                        IsAverageCalculateActive = true,
+                        IsExerciseCalculateActive = true,
+                        IsCycleCalculateActive = true,
+                        IsCannulaCalculateActive = true,
+
+                        EatingDuration = 5,
+                        LengthGraph = 45,
+
+                        CannulaLifespan = 3,
+                        CatheterLifespan = 3,
+                        CartridgeLifespan = 6,
+                        BatteryLifespan = 30,
+                        MonitoringLifespan = 14
+                    }
                     : db.Users.Find(User.Id);
 
                 var isParameterChanged =
