@@ -1347,7 +1347,7 @@ namespace InsulinSensitivity.Eating
                             var data = result.Content.ReadAsStringAsync().Result;
                             var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
 
-                            if (glucose == null)
+                            if (glucose == null || Math.Abs((date - (glucose.created_at ?? glucose.dateString).Value).TotalMinutes) > 10)
                             {
                                 result = client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
                                 if (!result.IsSuccessStatusCode)
@@ -3326,36 +3326,12 @@ namespace InsulinSensitivity.Eating
                     if (!result.IsSuccessStatusCode)
                         throw new Exception("Нет доступа к серверу");
 
-                    // Получение текущего сахара
-                    result = await client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[created_at][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1");
-                    if (!result.IsSuccessStatusCode)
-                        throw new Exception("Не удалось получить данные о текущем сахаре");
-
-                    var data = await result.Content.ReadAsStringAsync();
-                    var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
-
-                    if (glucose == null)
-                    {
-                        result = client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
-                        if (!result.IsSuccessStatusCode)
-                            throw new Exception("Не удалось получить данные о текущем сахаре");
-
-                        data = result.Content.ReadAsStringAsync().Result;
-                        glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
-
-                        if (glucose == null || (glucose.created_at == null && glucose.dateString == null))
-                            throw new Exception("Нет данных о текущем сахаре");
-                    }
-
-                    if (Math.Abs((date - (glucose.created_at ?? glucose.dateString).Value).TotalMinutes) > 10)
-                        throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
-
                     // Получение подколок
                     result = await client.GetAsync(baseUri + $"/treatments.json?find[insulin][$gte]=0.1&count=100");
                     if (!result.IsSuccessStatusCode)
                         throw new Exception("Не удалось получить данные о подколках");
 
-                    data = await result.Content.ReadAsStringAsync();
+                    var data = await result.Content.ReadAsStringAsync();
                     var insulins = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutTreatment>>(data);
 
                     // Удаление подколок позже времени основной инъекции
@@ -3450,11 +3426,32 @@ namespace InsulinSensitivity.Eating
 
                     OnPropertyChanged(nameof(Injections));
 
+                    // Получение текущего сахара
+                    result = await client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[created_at][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1");
+                    if (!result.IsSuccessStatusCode)
+                        throw new Exception("Не удалось получить данные о текущем сахаре");
+
+                    data = await result.Content.ReadAsStringAsync();
+                    var glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
+
+                    if (glucose == null || Math.Abs((date - (glucose.created_at ?? glucose.dateString).Value).TotalMinutes) > 10)
+                    {
+                        result = client.GetAsync(baseUri + $"/entries.json?find[type][$eq]=sgv&find[dateString][$gte]={date.Subtract(DateTimeOffset.Now.Offset):yyyy-MM-dd}&count=1").Result;
+                        if (!result.IsSuccessStatusCode)
+                            throw new Exception("Не удалось получить данные о текущем сахаре");
+
+                        data = result.Content.ReadAsStringAsync().Result;
+                        glucose = JsonConvert.DeserializeObject<List<BusinessLogicLayer.Service.Models.NightscoutEntry>>(data)?.FirstOrDefault();
+
+                        if (glucose == null || (glucose.created_at == null && glucose.dateString == null))
+                            throw new Exception("Нет данных о текущем сахаре");
+                    }
+
+                    if (Math.Abs((date - (glucose.created_at ?? glucose.dateString).Value).TotalMinutes) > 10)
+                        throw new Exception("Данные о текущем сахаре устарели более чем на 10 минут");
+
                     // Добавление сахара на отработке
                     GlucoseEnd = Math.Round(glucose.sgv / 18, 1);
-
-                    // Пересчёт параметров
-                    CalculateTotal();
                 }
             }
             catch (Exception ex)
@@ -3466,6 +3463,9 @@ namespace InsulinSensitivity.Eating
             }
 
             AsyncBase.Close();
+
+            // Пересчёт параметров
+            CalculateTotal();
         }
 
         private bool CloseWithNightscoutCanExecute() =>
