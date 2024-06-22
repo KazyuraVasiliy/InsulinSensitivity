@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace InsulinSensitivity.Statistic
@@ -20,7 +21,7 @@ namespace InsulinSensitivity.Statistic
             Page = page;
 
             // Инициализация коллекций
-            InitStatistic();
+            _ = InitStatistic();
         }
 
         #endregion
@@ -300,6 +301,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        public LineChart chartICPerHours;
+        /// <summary>
+        /// График IC часовой
+        /// </summary>
+        public LineChart ChartICPerHours
+        {
+            get => chartICPerHours;
+            set
+            {
+                chartICPerHours = value;
+                OnPropertyChanged();
+            }
+        }
+
         public LineChart cycleChart;
         /// <summary>
         /// График ФЧИ по дням цикла
@@ -343,46 +358,43 @@ namespace InsulinSensitivity.Statistic
         /// <summary>
         /// Инициализирует статистику
         /// </summary>
-        private async void InitStatistic() =>
+        private async Task InitStatistic() =>
             await AsyncBase.NewTask(async () =>
             {
                 using (var db = new ApplicationContext(GlobalParameters.DbPath))
                 {
-                    if (!db.Eatings.Any(x => x.InsulinSensitivityFact != null && !x.IsIgnored))
+                    if (!(await db.Eatings.AnyAsync(x => x.InsulinSensitivityFact != null && !x.IsIgnored)))
                         return;
 
-                    var cycles = db.MenstrualCycles
+                    // Менструальные циклы
+                    var cycles = await db.MenstrualCycles
                         .AsNoTracking()
-                        .OrderBy(x =>
-                            x.DateStart)
+                        .OrderBy(x => x.DateStart)
+                        .ToListAsync();
+
+                    // Дни овуляции
+                    var ovulations = cycles
+                        .Select(x => x.DateStart.AddDays(-14))
                         .ToList();
 
-                    var ovulations = cycles
-                        .Select(x =>
-                            x.DateStart.AddDays(-14))
-                        .ToList();
                     if ((cycles?.Count ?? 0) > 0)
                         ovulations.Add(cycles.Last().DateStart.AddDays(14));
 
-                    var eatings = db.Eatings
+                    // Периоды усвоения
+                    var eatings = await db.Eatings
                         .AsNoTracking()
-                        .Where(x =>
-                            x.InsulinSensitivityFact != null)
+                        .Where(x => x.InsulinSensitivityFact != null)
                         .Include(x => x.EatingType)
                         .Include(x => x.Exercise)
                             .ThenInclude(x => x.ExerciseType)
-                        .ToList();
+                        .ToListAsync();
 
-                    var lastMonth = DateTime.Now.AddMonths(-1).Date;
-                    var eatingsLastMonth = eatings
-                        .Where(x => x.DateCreated.Date >= lastMonth);
-
+                    // Кол-во базального инсулина по дням
                     var basals = eatings
-                        .GroupBy(x =>
-                            x.DateCreated.Date)
+                        .GroupBy(x => x.DateCreated.Date)
                         .ToList();
 
-                    var basalsCalculate = new List<(DateTime date, decimal dose)>();
+                    var basalsPerDay = new List<BasalDose>();
                     foreach (var el in basals)
                     {
                         var value = el.Sum(x => x.BasalDose * (x.BasalType?.Concentration ?? 1));
@@ -393,221 +405,29 @@ namespace InsulinSensitivity.Statistic
                         if (rateCollection.Count() != 0)
                             value += Math.Round(rateCollection.Average(x => x.BasalRate) * 24, 1, MidpointRounding.AwayFromZero);
 
-                        basalsCalculate.Add((el.Key, value));
-                    }
-
-                    eatings = eatings
-                        .Where(x =>
-                            !x.IsIgnored)
-                        .ToList();
-
-                    var lastYear = DateTime.Now.AddYears(-1).Date;
-                    var entries = eatings
-                        .Where(x => x.DateCreated.Date >= lastYear)
-                        .OrderBy(x =>
-                            x.DateCreated.Date)
-                        .GroupBy(x =>
-                            x.DateCreated.Date)
-                        .Select(x =>
-                            new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
-                            {
-                                Label = x.Key.ToString("dd.MM.yy"),
-                                ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
-                                    $"({basalsCalculate.FirstOrDefault(y => y.date == x.Key).dose})",
-                                ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                    ? SkiaSharp.SKColors.White
-                                    : SkiaSharp.SKColors.Black,
-
-                                Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
-                                    ? SkiaSharp.SKColors.Red
-                                    : ovulations.Any(y => y.Date == x.Key.Date)
-                                        ? SkiaSharp.SKColors.Pink
-                                        : App.Current.RequestedTheme == OSAppTheme.Dark
-                                            ? SkiaSharp.SKColors.LightSkyBlue
-                                            : SkiaSharp.SKColors.Blue
-                            })
-                        .ToList();
-
-                    WidthRequest = (entries?.Count() ?? 0) * 15;
-
-                    Chart = new LineChart()
-                    {
-                        LineMode = LineMode.Spline,
-                        LabelTextSize = 24,
-                        Entries = entries,
-
-                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? SkiaSharp.SKColors.White
-                            : SkiaSharp.SKColors.Black,
-                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? new SkiaSharp.SKColor(29, 29, 29)
-                            : SkiaSharp.SKColors.White,
-                    };
-
-                    // Недельный график
-                    var basalsCalculateWeeks = basalsCalculate
-                        .GroupBy(x => (x.date.Date.DayOfYear - 1) / 7)
-                        .Select(x => (
-                            x.Key,
-                            x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
-
-                    var currentWeek = (DateTime.Now.DayOfYear - 1) / 7;
-                    var entriesWeeks = eatings
-                        .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
-                        .OrderBy(x => x.Key)
-                        .Select(x =>
-                            new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
-                            {
-                                Label = x.Key.ToString(),
-                                ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
-                                    $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
-                                ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                    ? SkiaSharp.SKColors.White
-                                    : SkiaSharp.SKColors.Black,
-
-                                Color = currentWeek == x.Key
-                                    ? SkiaSharp.SKColors.Green
-                                    : App.Current.RequestedTheme == OSAppTheme.Dark
-                                        ? SkiaSharp.SKColors.LightSkyBlue
-                                        : SkiaSharp.SKColors.Blue
-                            })
-                        .ToList();
-
-                    WidthRequestWeeks = (entriesWeeks?.Count() ?? 0) * 15;
-
-                    ChartWeeks = new LineChart()
-                    {
-                        LineMode = LineMode.Spline,
-                        LabelTextSize = 24,
-                        Entries = entriesWeeks,
-
-                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? SkiaSharp.SKColors.White
-                            : SkiaSharp.SKColors.Black,
-                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? new SkiaSharp.SKColor(29, 29, 29)
-                            : SkiaSharp.SKColors.White,
-                    };
-
-                    // График по часам
-                    var dataForHours = new Dictionary<int, List<decimal>>();
-                    for (int i = 0; i < 24; i++)
-                        dataForHours.Add(i, new List<decimal>());
-
-                    var lastFiveDays = DateTime.Now.AddDays(-5);
-
-                    var eatingsForHours = eatings
-                        .Where(x =>
-                            x.InsulinSensitivityFact != null &&
-                            x.DateCreated.Date >= lastFiveDays.Date)
-                        .OrderBy(x => x.DateCreated)
-                            .ThenBy(x => x.InjectionTime)
-                        .ToList();
-
-                    for (int i = 0; i < eatingsForHours.Count; i++)
-                    {
-                        if (i + 1 > eatingsForHours.Count - 1)
-                            continue;
-
-                        var begin = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i].DateCreated, eatingsForHours[i].InjectionTime);
-                        var end = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i + 1].DateCreated, eatingsForHours[i + 1].InjectionTime);
-
-                        do
+                        basalsPerDay.Add(new BasalDose()
                         {
-                            dataForHours[begin.Hour].Add(eatingsForHours[i].InsulinSensitivityFact.Value);
-                            begin = begin.AddHours(1);
-
-                        } while (begin < end);
+                            Date = el.Key,
+                            Dose = value
+                        });
                     }
 
-                    WidthRequestHours = 24 * 15;
+                    // Исключаем игнорируемые периоды усвоения
+                    eatings = eatings
+                        .Where(x => !x.IsIgnored)
+                        .ToList();
 
-                    ChartHours = new LineChart()
-                    {
-                        LineMode = LineMode.Spline,
-                        LabelTextSize = 24,
-                        Entries = dataForHours
-                            .Where(x => x.Value.Count > 0)
-                            .Select(x =>
-                                new ChartEntry((float)x.Value.Average())
-                                {
-                                    Label = x.Key.ToString(),
-                                    ValueLabel = $"{Methods.Round(x.Value.Average(), 2)}",
-                                    ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                                        ? SkiaSharp.SKColors.White
-                                        : SkiaSharp.SKColors.Black,
+                    // Инициализация графика ФЧИ по дням
+                    InitInsuinSensitivityChartPerDay(eatings, basalsPerDay, cycles, ovulations);
 
-                                    Color = App.Current.RequestedTheme == OSAppTheme.Dark
-                                        ? SkiaSharp.SKColors.LightSkyBlue
-                                        : SkiaSharp.SKColors.Blue
-                                }),
+                    // Инициализация графика ФЧИ по неделям
+                    InitInsuinSensitivityChartPerWeek(eatings, basalsPerDay);
 
-                        LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? SkiaSharp.SKColors.White
-                            : SkiaSharp.SKColors.Black,
-                        BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
-                            ? new SkiaSharp.SKColor(29, 29, 29)
-                            : SkiaSharp.SKColors.White,
-                    };
+                    // Инициализация графика ФЧИ по часам
+                    InitInsuinSensitivityChartPerHour(eatings);
 
-                    // ФЧИ
-                    var eatingTypeAverages = eatingsLastMonth
-                        .Where(x => x.DateCreated.Date >= lastMonth)
-                        .GroupBy(x =>
-                            new
-                            {
-                                x.EatingType.Name,
-                                x.EatingType.TimeStart
-                            })
-                        .OrderBy(x =>
-                            x.Key.TimeStart)
-                        .Select(x =>
-                            $"{x.Key.Name}: {Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero)}");
-
-                    if (eatingTypeAverages.Count() > 0 && eatingsLastMonth.Count() > 0)
-                    {
-                        var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
-                        string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
-
-                        var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
-                        string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
-
-                        InsulinSensitivity = string.Join("\n", eatingTypeAverages) + "\n" + minInformation + maxInformation;
-                    }
-
-                    // Соотношение углеводов к инсулину
-                    if (eatingsLastMonth.Count() > 0)
-                    {
-                        var carbohydrateCoefficientAverages = eatingsLastMonth
-                            .GroupBy(x =>
-                                new
-                                {
-                                    x.EatingType.Name,
-                                    x.EatingType.TimeStart
-                                })
-                            .SelectMany(x =>
-                                x
-                                    .Where(y =>
-                                        (y.BolusDoseTotal ?? 0) != 0 &&
-                                        (y.Carbohydrate + y.Protein + y.Fat) >= 30)
-                                    .OrderByDescending(y =>
-                                        y.DateCreated)
-                                    .Take(4))
-                            .GroupBy(x =>
-                                new
-                                {
-                                    x.EatingType.Name,
-                                    x.EatingType.TimeStart,
-                                    x.EatingType.TimeEnd
-                                })
-                            .OrderBy(x =>
-                                x.Key.TimeStart)
-                            .Select(x =>
-                                $"{x.Key.TimeStart.Hours:00}:{x.Key.TimeStart.Minutes:00} - {x.Key.TimeEnd.Hours:00}:{x.Key.TimeEnd.Minutes:00}: " +
-                                $"{Math.Round(x.Average(y => (y.Carbohydrate + y.Protein * GlobalParameters.User.ProteinCoefficient + y.Fat * GlobalParameters.User.FatCoefficient) / y.BolusDoseTotal.Value), 1, MidpointRounding.AwayFromZero)}");
-
-                        CarbohydrateCoefficient = string.Join("\n", carbohydrateCoefficientAverages);
-                    }
+                    // Инициализация графика IC по часам
+                    InitICChartPerHour(ChartHours);
 
                     // Цикл
                     if (GlobalParameters.IsCycleSettingsAccess && !GlobalParameters.User.IsPregnancy && (cycles?.Count ?? 0) > 0)
@@ -676,9 +496,9 @@ namespace InsulinSensitivity.Statistic
                                 .Where(x =>
                                     dates.Any(y => y.Date == x.DateCreated.Date));
 
-                            var basalsCycle = basalsCalculate
+                            var basalsCycle = basalsPerDay
                                 .Where(x =>
-                                    dates.Any(y => y.Date == x.date));
+                                    dates.Any(y => y.Date == x.Date));
 
                             if (data.Count() > 0)
                                 values.Add((
@@ -689,7 +509,7 @@ namespace InsulinSensitivity.Statistic
                                     basalsCycle.Count() > 0
                                         ? Math.Round(basalsCycle
                                             .Average(x =>
-                                                x.dose), 1, MidpointRounding.AwayFromZero)
+                                                x.Dose), 1, MidpointRounding.AwayFromZero)
                                         : 0));
                         }
 
@@ -740,12 +560,12 @@ namespace InsulinSensitivity.Statistic
                         // Дата последней менструации
                         LastMenstruationDate = cycles.Last().DateStart.Date;
 
-                        var pregnancyBasalWeeks = basalsCalculate
-                            .Where(x => x.date.Date >= LastMenstruationDate)
-                            .GroupBy(x => (int)(x.date.Date - LastMenstruationDate).TotalDays / 7)
+                        var pregnancyBasalWeeks = basalsPerDay
+                            .Where(x => x.Date >= LastMenstruationDate)
+                            .GroupBy(x => (int)(x.Date - LastMenstruationDate).TotalDays / 7)
                             .Select(x => (
                                 x.Key,
-                                x.Count() > 0 ? Math.Round(x.Average(y => y.dose), 1, MidpointRounding.AwayFromZero) : 0));
+                                x.Count() > 0 ? Math.Round(x.Average(y => y.Dose), 1, MidpointRounding.AwayFromZero) : 0));
 
                         PregnancyWeek = (int)(DateTime.Now.Date - LastMenstruationDate).TotalDays / 7;
                         var pregnancyWeeks = eatings
@@ -875,6 +695,221 @@ namespace InsulinSensitivity.Statistic
                     await Page.sv.ScrollToAsync(WidthRequest, 0, true));                
 
             }, "Инициализация\nПожалуйста, подождите");
+
+        /// <summary>
+        /// Инициализация графика ФЧИ по дням
+        /// </summary>
+        /// <param name="eatings"></param>
+        /// <param name="basalsPerDay"></param>
+        /// <param name="cycles"></param>
+        /// <param name="ovulations"></param>
+        /// <returns></returns>
+        private void InitInsuinSensitivityChartPerDay(List<DataAccessLayer.Models.Eating> eatings, List<BasalDose> basalsPerDay, List<DataAccessLayer.Models.MenstrualCycle> cycles, List<DateTime> ovulations)
+        {
+            var lastYear = DateTime.Now.AddYears(-1).Date;
+            var entries = eatings
+                .Where(x => x.DateCreated.Date >= lastYear)
+                .OrderBy(x => x.DateCreated.Date)
+                .GroupBy(x => x.DateCreated.Date)
+                .Select(x =>
+                    new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                    {
+                        Label = x.Key.ToString("dd.MM.yy"),
+                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                            $"({basalsPerDay.FirstOrDefault(y => y.Date == x.Key).Dose})",
+                        ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? SkiaSharp.SKColors.White
+                            : SkiaSharp.SKColors.Black,
+
+                        Color = cycles.Any(y => (x.Key.Date - y.DateStart.Date).TotalDays <= 2 && (x.Key.Date - y.DateStart.Date).TotalDays >= 0)
+                            ? SkiaSharp.SKColors.Red
+                            : ovulations.Any(y => y.Date == x.Key.Date)
+                                ? SkiaSharp.SKColors.Pink
+                                : App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.LightSkyBlue
+                                    : SkiaSharp.SKColors.Blue
+                    })
+                .ToList();
+
+            WidthRequest = (entries?.Count() ?? 0) * 15;
+
+            Chart = new LineChart()
+            {
+                LineMode = LineMode.Spline,
+                LabelTextSize = 24,
+                Entries = entries,
+
+                LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? SkiaSharp.SKColors.White
+                    : SkiaSharp.SKColors.Black,
+                BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? new SkiaSharp.SKColor(29, 29, 29)
+                    : SkiaSharp.SKColors.White,
+            };
+
+            // Периоды усвоения за последний месяц
+            var lastMonth = DateTime.Now.AddMonths(-1).Date;
+            var eatingsLastMonth = eatings
+                .Where(x => x.DateCreated.Date >= lastMonth);
+
+            // ФЧИ
+            if (eatingsLastMonth.Count() > 0)
+            {
+                var min = eatingsLastMonth.Min(x => x.InsulinSensitivityFact.Value);
+                string minInformation = $"\nМинимальный ФЧИ: {Math.Round(min, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == min).DateCreated:dd.MM.yy}";
+
+                var max = eatingsLastMonth.Max(x => x.InsulinSensitivityFact.Value);
+                string maxInformation = $"\nМаксимальный ФЧИ: {Math.Round(max, 3, MidpointRounding.AwayFromZero)} от {eatingsLastMonth.Last(x => x.InsulinSensitivityFact == max).DateCreated:dd.MM.yy}";
+
+                InsulinSensitivity = minInformation + maxInformation;
+            }
+        }
+
+        /// <summary>
+        /// Инициализация графика ФЧИ по неделям
+        /// </summary>
+        /// <param name="eatings"></param>
+        /// <param name="basalsPerDay"></param>
+        /// <returns></returns>
+        private void InitInsuinSensitivityChartPerWeek(List<DataAccessLayer.Models.Eating> eatings, List<BasalDose> basalsPerDay)
+        {
+            var basalsCalculateWeeks = basalsPerDay
+                .GroupBy(x => (x.Date.DayOfYear - 1) / 7)
+                .Select(x => (
+                    x.Key,
+                    x.Count() > 0 ? Math.Round(x.Average(y => y.Dose), 1, MidpointRounding.AwayFromZero) : 0));
+
+            var currentWeek = (DateTime.Now.DayOfYear - 1) / 7;
+            var entriesWeeks = eatings
+                .GroupBy(x => (x.DateCreated.Date.DayOfYear - 1) / 7)
+                .OrderBy(x => x.Key)
+                .Select(x =>
+                    new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                    {
+                        Label = x.Key.ToString(),
+                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                            $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
+                        ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                            ? SkiaSharp.SKColors.White
+                            : SkiaSharp.SKColors.Black,
+
+                        Color = currentWeek == x.Key
+                            ? SkiaSharp.SKColors.Green
+                            : App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.LightSkyBlue
+                                : SkiaSharp.SKColors.Blue
+                    })
+                .ToList();
+
+            WidthRequestWeeks = (entriesWeeks?.Count() ?? 0) * 15;
+
+            ChartWeeks = new LineChart()
+            {
+                LineMode = LineMode.Spline,
+                LabelTextSize = 24,
+                Entries = entriesWeeks,
+
+                LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? SkiaSharp.SKColors.White
+                    : SkiaSharp.SKColors.Black,
+                BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? new SkiaSharp.SKColor(29, 29, 29)
+                    : SkiaSharp.SKColors.White,
+            };
+        }
+
+        /// <summary>
+        /// Инициализация графика ФЧИ по часам
+        /// </summary>
+        /// <param name="eatings"></param>
+        /// <returns></returns>
+        private void InitInsuinSensitivityChartPerHour(List<DataAccessLayer.Models.Eating> eatings)
+        {
+            var dataForHours = new Dictionary<int, List<decimal>>();
+            for (int i = 0; i < 24; i++)
+                dataForHours.Add(i, new List<decimal>());
+
+            var lastFiveDays = DateTime.Now.AddDays(-5);
+
+            var eatingsForHours = eatings
+                .Where(x =>
+                    x.InsulinSensitivityFact != null &&
+                    x.DateCreated.Date >= lastFiveDays.Date)
+                .OrderBy(x => x.DateCreated)
+                    .ThenBy(x => x.InjectionTime)
+                .ToList();
+
+            for (int i = 0; i < eatingsForHours.Count; i++)
+            {
+                if (i + 1 > eatingsForHours.Count - 1)
+                    continue;
+
+                var begin = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i].DateCreated, eatingsForHours[i].InjectionTime);
+                var end = Calculation.DateTimeUnionTimeSpanWithoutMinutes(eatingsForHours[i + 1].DateCreated, eatingsForHours[i + 1].InjectionTime);
+
+                do
+                {
+                    dataForHours[begin.Hour].Add(eatingsForHours[i].InsulinSensitivityFact.Value);
+                    begin = begin.AddHours(1);
+
+                } while (begin < end);
+            }
+
+            WidthRequestHours = 24 * 15;
+
+            ChartHours = new LineChart()
+            {
+                LineMode = LineMode.Spline,
+                LabelTextSize = 24,
+                Entries = dataForHours
+                    .Where(x => x.Value.Count > 0)
+                    .Select(x =>
+                        new ChartEntry((float)x.Value.Average())
+                        {
+                            Label = x.Key.ToString(),
+                            ValueLabel = $"{Methods.Round(x.Value.Average(), 2)}",
+                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+
+                            Color = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.LightSkyBlue
+                                : SkiaSharp.SKColors.Blue
+                        }),
+
+                LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? SkiaSharp.SKColors.White
+                    : SkiaSharp.SKColors.Black,
+                BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                    ? new SkiaSharp.SKColor(29, 29, 29)
+                    : SkiaSharp.SKColors.White,
+            };
+        }
+
+        /// <summary>
+        /// Инициализация графика IC по часам
+        /// </summary>
+        /// <param name="chartHours"></param>
+        /// <returns></returns>
+        private void InitICChartPerHour(LineChart chartHours)
+        {
+            ChartICPerHours = new LineChart()
+            {
+                LineMode = chartHours.LineMode,
+                LabelTextSize = chartHours.LabelTextSize,
+                LabelColor = chartHours.LabelColor,
+                BackgroundColor = chartHours.BackgroundColor,
+                Entries = chartHours.Entries
+                    .Select(x =>
+                        new ChartEntry(x.Value / (float)GlobalParameters.User.CarbohydrateCoefficient)
+                        {
+                            Label = x.Label,
+                            ValueLabel = $"{Methods.Round(x.Value / (float)GlobalParameters.User.CarbohydrateCoefficient, 2)}",
+                            ValueLabelColor = x.ValueLabelColor,
+                            Color = x.Color
+                        })
+            };
+        }
 
         #endregion
     }

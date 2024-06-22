@@ -33,5 +33,14 @@ namespace BusinessLogicLayer.Service
         /// <returns></returns>
         public static decimal Round(decimal d, int decimals) =>
             Math.Round(d, decimals, MidpointRounding.AwayFromZero);
+
+        /// <summary>
+        /// Округление AwayFromZero
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="decimals"></param>
+        /// <returns></returns>
+        public static float Round(float d, int decimals) =>
+            (float)Math.Round((double)d, decimals, MidpointRounding.AwayFromZero);
     }
 }
