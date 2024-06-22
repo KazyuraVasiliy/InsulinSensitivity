@@ -208,6 +208,11 @@ namespace DataAccessLayer.Models
         public int MonitoringLifespan { get; set; }
 
         /// <summary>
+        /// Суточный расход инсулина на помпе
+        /// </summary>
+        public decimal InsulinDailyConsumptionForPump { get; set; }
+
+        /// <summary>
         /// Беременность
         /// </summary>
         public bool IsPregnancy { get; set; }

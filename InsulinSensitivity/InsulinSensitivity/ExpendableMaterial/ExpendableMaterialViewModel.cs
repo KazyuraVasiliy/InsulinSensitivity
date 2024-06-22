@@ -326,26 +326,35 @@ namespace InsulinSensitivity.ExpendableMaterial
                 };
 
                 // Болюс
-                var bolusPerDay = eatings
-                    .GroupBy(x =>
-                        x.DateCreated.Date)
-                    .Select(x =>
-                        x.Sum(y =>
-                            y.BolusDoseFact +
-                            (y.Injections?.Sum(z => z.BolusDose) ?? 0)));
+                var bolusDays = 0m;
 
-                var avgBolusPerDay = bolusPerDay.Count() > 0
-                    ? bolusPerDay.Average()
-                    : 0;
+                if (GlobalParameters.User.IsPump && GlobalParameters.User.InsulinDailyConsumptionForPump > 0)
+                    bolusDays = Bolus / GlobalParameters.User.InsulinDailyConsumptionForPump;
 
-                var bolus = new ExpendableMaterialModel()
+                else
                 {
-                    Days = avgBolusPerDay == 0 || avgBasalPerDay == 0
+                    var bolusPerDay = eatings
+                        .GroupBy(x =>
+                            x.DateCreated.Date)
+                        .Select(x =>
+                            x.Sum(y =>
+                                y.BolusDoseFact +
+                                (y.Injections?.Sum(z => z.BolusDose) ?? 0)));
+
+                    var avgBolusPerDay = bolusPerDay.Count() > 0
+                        ? bolusPerDay.Average()
+                        : 0;
+
+                    bolusDays = avgBolusPerDay == 0 || avgBasalPerDay == 0
                         ? 0
                         : (Bolus / avgBolusPerDay < Basal / avgBasalPerDay) || Cannula == 0
                             ? Bolus / avgBolusPerDay
-                            : (Bolus - Basal * avgBolusPerDay / avgBasalPerDay) / (avgBasalPerDay + avgBolusPerDay),
+                            : (Bolus - Basal * avgBolusPerDay / avgBasalPerDay) / (avgBasalPerDay + avgBolusPerDay);
+                }
 
+                var bolus = new ExpendableMaterialModel()
+                {
+                    Days = bolusDays,
                     MaterialType = types
                         .FirstOrDefault(x =>
                             x.Id == 4),

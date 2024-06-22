@@ -193,6 +193,24 @@ namespace InsulinSensitivity.Settings
             }
         }
 
+        private int insulinDailyConsumptionForPump;
+        /// <summary>
+        /// Суточный расход инсулина на помпе
+        /// </summary>
+        [Model]
+        public int InsulinDailyConsumptionForPump
+        {
+            get => insulinDailyConsumptionForPump;
+            set
+            {
+                if (insulinDailyConsumptionForPump != value && value > 0)
+                {
+                    insulinDailyConsumptionForPump = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #endregion

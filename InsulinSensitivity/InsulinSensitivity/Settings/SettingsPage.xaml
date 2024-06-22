@@ -284,6 +284,31 @@
                     </StackLayout>
                 </Frame>
 
+                <!-- Расход в день -->
+                <Frame
+                    Style="{StaticResource Frame}"
+                    IsVisible="{Binding Path=IsPumpVisibility}">
+
+                    <StackLayout
+                        Spacing="0">
+
+                        <Label
+                            Text="Расход в день"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="CenterAndExpand" />
+
+                        <Label
+                            Text="Инсулина на помне:" />
+
+                        <Entry
+                            Keyboard="Numeric"
+                            view:Tag.Tag="InsulinDailyConsumptionForPump"
+                            Unfocused="Entry_Unfocused"
+                            Text="{Binding Path=InsulinDailyConsumptionForPump}" />
+                    </StackLayout>
+                </Frame>
+
                 <Button
                     Text="Сохранить"
                     Margin="5"
