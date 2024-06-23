@@ -166,19 +166,6 @@ namespace BusinessLogicLayer.ViewModel
             Maximum = maximum;
         }
 
-        /// <summary>
-        /// Создаёт новую задачу
-        /// </summary>
-        /// <param name="action">Задача</param>
-        /// <param name="description">Описание</param>
-        /// <returns></returns>
-        public async Task NewTask(Action action, string description)
-        {
-            Open(description);
-            await Task.Run(action);
-            Close();
-        }
-
         #endregion
     }
 }

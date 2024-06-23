@@ -11,6 +11,7 @@ using DataAccessLayer.Contexts;
 using BusinessLogicLayer.ViewModel;
 using BusinessLogicLayer.Service;
 using Models = DataAccessLayer.Models;
+using System.Threading.Tasks;
 
 namespace InsulinSensitivity
 {
@@ -22,7 +23,7 @@ namespace InsulinSensitivity
         /// Конструктор
         /// </summary>
         public MainPageDetailViewModel() =>
-            Init();
+            Task.Run(() => Init());
 
         /// <summary>
         /// Тип приёма пищи для фильтрации
@@ -122,59 +123,61 @@ namespace InsulinSensitivity
         /// <summary>
         /// Первичная инициализация
         /// </summary>
-        private async void Init() =>
-            await AsyncBase.NewTask(() =>
+        private void Init()
+        {
+            AsyncBase.Open("Инициализация\nПожалуйста, подождите");
+
+            // Инициализация БД
+            Initialize.Init(GlobalParameters.DbPath);
+
+            using (var db = new ApplicationContext(GlobalParameters.DbPath))
             {
-                // Инициализация БД
-                Initialize.Init(GlobalParameters.DbPath);
-                
-                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                // Инициализация пользователя
+                GlobalParameters.User = db.Users
+                    .Include(x => x.BolusType)
+                    .Include(x => x.BasalType)
+                    .FirstOrDefault();
+
+                // Инициализация типов приёмов пищи
+                eatingTypes = db.EatingTypes
+                    .AsNoTracking()
+                    .ToList()
+                    .OrderBy(x =>
+                        x.TimeStart)
+                    .ToList();
+
+                eatingTypes.Insert(0, new Models.EatingType()
                 {
-                    // Инициализация пользователя
-                    GlobalParameters.User = db.Users
-                        .Include(x => x.BolusType)
-                        .Include(x => x.BasalType)
-                        .FirstOrDefault();
+                    Id = Guid.Empty,
+                    Name = "Все"
+                });
+            }
 
-                    // Инициализация типов приёмов пищи
-                    eatingTypes = db.EatingTypes
-                        .AsNoTracking()
-                        .ToList()
-                        .OrderBy(x =>
-                            x.TimeStart)
-                        .ToList();
+            InitEatings();
+            RemoveCycle();
 
-                    eatingTypes.Insert(0, new Models.EatingType()
-                    {
-                        Id = Guid.Empty,
-                        Name = "Все"
-                    });
-                }
+            // Подписки на события
+            MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
+                (sender) =>
+                {
+                    InitEatings();
+                    RemoveCycle();
 
-                InitEatings();
-                RemoveCycle();
+                    OnPropertyChanged(nameof(TargetGlucose));
+                });
 
-                // Подписки на события
-                MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
-                    (sender) =>
-                    {
-                        InitEatings();
-                        RemoveCycle();
+            MessagingCenter.Subscribe<Eating.EatingPageViewModel, Guid>(this, "Eating",
+                (sender, args) => InitEatings(args));
 
-                        OnPropertyChanged(nameof(TargetGlucose));
-                    });
+            MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
+                (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
 
-                MessagingCenter.Subscribe<Eating.EatingPageViewModel, Guid>(this, "Eating",
-                    (sender, args) => InitEatings(args));
+            MessagingCenter.Subscribe<MainPageMasterViewModel>(this, "RestoreBackup",
+                (sender) => Init());
 
-                MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
-                    (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
-
-                MessagingCenter.Subscribe<MainPageMasterViewModel>(this, "RestoreBackup",
-                    (sender) => Init());
-
-                MessagingCenter.Send(this, "Init");
-            }, "Инициализация\nПожалуйста, подождите");
+            MessagingCenter.Send(this, "Init");
+            AsyncBase.Close();
+        }
 
         /// <summary>
         /// Инициализация приёмов пищи

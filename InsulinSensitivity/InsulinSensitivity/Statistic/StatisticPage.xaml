@@ -114,35 +114,6 @@
                                 Spacing="0">
 
                                 <Label
-                                    Text="IC по часам"
-                                    FontAttributes="Bold"
-                                    FontSize="16"
-                                    HorizontalOptions="CenterAndExpand" />
-
-                                <StackLayout
-                                    Spacing="0">
-
-                                    <ScrollView
-                                        HeightRequest="300"
-                                        HorizontalOptions="FillAndExpand"
-                                        HorizontalScrollBarVisibility="Always"
-                                        Orientation="Horizontal">
-
-                                        <microcharts:ChartView
-                                            WidthRequest="{Binding Path=WidthRequestHours}"
-                                            Chart="{Binding Path=ChartICPerHours}" />
-                                    </ScrollView>
-                                </StackLayout>
-                            </StackLayout>
-                        </Frame>
-
-                        <Frame
-                            Style="{StaticResource Frame}">
-
-                            <StackLayout
-                                Spacing="0">
-
-                                <Label
                                     Text="ФЧИ по неделям года"
                                     FontAttributes="Bold"
                                     FontSize="16"
