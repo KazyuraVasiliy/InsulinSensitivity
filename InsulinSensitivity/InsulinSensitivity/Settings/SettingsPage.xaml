@@ -306,7 +306,7 @@
                             HorizontalOptions="CenterAndExpand" />
 
                         <Label
-                            Text="Инсулина на помне:" />
+                            Text="Инсулина на помпе:" />
 
                         <Entry
                             Keyboard="Numeric"
