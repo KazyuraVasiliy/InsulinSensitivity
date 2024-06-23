@@ -1,12 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:global="clr-namespace:InsulinSensitivity"
-             x:Class="InsulinSensitivity.Settings.SettingsPage"
-             xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
-             Title="Настройки"
-             IsEnabled="{Binding Path=AsyncBase.Inactive}">
-    
+<ContentPage 
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:global="clr-namespace:InsulinSensitivity"
+    x:Class="InsulinSensitivity.Settings.SettingsPage"
+    xmlns:view="clr-namespace:BusinessLogicLayer.ViewModel;assembly=BusinessLogicLayer"
+    xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+    Title="Настройки"
+    IsEnabled="{Binding Path=AsyncBase.Inactive}">
+
+    <ContentPage.Resources>
+        <converters:DecimalToStringConverter
+            x:Key="DecimalToStringConverter" />
+    </ContentPage.Resources>
+
     <ContentPage.Content>
         <ScrollView>
             <StackLayout
@@ -305,7 +312,7 @@
                             Keyboard="Numeric"
                             view:Tag.Tag="InsulinDailyConsumptionForPump"
                             Unfocused="Entry_Unfocused"
-                            Text="{Binding Path=InsulinDailyConsumptionForPump}" />
+                            Text="{Binding Path=InsulinDailyConsumptionForPump, Converter={StaticResource DecimalToStringConverter}}" />
                     </StackLayout>
                 </Frame>
 

@@ -193,12 +193,12 @@ namespace InsulinSensitivity.Settings
             }
         }
 
-        private int insulinDailyConsumptionForPump;
+        private decimal insulinDailyConsumptionForPump;
         /// <summary>
         /// Суточный расход инсулина на помпе
         /// </summary>
         [Model]
-        public int InsulinDailyConsumptionForPump
+        public decimal InsulinDailyConsumptionForPump
         {
             get => insulinDailyConsumptionForPump;
             set
