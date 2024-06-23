@@ -660,19 +660,16 @@ namespace InsulinSensitivity.Eating
                 {
                     remainderCarbohydrate = value;
                     OnPropertyChanged();
-
-                    OnPropertyChanged(nameof(CarbohydrateTitle));
                 }
+
+                OnPropertyChanged(nameof(IgnoreCarbohydrateTitle));
             }
         }
 
         /// <summary>
         /// Заголовок строки углеводов
         /// </summary>
-        public string CarbohydrateTitle =>
-            RemainderCarbohydrate == 0
-                ? $"Углеводы:"
-                : $"Углеводы (+{RemainderCarbohydrate}):";
+        public string IgnoreCarbohydrateTitle { get; private set; }
 
         #endregion
 
@@ -831,6 +828,22 @@ namespace InsulinSensitivity.Eating
             {
                 Eating.EatingType = value;
                 OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Игнорировать углеводы с предыдущего приёма пищи
+        /// </summary>
+        public bool IsIgnorePreviousCarbohydrate
+        {
+            get => Eating.IsIgnorePreviousCarbohydrate;
+            set
+            {
+                if (Eating.IsIgnorePreviousCarbohydrate != value)
+                {
+                    Eating.IsIgnorePreviousCarbohydrate = value;
+                    CalculateTotal();
+                }
             }
         }
 
@@ -2564,16 +2577,19 @@ namespace InsulinSensitivity.Eating
             hours = (double)(protein / GlobalParameters.User.AbsorptionRateOfProteins);
             var fatTime = proteinTime.AddHours(hours < 1 ? 0 : hours);
 
-            var result = $"Внести в xDrip как:\n";
+            var proteinXDrip = Methods.Round(protein * GlobalParameters.User.ProteinCoefficient + (hours < 1 ? fat * GlobalParameters.User.FatCoefficient : 0), 0);
+            var fatXDrip = Methods.Round(fat * GlobalParameters.User.FatCoefficient, 0);
+
+            var result = $"Внести в xDrip как {carbohydate + proteinXDrip + fatXDrip} грамма углеводов:\n";
 
             if (carbohydate != 0)
                 result += $"  {beginPeriod:dd.MM HH:mm} - {carbohydate} у.\n";
 
             if (protein != 0)
-                result += $"  {proteinTime:dd.MM HH:mm} - {(protein * GlobalParameters.User.ProteinCoefficient + (hours < 1 ? fat * GlobalParameters.User.FatCoefficient : 0)):N0} у.\n";
+                result += $"  {proteinTime:dd.MM HH:mm} - {proteinXDrip} у.\n";
 
             if (fat != 0 && hours >= 1)
-                result += $"  {fatTime:dd.MM HH:mm} - {fat * GlobalParameters.User.FatCoefficient:N0} у.\n";
+                result += $"  {fatTime:dd.MM HH:mm} - {fatXDrip} у.\n";
 
             return result.Trim('\n');
         }
@@ -2599,12 +2615,22 @@ namespace InsulinSensitivity.Eating
                     previousEating.Carbohydrate, previousEating.Protein, previousEating.Fat,
                     Calculation.DateTimeUnionTimeSpan(previousEating.DateCreated, previousEating.InjectionTime).AddMinutes(previousEating.Pause), startEating);
 
-            RemainderCarbohydrate = previousEating == null
+            var remainderCarbohydrate = previousEating == null
                 ? 0
                 : (int)Math.Round(
                     (previousEating.Carbohydrate - assimilatedPrevious.carbohydrate) +
                     (previousEating.Protein - assimilatedPrevious.protein) * GlobalParameters.User.ProteinCoefficient +
                     (previousEating.Fat - assimilatedPrevious.fat) * GlobalParameters.User.FatCoefficient, 0);
+
+            IgnoreCarbohydrateTitle = remainderCarbohydrate == 0
+                ? null
+                : $"Игнорировать {remainderCarbohydrate} углеводов с предыдущего приёма пищи:";
+
+            OnPropertyChanged(nameof(IgnoreCarbohydrateTitle));
+
+            RemainderCarbohydrate = Eating.IsIgnorePreviousCarbohydrate
+                ? 0
+                : remainderCarbohydrate;
 
             var carbohydrate = assimilatedCurrent.carbohydrate + RemainderCarbohydrate;
             var protein = assimilatedCurrent.protein;
@@ -2914,6 +2940,8 @@ namespace InsulinSensitivity.Eating
                 eating.IsCartridgeReplacement = Eating.IsCartridgeReplacement;
                 eating.IsBatteryReplacement = Eating.IsBatteryReplacement;
                 eating.IsMonitoringReplacement = Eating.IsMonitoringReplacement;
+
+                eating.IsIgnorePreviousCarbohydrate = Eating.IsIgnorePreviousCarbohydrate;
 
                 if (Eating.Id == Guid.Empty)
                     db.Eatings.Add(eating);

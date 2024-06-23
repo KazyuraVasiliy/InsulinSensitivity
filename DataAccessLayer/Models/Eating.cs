@@ -245,6 +245,11 @@ namespace DataAccessLayer.Models
         public bool IsMonitoringReplacement { get; set; }
 
         /// <summary>
+        /// Игнорировать углеводы с предыдущего приёма пищи
+        /// </summary>
+        public bool IsIgnorePreviousCarbohydrate { get; set; }
+
+        /// <summary>
         /// Итоговая доза инсулина
         /// </summary>
         public decimal? BolusDoseTotal { get; set; }

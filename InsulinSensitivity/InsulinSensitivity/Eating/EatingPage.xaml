@@ -330,13 +330,33 @@
                                     Grid.Column="2">
 
                                     <Label
-                                        Text="{Binding Path=CarbohydrateTitle}" />
+                                        Text="Углеводы:" />
                                     <Entry
                                         view:Tag.Tag="Carbohydrate"
                                         Unfocused="Element_Unfocused"
                                         Text="{Binding Path=Carbohydrate}"
                                         Keyboard="Numeric" />
                                 </StackLayout>
+                            </Grid>
+
+                            <Grid
+                                IsVisible="{Binding Path=IgnoreCarbohydrateTitle, Converter={StaticResource NullToVisibilityConverter}}">
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition
+                                        Width="auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Label
+                                    Grid.Column="0"
+                                    Margin="0, 0, 0, 5"
+                                    VerticalOptions="Center"
+                                    Text="{Binding Path=IgnoreCarbohydrateTitle}" />
+                                <Switch
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    IsToggled="{Binding Path=IsIgnorePreviousCarbohydrate}" />
                             </Grid>
 
                             <Label
@@ -585,6 +605,63 @@
                         </StackLayout>
                     </Frame>
 
+                    <!-- Базальная скорость -->
+                    <Frame
+                        Style="{StaticResource Frame}"
+                        IsVisible="{Binding Path=IsBasalRateVisibility, Mode=OneWay}">
+
+                        <StackLayout
+                            Spacing="0">
+
+                            <Label
+                                Text="Базальная скорость"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="CenterAndExpand" />
+
+                            <Label
+                                Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
+                                TextColor="Green"
+                                HorizontalOptions="CenterAndExpand"
+                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="0">
+
+                                    <Label
+                                        Text="БС:" />
+                                    <Entry
+                                        x:Name="basalRate"
+                                        Keyboard="Numeric"
+                                        view:Tag.Tag="BasalRate"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=BasalRate, Converter={StaticResource DecimalToStringConverter}}" />
+                                </StackLayout>
+
+                                <StackLayout
+                                    Spacing="0"
+                                    Grid.Column="1">
+
+                                    <Label
+                                        Text="ВБС:" />
+                                    <Entry
+                                        x:Name="basalRateCoefficient"
+                                        Keyboard="Numeric"
+                                        view:Tag.Tag="BasalRateCoefficient"
+                                        Unfocused="Element_Unfocused"
+                                        Text="{Binding Path=BasalRateCoefficient}" />
+                                </StackLayout>
+                            </Grid>
+                        </StackLayout>
+                    </Frame>
+
                     <!-- Активность -->
                     <Frame
                         Style="{StaticResource Frame}">
@@ -736,63 +813,6 @@
                                 ItemDisplayBinding="{Binding Path=Name}"
                                 ItemsSource="{Binding Path=InsulinTypes}"
                                 SelectedItem="{Binding Path=Eating.BasalType, Mode=TwoWay}" />
-                        </StackLayout>
-                    </Frame>
-
-                    <!-- Базальная скорость -->
-                    <Frame
-                        Style="{StaticResource Frame}"
-                        IsVisible="{Binding Path=IsBasalRateVisibility, Mode=OneWay}">
-
-                        <StackLayout
-                            Spacing="0">
-
-                            <Label
-                                Text="Базальная скорость"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="CenterAndExpand" />
-
-                            <Label
-                                Text="{Binding Path=BasalRecommended, StringFormat='{}Рекомендация по суточной дозе базы: {0}ед.'}"
-                                TextColor="Green"
-                                HorizontalOptions="CenterAndExpand"
-                                IsVisible="{Binding Path=BasalRecommended, Converter={StaticResource NullToVisibilityConverter}}" />
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="0">
-
-                                    <Label
-                                        Text="БС:" />
-                                    <Entry
-                                        x:Name="basalRate"
-                                        Keyboard="Numeric"
-                                        view:Tag.Tag="BasalRate"
-                                        Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=BasalRate, Converter={StaticResource DecimalToStringConverter}}" />
-                                </StackLayout>
-
-                                <StackLayout
-                                    Spacing="0"
-                                    Grid.Column="1">
-
-                                    <Label
-                                        Text="ВБС:" />
-                                    <Entry
-                                        x:Name="basalRateCoefficient"
-                                        Keyboard="Numeric"
-                                        view:Tag.Tag="BasalRateCoefficient"
-                                        Unfocused="Element_Unfocused"
-                                        Text="{Binding Path=BasalRateCoefficient}" />
-                                </StackLayout>
-                            </Grid>
                         </StackLayout>
                     </Frame>
 
