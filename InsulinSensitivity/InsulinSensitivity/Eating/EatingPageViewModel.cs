@@ -2580,7 +2580,7 @@ namespace InsulinSensitivity.Eating
             var proteinXDrip = Methods.Round(protein * GlobalParameters.User.ProteinCoefficient + (hours < 1 ? fat * GlobalParameters.User.FatCoefficient : 0), 0);
             var fatXDrip = Methods.Round(fat * GlobalParameters.User.FatCoefficient, 0);
 
-            var result = $"Внести в xDrip как {carbohydate + proteinXDrip + fatXDrip} грамма углеводов:\n";
+            var result = $"Внести в xDrip как {carbohydate + proteinXDrip + (hours >= 1 ? fatXDrip : 0)} грамма углеводов:\n";
 
             if (carbohydate != 0)
                 result += $"  {beginPeriod:dd.MM HH:mm} - {carbohydate} у.\n";
