@@ -493,7 +493,7 @@ namespace InsulinSensitivity.Statistic
                             i >= 0 ? i + 1 : i,
                             Math.Round(data
                                 .Average(x =>
-                                    x.InsulinSensitivityFact.Value), 3, MidpointRounding.AwayFromZero),
+                                    x.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero),
                             basalsCycle.Count() > 0
                                 ? Math.Round(basalsCycle
                                     .Average(x =>
@@ -564,7 +564,7 @@ namespace InsulinSensitivity.Statistic
                         new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
                         {
                             Label = (x.Key + 1).ToString(),
-                            ValueLabel = $"{Methods.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2)} " +
+                            ValueLabel = $"{Methods.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1)} " +
                                 $"({pregnancyBasalWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
                             ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                                 ? SkiaSharp.SKColors.White
@@ -630,9 +630,9 @@ namespace InsulinSensitivity.Statistic
                 if (exercises[i] != maxElement)
                 {
                     var increase = (int)Math.Round((exercises[i].InsulinSensitivityFact.Value / maxElement.InsulinSensitivityFact.Value - 1) * 100, 0, MidpointRounding.AwayFromZero);
-                    Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
+                    Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 1, MidpointRounding.AwayFromZero)} ({GetSign(increase)}{increase}%)");
                 }
-                else Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 3, MidpointRounding.AwayFromZero)}");
+                else Exercise.Add(exercises[i].ExerciseType, $"{Math.Round(exercises[i].InsulinSensitivityFact.Value, 1, MidpointRounding.AwayFromZero)}");
             }
 
             Exercise = new Dictionary<string, string>(Exercise);
@@ -703,7 +703,7 @@ namespace InsulinSensitivity.Statistic
                     new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
                     {
                         Label = x.Key.ToString("dd.MM.yy"),
-                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero)} " +
                             $"({basalsPerDay.FirstOrDefault(y => y.Date == x.Key).Dose})",
                         ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                             ? SkiaSharp.SKColors.White
@@ -775,7 +775,7 @@ namespace InsulinSensitivity.Statistic
                     new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
                     {
                         Label = x.Key.ToString(),
-                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 2, MidpointRounding.AwayFromZero)} " +
+                        ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero)} " +
                             $"({basalsCalculateWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
                         ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                             ? SkiaSharp.SKColors.White
@@ -855,7 +855,7 @@ namespace InsulinSensitivity.Statistic
                         new ChartEntry((float)x.Value.Average())
                         {
                             Label = x.Key.ToString(),
-                            ValueLabel = $"{Methods.Round(x.Value.Average(), 2)} ({Methods.Round(x.Value.Average() / GlobalParameters.User.CarbohydrateCoefficient, 2)})",
+                            ValueLabel = $"{Methods.Round(x.Value.Average(), 1)} ({Methods.Round(x.Value.Average() / GlobalParameters.User.CarbohydrateCoefficient, 1)})",
                             ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                                 ? SkiaSharp.SKColors.White
                                 : SkiaSharp.SKColors.Black,
