@@ -32,6 +32,9 @@
             x:Key="LabelTable">
 
             <Setter
+                Property="BackgroundColor"
+                Value="{AppThemeBinding Dark='#1c1c1c', Light=White}" />
+            <Setter
                 Property="Margin"
                 Value="0" />
             <Setter
