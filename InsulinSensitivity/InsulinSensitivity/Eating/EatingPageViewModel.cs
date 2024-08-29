@@ -1283,27 +1283,27 @@ namespace InsulinSensitivity.Eating
 
                         if (eating.IsCannulaReplacement && messages[0] == null)
                             messages[0] = days >= GlobalParameters.User.CannulaLifespan
-                                ? $"Канюля используется уже {days} дней."
+                                ? $"Канюля используется уже {days} д."
                                 : "";
 
                         if (eating.IsCatheterReplacement && messages[1] == null)
                             messages[1] = days >= GlobalParameters.User.CatheterLifespan
-                                ? $"Катетер используется уже {days} дней."
+                                ? $"Катетер используется уже {days} д."
                                 : "";
 
                         if (eating.IsCartridgeReplacement && messages[2] == null)
                             messages[2] = days >= GlobalParameters.User.CartridgeLifespan
-                                ? $"Картридж используется уже {days} дней."
+                                ? $"Картридж используется уже {days} д."
                                 : "";
 
                         if (eating.IsBatteryReplacement && messages[3] == null)
                              messages[3] = days >= GlobalParameters.User.BatteryLifespan
-                                ? $"Батарейка используется уже {days} дней."
+                                ? $"Батарейка используется уже {days} д."
                                 : "";
 
                         if (eating.IsMonitoringReplacement && messages[4] == null)
                             messages[4] = days >= GlobalParameters.User.MonitoringLifespan
-                               ? $"Сенсор используется уже {days} дней."
+                               ? $"Сенсор используется уже {days} д."
                                : "";
                     }
 
@@ -3101,40 +3101,41 @@ namespace InsulinSensitivity.Eating
                 "Да",
                 "Нет");
 
-            if (!question)
-                return;
-
-            using (var db = new ApplicationContext(GlobalParameters.DbPath))
+            if (question)
             {
-                var exercise = db.Exercises.Find(Eating.Exercise.Id);
-                if (exercise != null)
-                    db.Exercises.Remove(exercise);
+                using (var db = new ApplicationContext(GlobalParameters.DbPath))
+                {
+                    var exercise = db.Exercises.Find(Eating.Exercise.Id);
+                    if (exercise != null)
+                        db.Exercises.Remove(exercise);
 
-                var injections = db.Injections
-                    .Where(x =>
-                        x.EatingId == Eating.Id)
-                    .ToList();
+                    var injections = db.Injections
+                        .Where(x =>
+                            x.EatingId == Eating.Id)
+                        .ToList();
 
-                foreach (var injection in injections)
-                    db.Injections.Remove(injection);
+                    foreach (var injection in injections)
+                        db.Injections.Remove(injection);
 
-                var dimensions = db.IntermediateDimensions
-                    .Where(x =>
-                        x.EatingId == Eating.Id)
-                    .ToList();
+                    var dimensions = db.IntermediateDimensions
+                        .Where(x =>
+                            x.EatingId == Eating.Id)
+                        .ToList();
 
-                foreach (var dimension in dimensions)
-                    db.IntermediateDimensions.Remove(dimension);
+                    foreach (var dimension in dimensions)
+                        db.IntermediateDimensions.Remove(dimension);
 
-                var eating = db.Eatings.Find(Eating.Id);
-                if (eating != null)
-                    db.Eatings.Remove(eating);
+                    var eating = db.Eatings.Find(Eating.Id);
+                    if (eating != null)
+                        db.Eatings.Remove(eating);
 
-                db.SaveChanges();
+                    db.SaveChanges();
 
-                MessagingCenter.Send(this, "Eating");
-                await GlobalParameters.Navigation.PopAsync();
+                    MessagingCenter.Send(this, "Eating");
+                    await GlobalParameters.Navigation.PopAsync();
+                }
             }
+
             AsyncBase.Close();
         }
 
