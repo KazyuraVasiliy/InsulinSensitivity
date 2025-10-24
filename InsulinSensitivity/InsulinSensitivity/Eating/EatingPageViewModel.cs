@@ -1390,8 +1390,8 @@ namespace InsulinSensitivity.Eating
                             {
                                 var percent = (int)Math.Round((insulin.percent ?? 0) + 100, 0);
 
-                                BasalRateCoefficient = percent;
-                                BasalRate = percent != 0
+                                Eating.BasalRateCoefficient = percent;
+                                Eating.BasalRate = percent != 0
                                     ? Math.Round((insulin.rate ?? 0) * 100 / percent, 2)
                                     : 0;
                             }
@@ -3131,7 +3131,7 @@ namespace InsulinSensitivity.Eating
 
                     db.SaveChanges();
 
-                    MessagingCenter.Send(this, "Eating");
+                    MessagingCenter.Send(this, "DeleteEating", eating.Id);
                     await GlobalParameters.Navigation.PopAsync();
                 }
             }

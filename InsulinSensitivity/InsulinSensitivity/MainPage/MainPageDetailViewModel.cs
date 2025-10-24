@@ -169,6 +169,9 @@ namespace InsulinSensitivity
             MessagingCenter.Subscribe<Eating.EatingPageViewModel, Guid>(this, "Eating",
                 (sender, args) => InitEatings(args));
 
+            MessagingCenter.Subscribe<Eating.EatingPageViewModel, Guid>(this, "DeleteEating",
+                (sender, args) => DeleteEating(args));
+
             MessagingCenter.Subscribe<InsulinType.InsulinTypePageViewModel>(this, "InsulinType",
                 (sender) => ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin);
 
@@ -256,6 +259,27 @@ namespace InsulinSensitivity
                 }
             }
             
+            OnPropertyChanged(nameof(LastEating));
+            ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
+        }
+
+        /// <summary>
+        /// Удаление приёма пищи
+        /// </summary>
+        private void DeleteEating(Guid args)
+        {
+            foreach (var group in Eatings)
+            {
+                var item = group
+                    .FirstOrDefault(x => x.Id == args);
+
+                if (item != null)
+                {
+                    group.Remove(item);
+                    break;
+                }                
+            }
+
             OnPropertyChanged(nameof(LastEating));
             ActiveInsulin = GlobalMethods.GetActiveInsulin().insulin;
         }
