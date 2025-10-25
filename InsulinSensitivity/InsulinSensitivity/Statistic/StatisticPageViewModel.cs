@@ -45,6 +45,20 @@ namespace InsulinSensitivity.Statistic
             GlobalParameters.IsCycleSettingsAccess &&
             GlobalParameters.User.IsPregnancy;
 
+        private bool isPreviousPregnancyChartVisibility;
+        /// <summary>
+        /// Видна ли статистика по предыдущей беременности
+        /// </summary>
+        public bool IsPreviousPregnancyChartVisibility
+        {
+            get => isPreviousPregnancyChartVisibility;
+            set
+            {
+                isPreviousPregnancyChartVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool isRefreshing;
         /// <summary>
         /// Указывает на то, что обновление завершено
@@ -125,6 +139,20 @@ namespace InsulinSensitivity.Statistic
             set
             {
                 pregnancyWidthRequest = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double previousPregnancyWidthRequest;
+        /// <summary>
+        /// Ширина графика ФЧИ по предыдущей беременности
+        /// </summary>
+        public double PreviousPregnancyWidthRequest
+        {
+            get => previousPregnancyWidthRequest;
+            set
+            {
+                previousPregnancyWidthRequest = value;
                 OnPropertyChanged();
             }
         }
@@ -329,6 +357,20 @@ namespace InsulinSensitivity.Statistic
             }
         }
 
+        public LineChart previousPregnancyChart;
+        /// <summary>
+        /// График ФЧИ по предыдущей беременности
+        /// </summary>
+        public LineChart PreviousPregnancyChart
+        {
+            get => previousPregnancyChart;
+            set
+            {
+                previousPregnancyChart = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -349,6 +391,7 @@ namespace InsulinSensitivity.Statistic
             AsyncBase.Open("Инициализация\nПожалуйста, подождите");
 
             var cycles = new List<DataAccessLayer.Models.MenstrualCycle>();
+            var pregnancies = new List<DataAccessLayer.Models.Pregnancy>();
             var eatings = new List<DataAccessLayer.Models.Eating>();
 
             using (var db = new ApplicationContext(GlobalParameters.DbPath))
@@ -358,6 +401,12 @@ namespace InsulinSensitivity.Statistic
 
                 // Менструальные циклы
                 cycles = await db.MenstrualCycles
+                    .AsNoTracking()
+                    .OrderBy(x => x.DateStart)
+                    .ToListAsync();
+
+                // Беременности
+                pregnancies = await db.Pregnancies
                     .AsNoTracking()
                     .OrderBy(x => x.DateStart)
                     .ToListAsync();
@@ -545,8 +594,13 @@ namespace InsulinSensitivity.Statistic
             // График ФЧИ по беременности
             if (GlobalParameters.IsCycleSettingsAccess && GlobalParameters.User.IsPregnancy && (cycles?.Count ?? 0) > 0)
             {
-                // Дата последней менструации
-                LastMenstruationDate = cycles.Last().DateStart.Date;
+                // Дата последней менструации (дата начала беременности)
+                var currentPregnancy = pregnancies
+                    .FirstOrDefault(x => x.IsOpen);
+
+                LastMenstruationDate = currentPregnancy != null
+                    ? currentPregnancy.DateStart
+                    : cycles.Last().DateStart.Date;
 
                 var pregnancyBasalWeeks = basalsPerDay
                     .Where(x => x.Date >= LastMenstruationDate)
@@ -585,6 +639,67 @@ namespace InsulinSensitivity.Statistic
                     LineMode = LineMode.Spline,
                     LabelTextSize = 24,
                     Entries = pregnancyWeeks,
+
+                    LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                        ? SkiaSharp.SKColors.White
+                        : SkiaSharp.SKColors.Black,
+                    BackgroundColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                        ? new SkiaSharp.SKColor(29, 29, 29)
+                        : SkiaSharp.SKColors.White,
+                };
+            }
+
+            // График ФЧИ по предыдущей беременности
+            if (GlobalParameters.IsCycleSettingsAccess && GlobalParameters.User.IsPregnancy && pregnancies.Any(x => !x.IsOpen && x.DateEnd != null) && pregnancies.Any(x => x.IsOpen))
+            {
+                IsPreviousPregnancyChartVisibility = true;
+
+                // Предыдущая беременность
+                var previousPregnancy = pregnancies
+                    .LastOrDefault(x => 
+                        !x.IsOpen && 
+                        x.DateEnd != null);
+
+                // День предыдущей беременности эквивалентный текущей
+                var currentPregnancy = pregnancies
+                    .FirstOrDefault(x => x.IsOpen);
+
+                var pregnancyDay = (DateTime.Now.Date - currentPregnancy.DateStart.Date).TotalDays;
+                var previousPregnancyDay = previousPregnancy.DateStart.Date.AddDays(pregnancyDay);
+
+                var dayIterator = 1;
+
+                var previousPregnancyEntries = eatings
+                    .Where(x => 
+                        x.DateCreated.Date >= previousPregnancy.DateStart.Date &&
+                        x.DateCreated.Date <= previousPregnancy.DateEnd.Value.Date)
+                    .OrderBy(x => x.DateCreated.Date)
+                    .GroupBy(x => x.DateCreated.Date)
+                    .Select(x =>
+                        new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
+                        {
+                            Label = $"{dayIterator++} - {x.Key:dd.MM.yy}",
+                            ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero)} " +
+                                $"({basalsPerDay.FirstOrDefault(y => y.Date == x.Key).Dose})",
+                            ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
+                                ? SkiaSharp.SKColors.White
+                                : SkiaSharp.SKColors.Black,
+
+                            Color = x.Key == previousPregnancyDay
+                                ? SkiaSharp.SKColors.Green
+                                : App.Current.RequestedTheme == OSAppTheme.Dark
+                                    ? SkiaSharp.SKColors.LightSkyBlue
+                                    : SkiaSharp.SKColors.Blue
+                        })
+                    .ToList();
+
+                PreviousPregnancyWidthRequest = (previousPregnancyEntries?.Count() ?? 0) * 15;
+
+                PreviousPregnancyChart = new LineChart()
+                {
+                    LineMode = LineMode.Spline,
+                    LabelTextSize = 24,
+                    Entries = previousPregnancyEntries,
 
                     LabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                         ? SkiaSharp.SKColors.White

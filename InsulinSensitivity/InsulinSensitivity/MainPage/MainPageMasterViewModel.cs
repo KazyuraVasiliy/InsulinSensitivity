@@ -50,6 +50,7 @@ namespace InsulinSensitivity
                 new MainPageMasterItemModel("\xe0e3", "Активности", EditExerciseTypeCommand),
                 new MainPageMasterItemModel("\xe120", "Периоды", EditEatingTypeCommand),
                 new MainPageMasterItemModel("\xe010", "Циклы", EditMenstrualCycleCommand),
+                new MainPageMasterItemModel("\xe128", "Беременности", EditPregnancyCommand),
                 new MainPageMasterItemModel("\xe0e0", "Расходка", EditExpendableMaterialCommand),
                 new MainPageMasterItemModel("\xe091", "Инсулины", EditInsulinTypeCommand, true),
                 //new MainPageMasterItemModel("\xe062", "Экспорт", ExportCommand),
@@ -283,6 +284,33 @@ namespace InsulinSensitivity
 
         public ICommand EditMenstrualCycleCommand =>
             new Command(EditMenstrualCycleExecute, EditMenstrualCycleCanExecute);
+
+        #endregion
+
+        #region --Edit Pregnancy 
+
+        private async void EditPregnancyExecute()
+        {
+            if (!EditPregnancyCanExecute())
+            {
+                await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                    "Ошибка",
+                    "Вам недоступен данный раздел",
+                    "Ok");
+                return;
+            }
+
+            var pregnancyPage = new Pregnancy.PregnancyPage();
+            pregnancyPage.BindingContext = new Pregnancy.PregnancyPageViewModel();
+
+            await GlobalParameters.Navigation.PushAsync(pregnancyPage, true);
+        }
+
+        private bool EditPregnancyCanExecute() =>
+            GlobalParameters.User?.Gender == false;
+
+        public ICommand EditPregnancyCommand =>
+            new Command(EditPregnancyExecute, EditPregnancyCanExecute);
 
         #endregion
 

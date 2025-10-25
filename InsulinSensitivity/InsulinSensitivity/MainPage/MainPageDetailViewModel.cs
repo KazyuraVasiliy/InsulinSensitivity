@@ -154,14 +154,14 @@ namespace InsulinSensitivity
             }
 
             InitEatings();
-            RemoveCycle();
+            RemoveInaccessibleOptions();
 
             // Подписки на события
             MessagingCenter.Subscribe<User.UserPageViewModel>(this, "User",
                 (sender) =>
                 {
                     InitEatings();
-                    RemoveCycle();
+                    RemoveInaccessibleOptions();
 
                     OnPropertyChanged(nameof(TargetGlucose));
                 });
@@ -285,17 +285,17 @@ namespace InsulinSensitivity
         }
 
         /// <summary>
-        /// Удаляет цикл из меню
+        /// Удаляет недоступные опции из меню
         /// </summary>
-        private void RemoveCycle()
+        private void RemoveInaccessibleOptions()
         {
             if (!GlobalParameters.IsCycleSettingsAccess)
             {
                 var master = ((MasterDetailPage)App.Current.MainPage).Master as MainPageMaster;
                 var context = master.BindingContext as MainPageMasterViewModel;
 
-                var item = context.Items.FirstOrDefault(x => x.Name == "Циклы");
-                if (item != null)
+                var items = context.Items.Where(x => x.Name == "Циклы" || x.Name == "Беременности");
+                foreach (var item in items)
                     context.Items.Remove(item);
             }            
         }

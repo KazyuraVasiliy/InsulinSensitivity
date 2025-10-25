@@ -241,5 +241,10 @@ namespace DataAccessLayer.Models
         /// Менструальные циклы (Навигационное свойство)
         /// </summary>
         public virtual List<MenstrualCycle> MenstrualCycles { get; set; }
+
+        /// <summary>
+        /// Беременности (Навигационное свойство)
+        /// </summary>
+        public virtual List<Pregnancy> Pregnancies { get; set; }
     }
 }

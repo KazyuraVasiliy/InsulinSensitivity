@@ -207,6 +207,33 @@
                         </Frame>
 
                         <Frame
+                            Style="{StaticResource Frame}"
+                            IsVisible="{Binding Path=IsPreviousPregnancyChartVisibility}">
+
+                            <StackLayout
+                                Spacing="0">
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalTextAlignment="Center"
+                                    HorizontalOptions="CenterAndExpand"
+                                    Text="ФЧИ по дням предыдущей беременности" />
+
+                                <ScrollView
+                                    HeightRequest="400"
+                                    HorizontalOptions="FillAndExpand"
+                                    HorizontalScrollBarVisibility="Always"
+                                    Orientation="Horizontal">
+
+                                    <microcharts:ChartView
+                                        WidthRequest="{Binding Path=PreviousPregnancyWidthRequest}"
+                                        Chart="{Binding Path=PreviousPregnancyChart}" />
+                                </ScrollView>
+                            </StackLayout>
+                        </Frame>
+
+                        <Frame
                             Style="{StaticResource Frame}">
 
                             <StackLayout

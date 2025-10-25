@@ -276,6 +276,15 @@ namespace InsulinSensitivity
             });
 
         /// <summary>
+        /// Отображает сообщение
+        /// </summary>
+        public static async Task ShowMessage(string message) =>
+            await GlobalParameters.Navigation.NavigationStack.Last().DisplayAlert(
+                "Информация",
+                message,
+                "Ok");
+
+        /// <summary>
         /// Отображает запрос (Да / Нет)
         /// </summary>
         public static async Task<bool> AskAQuestion(string question) =>

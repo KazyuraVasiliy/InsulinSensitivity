@@ -43,6 +43,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Pregnancy\PregnancyPage.xaml.cs">
+      <DependentUpon>PregnancyPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="User\UserPage.xaml.cs">
       <DependentUpon>UserPage.xaml</DependentUpon>
     </Compile>

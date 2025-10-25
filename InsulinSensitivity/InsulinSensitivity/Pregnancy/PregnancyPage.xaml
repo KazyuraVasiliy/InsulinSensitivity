@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="InsulinSensitivity.Pregnancy.PregnancyPage"
+    xmlns:converters="clr-namespace:BusinessLogicLayer.Converters;assembly=BusinessLogicLayer"
+    xmlns:s="clr-namespace:System;assembly=mscorlib"
+    x:Name="Page"
+             Title="Беременности">
+
+    <ContentPage.Resources>
+        <converters:InversionBoolConverter
+            x:Key="InversionBoolConverter" />
+
+        <s:Boolean
+            x:Key="True">True</s:Boolean>
+        <s:Boolean
+            x:Key="False">False</s:Boolean>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="80"/>
+            </Grid.ColumnDefinitions>
+
+            <ListView
+                Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="0" Grid.ColumnSpan="3"
+                HasUnevenRows="True"
+                SelectionMode="None"
+                SeparatorVisibility="None"
+                IsPullToRefreshEnabled="True"
+                RefreshCommand="{Binding Path=RefreshCommand}"
+                IsRefreshing="{Binding Path=IsRefreshing}"
+                ItemsSource="{Binding Path=Pregnancies}">
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Frame Style="{StaticResource Frame}">
+                                    <Label
+                                        Grid.Column="1"
+                                        VerticalTextAlignment="End"
+                                        HorizontalTextAlignment="Center"
+                                        FontSize="14"
+                                        FontAttributes="Bold">
+
+                                        <Label.Text>
+                                            <MultiBinding
+                                                StringFormat="{}{0:dd.MM.yyyy} - {1:dd.MM.yyyy}">
+                                                <Binding
+                                                    Path="DateStart"
+                                                    FallbackValue="" />
+                                                <Binding
+                                                    Path="DateEnd"
+                                                    FallbackValue="" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                </Frame>
+                            </ViewCell.View>
+                            <ViewCell.ContextActions>
+                                <MenuItem
+                                    Text="Изменить"
+                                    Command="{Binding Path=BindingContext.EditCommand, Source={x:Reference Page}}"
+                                    CommandParameter="{Binding .}"
+                                    IsDestructive="True" />
+                                <MenuItem
+                                    Text="Удалить"
+                                    Command="{Binding Path=BindingContext.RemoveCommand, Source={x:Reference Page}}"
+                                    CommandParameter="{Binding .}"
+                                    IsDestructive="True" />
+                            </ViewCell.ContextActions>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Button
+                Grid.Row="1" Grid.Column="2"
+                Margin="0, 0, 20, 20"
+                BackgroundColor="ForestGreen"
+                CornerRadius="30"
+                Text="&#xe0cf;"
+                FontSize="30"
+                FontFamily="Typicons"
+                TextColor="White"
+                Command="{Binding Path=AddCommand}"/>
+
+            <Grid
+                Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="0" Grid.ColumnSpan="3"
+                BackgroundColor="{AppThemeBinding Dark='#80404040', Light='#80808080'}"
+                IsVisible="{Binding Path=IsModal}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Frame
+                    Style="{StaticResource FrameBackgroundBase}"
+                    Grid.Row="1" Grid.Column="1">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition />
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- https://github.com/xamarin/Xamarin.Forms/issues/9033#issuecomment-762781496 -->
+                        <Grid 
+                            Grid.Row="0" Grid.ColumnSpan="2"
+                            RowSpacing="0">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Text="Дата начала беременности:"/>
+
+                            <DatePicker
+                                Grid.Row="1"
+                                TabIndex="2"
+                                Date="{Binding Source={x:Reference materialDatePickerStart}, Path=Date}"/>
+
+                            <DatePicker
+                                x:Name="materialDatePickerStart"
+                                Grid.Row="1"
+                                Visual="Material"
+                                Opacity="0"
+                                HeightRequest="0"
+                                Date="{Binding Path=SelectedPregnancy.DateStart}"/>
+                        </Grid>
+
+                        <Grid
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            RowSpacing="0"
+                            IsEnabled="{Binding Source={Reference switchIsOpen}, Path=IsToggled, Converter={StaticResource InversionBoolConverter}}">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition
+                                    Height="auto" />
+                                <RowDefinition
+                                    Height="auto" />
+                            </Grid.RowDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Text="Дата родов:" />
+
+                            <DatePicker
+                                Grid.Row="1"
+                                TabIndex="2"
+                                Date="{Binding Source={x:Reference materialDatePickerEnd}, Path=Date}">
+
+                                <DatePicker.Style>
+                                    <Style
+                                        TargetType="DatePicker">
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                TargetType="DatePicker"
+                                                Value="{StaticResource True}"
+                                                Binding="{Binding Source={Reference switchIsOpen}, Path=IsToggled}">
+
+                                                <Setter
+                                                    Property="TextColor"
+                                                    Value="LightGray" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DatePicker.Style>
+                            </DatePicker>
+
+                            <DatePicker
+                                x:Name="materialDatePickerEnd"
+                                Grid.Row="1"
+                                Visual="Material"
+                                Opacity="0"
+                                HeightRequest="0"
+                                Date="{Binding Path=SelectedPregnancy.DateEnd}">
+
+                                <DatePicker.Style>
+                                    <Style
+                                        TargetType="DatePicker">
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                TargetType="DatePicker"
+                                                Value="{StaticResource True}"
+                                                Binding="{Binding Source={Reference switchIsOpen}, Path=IsToggled}">
+
+                                                <Setter
+                                                    Property="TextColor"
+                                                    Value="LightGray" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DatePicker.Style>
+                            </DatePicker>
+                        </Grid>
+
+                        <Grid
+                            Grid.Row="2"
+                            Grid.ColumnSpan="2"
+                            RowSpacing="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition
+                                    Width="auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Margin="0, 0, 0, 5"
+                                VerticalOptions="Center"
+                                Text="Открытая беременность:" />
+
+                            <Switch
+                                x:Name="switchIsOpen"
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                IsToggled="{Binding Path=SelectedPregnancy.IsOpen}" />
+                        </Grid>
+
+                        <Button
+                            Grid.Row="3" Grid.Column="0"
+                            Text="Отмена"
+                            Command="{Binding Path=CancelCommand}"/>
+
+                        <Button
+                            Grid.Row="3" Grid.Column="1"
+                            Text="Сохранить"
+                            Command="{Binding Path=SaveCommand}"/>
+                    </Grid>
+                </Frame>
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

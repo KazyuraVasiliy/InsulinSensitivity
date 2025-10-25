@@ -281,6 +281,53 @@ namespace InsulinSensitivity.Settings
                     }
                 }
 
+                if (user.IsPregnancy != IsPregnancy)
+                {
+                    var pregnancy = await db.Pregnancies
+                        .FirstOrDefaultAsync(x => x.IsOpen);
+
+                    if (IsPregnancy)
+                    {
+                        if (pregnancy != null)
+                        {
+                            var question = "У вас уже есть открытая беременность, изменить дату начала?";
+                            var answer = await GlobalMethods.AskAQuestion(question);
+
+                            if (answer)
+                                pregnancy.DateStart = DateTime.Now;
+                        }
+                        else
+                        {
+                            await db.Pregnancies.AddAsync(new Models.Pregnancy()
+                            {
+                                Id = Guid.NewGuid(),
+                                UserId = user.Id,
+                                DateStart = DateTime.Now,
+                                IsOpen = true
+                            });
+                        }
+                    }
+                    else
+                    {
+                        if (pregnancy != null)
+                        {
+                            var question = "Закрыть открытую беременность?";
+                            var answer = await GlobalMethods.AskAQuestion(question);
+
+                            if (answer)
+                            {
+                                pregnancy.DateEnd = DateTime.Now;
+                                pregnancy.IsOpen = false;
+                            }                            
+                        }
+                        else
+                        {
+                            var message = "У вас нет открытой беременности, вы можете создать её в разделе 'Беременности'";
+                            await GlobalMethods.ShowMessage(message);
+                        }
+                    }
+                }
+
                 if (IsPregnancy)
                     IsCycleCalculateActive = false;
 
