@@ -660,32 +660,32 @@ namespace InsulinSensitivity.Statistic
                         !x.IsOpen && 
                         x.DateEnd != null);
 
-                // День предыдущей беременности эквивалентный текущей
-                var currentPregnancy = pregnancies
-                    .FirstOrDefault(x => x.IsOpen);
-
-                var pregnancyDay = (DateTime.Now.Date - currentPregnancy.DateStart.Date).TotalDays;
-                var previousPregnancyDay = previousPregnancy.DateStart.Date.AddDays(pregnancyDay);
-
-                var dayIterator = 1;
+                var previousPregnancyBasalWeeks = basalsPerDay
+                    .Where(x =>
+                        x.Date >= previousPregnancy.DateStart.Date &&
+                        x.Date <= previousPregnancy.DateEnd.Value.Date)
+                    .GroupBy(x => (int)(x.Date - previousPregnancy.DateStart.Date).TotalDays / 7)
+                    .Select(x => (
+                        x.Key,
+                        x.Count() > 0 ? Math.Round(x.Average(y => y.Dose), 1, MidpointRounding.AwayFromZero) : 0));
 
                 var previousPregnancyEntries = eatings
                     .Where(x => 
                         x.DateCreated.Date >= previousPregnancy.DateStart.Date &&
                         x.DateCreated.Date <= previousPregnancy.DateEnd.Value.Date)
-                    .OrderBy(x => x.DateCreated.Date)
-                    .GroupBy(x => x.DateCreated.Date)
+                    .GroupBy(x => (int)(x.DateCreated.Date - previousPregnancy.DateStart.Date).TotalDays / 7)
+                    .OrderBy(x => x.Key)
                     .Select(x =>
                         new ChartEntry((float)x.Average(y => y.InsulinSensitivityFact))
                         {
-                            Label = $"{dayIterator++} - {x.Key:dd.MM.yy}",
-                            ValueLabel = $"{Math.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1, MidpointRounding.AwayFromZero)} " +
-                                $"({basalsPerDay.FirstOrDefault(y => y.Date == x.Key).Dose})",
+                            Label = (x.Key + 1).ToString(),
+                            ValueLabel = $"{Methods.Round(x.Average(y => y.InsulinSensitivityFact.Value), 1)} " +
+                                $"({previousPregnancyBasalWeeks.FirstOrDefault(y => y.Key == x.Key).Item2})",
                             ValueLabelColor = App.Current.RequestedTheme == OSAppTheme.Dark
                                 ? SkiaSharp.SKColors.White
                                 : SkiaSharp.SKColors.Black,
 
-                            Color = x.Key == previousPregnancyDay
+                            Color = PregnancyWeek == x.Key
                                 ? SkiaSharp.SKColors.Green
                                 : App.Current.RequestedTheme == OSAppTheme.Dark
                                     ? SkiaSharp.SKColors.LightSkyBlue
